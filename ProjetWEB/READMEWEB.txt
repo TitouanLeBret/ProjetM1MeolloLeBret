@@ -18,3 +18,6 @@ Réflexion sur les différents langages a utiliser our le projet WEB (gestion co
 					Leaflet pour la carte (ou mambos)
 					OpenrouteService pour GPX 
 					Leaflet avec plugins d’altitud pour afficher l’altitude
+
+Idée maquette WEB : 
+        https://www.figma.com/design/amrZdVVDUFribXdWAmQT8O/Untitled?node-id=0-1&node-type=canvas&t=X3b16CzSb3xfNHJF-0
