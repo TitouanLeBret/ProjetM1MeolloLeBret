@@ -2,7 +2,7 @@
 
 // Modules ... 
 use iced::theme::{Theme};
-use iced::widget::{button, container, text, Button, Column, TextInput};
+use iced::widget::{button, container, text, Button, Column, TextInput,Text};
 use iced:: { Alignment, Sandbox, Settings, Element, Background, Shadow, Vector, Border, Padding,Length};
 use iced::alignment::{Horizontal, Vertical};
 
@@ -11,71 +11,44 @@ use super::check_enc_page;
 use super::components;
 use super::home_page;
 
-pub fn main() -> iced::Result {
-    RustUI::run(Settings::default())
-}
 
-pub struct RustUI{
-    //Définir les variable principale
+
+
+
+
+
+pub struct App{
+    current_page: Page, // Page 1,2 ,3 etc 
+    home_page : home_page::HomePage,
+    valid_rsa_chif_page: check_enc_page::ValidRsaChifPage,
     theme: Theme, // Noir ou blanc
-    page: Page, // Page 1,2 ,3 etc 
 }
 
-
-//enum pour les pages, chaque variable dans Page va créer une nouvelle view/page
-#[derive(Debug,Clone,PartialEq,Eq)]
-enum Page{Accueil,ValiditeRSAChiffrement, ValiditeRSASignature, SecuriteRSAChiffrement, SecuriteRSASignature} //Peut importe les noms de variable
-
-//callback events
-#[derive(Debug,Clone)]
-pub enum Message {
-    ToggleTheme, //light/dark
-    Router(String), // Change la page en fonctio nde la route indique
-}
-
-//Sandbox pour RustUI
-
-impl Sandbox for RustUI{
+impl Sandbox for App{
     type Message = Message;
 
     fn new() -> Self {
         Self {
+            current_page: Page::Home, // Page 1,2 ,3 etc 
+            home_page : home_page::HomePage::new(),
+            valid_rsa_chif_page: check_enc_page::ValidRsaChifPage::new(),
             theme: Theme::Dark, // Drak theme
-            page: Page::Accueil,// Page de login
         }
-    }
-
-    //definir le titre de l'app
-    fn title(&self) -> String {
-        String::from("Rust UI - Iced")
-    }
-
-    fn theme(&self) ->Theme {
-        self.theme.clone() //retourn une copie du theme
     }
 
     //Définir la méthode update
     fn update(&mut self, message: Message) {
         match message {
-            Message::ToggleTheme => {
-                self.theme = if self.theme == Theme::Light {
-                    Theme::Dark
-                }else {
-                    Theme::Light
-                }
-            }
-            /*
-            Message::LoginFieldChanged(email, password) => {
-                self.login_field.email = email;
-                self.login_field.password = password;
-            }*/
-            Message::Router(route)=> {
+
+            Message::Router(page)=> {
+                self.current_page = page;
+                /*
                 if route == "accueil" {
                     self.page = Page::Accueil;
                 } else if route == "check_enc_page" {
-                    self.page = Page::ValiditeRSAChiffrement;
+                    self.current_page =check_enc_page::ValidRsaChifPage::new();
                 } 
-                /*else if route == "validRsaSign" {
+                else if route == "validRsaSign" {
                     self.page = Page::ValiditeRSASignature;
                 }else if route == "secuRsaChif" {
                     self.page = Page::SecuriteRSAChiffrement;
@@ -83,67 +56,115 @@ impl Sandbox for RustUI{
                     self.page = Page::SecuriteRSASignature;
                 }*/
             }
+/*
+            Message::PageSpecific(msg) => {
+                // Rediriger vers l'update de la page active
+                match self.current_page {
+                    Page::Home => self.home_page.update(msg),
+                    Page::ValiditeRSAChiffrement => self.valid_rsa_chif_page.update(msg),
+                    // Ajouter les autres pages ici
+                }
+            }
+*/
+
+            Message::FieldChangedRsaChiff(n_val,p_val ,q_val ,e_val ,d_val ) => {
+                self.valid_rsa_chif_page.update(n_val,p_val ,q_val ,e_val ,d_val );
+            }
+
+            Message::ToggleTheme => {
+                self.theme = if self.theme == Theme::Light {
+                    Theme::Dark
+                }else {
+                    Theme::Light
+                }
+            }
             
         }
     }
 
+
     //Méthode view -> c'est ou l'UI va chercher la page
     fn view(&self) -> Element<Message> {
-
-        let content = match self.page {
-            Page::Accueil => home_page::page_accueil(), //page_accueil(),
-            Page::ValiditeRSAChiffrement => check_enc_page::check_enc_page_fn(),
-            Page::ValiditeRSASignature => check_enc_page::check_enc_page_fn(),
-            Page::SecuriteRSAChiffrement => check_enc_page::check_enc_page_fn(),
-            Page::SecuriteRSASignature => check_enc_page::check_enc_page_fn(),
-        };
-
-        let wrapper = Column::new()
-            .spacing(50)
-            .width(Length::Fill)
-            .align_items(Alignment::Center)
-            .push(content)
-            .push(
-                match self.page {
-                    Page::Accueil => components::page_footer(
-                        vec![
-                        button("Validite RSA Chiffrement")
-                            .on_press(Message::Router("check_enc_page".to_string()))
-                            .style(iced::theme::Button::Custom(Box::new(ButtonStyle::ThemeButton))),
-                        button("Validite RSA Signature")
-                            .on_press(Message::Router("validRsaSign".to_string()))
-                            .style(iced::theme::Button::Custom(Box::new(ButtonStyle::ThemeButton))),
-                        button("Securite RSA Chiffrement")
-                            .on_press(Message::Router("secuRsaChif".to_string()))
-                            .style(iced::theme::Button::Custom(Box::new(ButtonStyle::ThemeButton))),
-                        button("Securite RSA Signature")
-                            .on_press(Message::Router("secuRsaSign".to_string()))
-                        .style(iced::theme::Button::Custom(Box::new(ButtonStyle::ThemeButton)))
-                        ]
-                    ),
-                    Page::ValiditeRSAChiffrement | Page::ValiditeRSASignature | Page::SecuriteRSAChiffrement | Page::SecuriteRSASignature => components::page_footer(
-                        vec![
-                        button("Page d'accueil")
-                            .on_press(Message::Router("accueil".to_string()))
-                            .style(iced::theme::Button::Custom(Box::new(ButtonStyle::ThemeButton)))
-                        ]
-                    ),
-                }
-            );
-
-        //Text::new("Hello, World!").into();
-        //let btn = submit_btn("Boutton de test", Message::ToggleTheme);
-
-        container(wrapper)
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .padding(Padding::from(20))
-            .center_x()
-            .center_y()
-            .style(iced::theme::Container::Custom(Box::new(ContainerStyle)))
-            .into()
+        match self.current_page {
+            Page::Home => self.home_page.view(),
+            Page::ValiditeRSAChiffrement => self.valid_rsa_chif_page.view(),
+        }
     }
+
+
+
+    //definir le titre de l'app
+    fn title(&self) -> String {
+        String::from("Projet Rust RSA")
+    }
+
+    fn theme(&self) ->Theme {
+        self.theme.clone() //retourne une copie du theme
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//enum pour les pages, chaque variable dans Page va créer une nouvelle view/page
+#[derive(Debug,Clone,PartialEq,Eq)]
+pub enum Page {
+    Home,
+    ValiditeRSAChiffrement,
+    /*
+    ValiditeRSASignature,
+    SecuriteRSAChiffrement,
+    SecuriteRSASignature
+    */
+} // liste des pages
+
+
+
+//callback events
+#[derive(Debug,Clone)]
+pub enum Message{
+    Router(Page), // Change la page en fonction de la route indique
+    //PageSpecific(PageMessage),
+    FieldChangedRsaChiff(String, String, String, String, String),
+    //'a est le lifetime de la ref emprunte sur ValidRsaChifPage, valable aussi longtemp que Message<'a>
+    ToggleTheme, //light/dark
+}
+
+
+#[derive(Debug, Clone)]
+pub enum PageMessage {
+    // Messages spécifiques à chaque page
+    FieldChanged(String),
+    ButtonPressed,
+}
+
+
+pub trait PageContent {
+    fn view(&self) -> Element<Message>;
+    fn update(&mut self, message: PageMessage);
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -161,7 +182,7 @@ impl Sandbox for RustUI{
 
 //Style des champs d'entrées
 
-fn input_field( _placeholder:&str,_value : &str,) -> TextInput<'static, Message> {
+fn input_field( _placeholder:&str,_value : &str,) -> TextInput<'static, Message>{
     TextInput::new(_placeholder,_value)
         .width(Length::Fixed(500.0))
         .padding(Padding::from(10))

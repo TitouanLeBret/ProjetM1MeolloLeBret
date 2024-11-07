@@ -46,3 +46,6 @@ impl container::StyleSheet for ContainerStyle {
         }
     }
 }
+
+
+pub struct myField {value : String, label:String}

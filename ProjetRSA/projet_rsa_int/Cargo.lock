@@ -2049,6 +2049,7 @@ name = "projet_rsa_int"
 version = "0.1.0"
 dependencies = [
  "iced",
+ "iced_core",
  "num-bigint",
  "num-traits",
  "rand",

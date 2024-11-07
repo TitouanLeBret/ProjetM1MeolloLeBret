@@ -1,8 +1,8 @@
 mod rsa;
 mod gui;
 use iced::{Sandbox, Settings};
-use gui::gui::RustUI;
+use gui::gui::App;
 
 fn main() -> iced::Result{
-    RustUI::run(Settings::default())
+    App::run(Settings::default())
 }
