@@ -6,6 +6,7 @@ use iced::alignment::{Horizontal, Vertical};
 use iced_core::text::Paragraph;
 
 use super::gui;
+use crate::rsa::check_enc;
 
 
 #[derive(Default,Debug,Clone,PartialEq,Eq)]
@@ -29,6 +30,7 @@ impl ValidRsaChifPage {
             check_button: button::State::new(),
         }
     }
+
     pub fn update(&mut self ,n_val: String,p_val: String ,q_val: String ,e_val: String ,d_val: String) {
         self.n_value = n_val.clone();
         self.p_value = p_val.clone();
@@ -36,6 +38,7 @@ impl ValidRsaChifPage {
         self.e_value = e_val.clone();
         self.d_value = d_val.clone();
     }
+
 
     pub fn view(&self) -> Element<gui::Message> {
         let wrapper = Column::new()
@@ -50,6 +53,7 @@ impl ValidRsaChifPage {
                             self.e_value.clone(),
                             self.d_value.clone(),
                             )
+                        
                         }
                     )
                 )
@@ -78,10 +82,34 @@ impl ValidRsaChifPage {
                             )
                         }
                     )
-            )
-            .push(input_field("q : ", &self.q_value))
-            .push(input_field("d : ", &self.d_value));
-            //.push(chek_button);
+                )
+            .push(input_field("q : ", &self.q_value)
+                .on_input(
+                    | q_value | {
+                        gui::Message::FieldChangedRsaChiff(
+                            self.n_value.clone(), 
+                            self.p_value.clone(),
+                            q_value,
+                            self.e_value.clone(),
+                            self.d_value.clone(),
+                            )
+                        }
+                    )
+                )
+            .push(input_field("d : ", &self.d_value)
+                .on_input(
+                    | d_value | {
+                        gui::Message::FieldChangedRsaChiff(
+                            self.n_value.clone(), 
+                            self.p_value.clone(),
+                            self.q_value.clone(),
+                            self.e_value.clone(),
+                            d_value,
+                            )
+                        }
+                    )
+                )
+            .push(button("Vérifier la validité").on_press(gui::Message::CheckButtonPressedRsaChiff));
 
         container(wrapper)
             .width(Length::Fill)
@@ -91,6 +119,20 @@ impl ValidRsaChifPage {
             .into()
     }
 
+
+    //Méthode qui affiche les valeurs entrées dans les champs
+    pub fn display_values(&self) {
+        println!("Values are: N:{}, E:{}, P:{}, Q:{}, D:{}",self.n_value.clone(), self.e_value.clone(),self.p_value.clone(),self.q_value.clone(),self.d_value.clone());
+    }
+
+
+    pub fn check_values(&self) {
+        if check_enc::all_security_tests(self.n_value.clone(), self.e_value.clone(), self.p_value.clone(), self.q_value.clone(), self.d_value.clone()) {
+            println!("Tous les tests de sécurité ont été réussis");
+        } else {
+            print!("Un ou plusieurs test(s) a/ont échoué(s)");
+        }
+    }
 }
 /*
 impl gui::PageContent for ValidRsaChifPage {

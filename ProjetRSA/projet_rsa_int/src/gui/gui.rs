@@ -21,6 +21,7 @@ pub struct App{
     current_page: Page, // Page 1,2 ,3 etc 
     home_page : home_page::HomePage,
     valid_rsa_chif_page: check_enc_page::ValidRsaChifPage,
+    valid_rsa_sign_page : home_page::HomePage,
     theme: Theme, // Noir ou blanc
 }
 
@@ -32,6 +33,7 @@ impl Sandbox for App{
             current_page: Page::Home, // Page 1,2 ,3 etc 
             home_page : home_page::HomePage::new(),
             valid_rsa_chif_page: check_enc_page::ValidRsaChifPage::new(),
+            valid_rsa_sign_page : home_page::HomePage::new(),
             theme: Theme::Dark, // Drak theme
         }
     }
@@ -42,34 +44,23 @@ impl Sandbox for App{
 
             Message::Router(page)=> {
                 self.current_page = page;
-                /*
-                if route == "accueil" {
-                    self.page = Page::Accueil;
-                } else if route == "check_enc_page" {
-                    self.current_page =check_enc_page::ValidRsaChifPage::new();
-                } 
-                else if route == "validRsaSign" {
-                    self.page = Page::ValiditeRSASignature;
-                }else if route == "secuRsaChif" {
-                    self.page = Page::SecuriteRSAChiffrement;
-                } else if route == "secuRsaSign" {
-                    self.page = Page::SecuriteRSASignature;
-                }*/
             }
-/*
-            Message::PageSpecific(msg) => {
-                // Rediriger vers l'update de la page active
-                match self.current_page {
-                    Page::Home => self.home_page.update(msg),
-                    Page::ValiditeRSAChiffrement => self.valid_rsa_chif_page.update(msg),
-                    // Ajouter les autres pages ici
-                }
-            }
-*/
+//Méthode pour page RSA Chiffrement :
 
             Message::FieldChangedRsaChiff(n_val,p_val ,q_val ,e_val ,d_val ) => {
                 self.valid_rsa_chif_page.update(n_val,p_val ,q_val ,e_val ,d_val );
             }
+
+            Message::CheckButtonPressedRsaChiff =>{
+                println!("Check button pressed");
+                self.valid_rsa_chif_page.display_values();
+                self.valid_rsa_chif_page.check_values();
+            }
+
+
+
+
+//Méthode pour changer le Thème :
 
             Message::ToggleTheme => {
                 self.theme = if self.theme == Theme::Light {
@@ -88,6 +79,7 @@ impl Sandbox for App{
         match self.current_page {
             Page::Home => self.home_page.view(),
             Page::ValiditeRSAChiffrement => self.valid_rsa_chif_page.view(),
+            Page::ValiditeRSASignature => self.home_page.view(),
         }
     }
 
@@ -122,8 +114,8 @@ impl Sandbox for App{
 pub enum Page {
     Home,
     ValiditeRSAChiffrement,
-    /*
     ValiditeRSASignature,
+    /*
     SecuriteRSAChiffrement,
     SecuriteRSASignature
     */
@@ -136,9 +128,15 @@ pub enum Page {
 pub enum Message{
     Router(Page), // Change la page en fonction de la route indique
     //PageSpecific(PageMessage),
+    //Méthode call back RSA Chiffrement
     FieldChangedRsaChiff(String, String, String, String, String),
+    CheckButtonPressedRsaChiff,
+
+
     //'a est le lifetime de la ref emprunte sur ValidRsaChifPage, valable aussi longtemp que Message<'a>
     ToggleTheme, //light/dark
+
+
 }
 
 

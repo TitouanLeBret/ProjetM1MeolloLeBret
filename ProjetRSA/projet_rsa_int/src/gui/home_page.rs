@@ -33,7 +33,7 @@ impl gui::PageContent for HomePage {
             .push(Button::new(Text::new("Sécurité RSA Chiffrement"))
                 .on_press(gui::Message::Router(gui::Page::ValiditeRSAChiffrement)))
             .push(Button::new(Text::new("Validité RSA Signature"))
-                .on_press(gui::Message::Router(gui::Page::ValiditeRSAChiffrement)))
+                .on_press(gui::Message::Router(gui::Page::ValiditeRSASignature)))
             .push(Button::new(Text::new("Sécurité RSA Signature"))
                 .on_press(gui::Message::Router(gui::Page::ValiditeRSAChiffrement)))
             // Ajouter les autres boutons ici

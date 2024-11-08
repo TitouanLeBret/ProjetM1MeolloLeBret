@@ -1,5 +1,5 @@
-mod rsa;
-mod gui;
+pub mod rsa;
+pub mod gui;
 use iced::{Sandbox, Settings};
 use gui::gui::App;
 
