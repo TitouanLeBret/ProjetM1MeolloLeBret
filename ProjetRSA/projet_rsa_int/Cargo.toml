@@ -9,4 +9,5 @@ iced_core = "0.12.1"
 rand = "0.8.5"
 num-bigint = "0.4.6" 
 num-traits = "0.2"
-rsa = "0.9.5"
+num-primes =  "0.3"
+rsa = { version = "0.9.6", features = ["default"] }
