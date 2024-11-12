@@ -4,7 +4,7 @@ Réflexion sur les différents langages a utiliser our le projet WEB (gestion co
 		-Django (Backend)
 			https://www.youtube.com/watch?v=Bn0k9DDYBZM
 		-MySQL ou PostgresSQL (BDD)
-		-OAuth2 / OpenID Connect (Auth google, Facebook)
+		-OAuth2 / OpenID Connect (Auth google, Facebook, et STRAVA)
 		-JSON Web tokens (Authentification par Token)
 		-Stripe (Paiements) et  Paypal  et/ou Mollie
 		-React, Vue.js ou Angulaire (Frontend)
