@@ -1,26 +1,26 @@
-fn main() {
-    println!("Hello, world!");
-}
-
 //docs : https://docs.rs/rsa/latest/rsa/
 use rsa::{RsaPrivateKey, RsaPublicKey };
 use rsa::BigUint as RsaBigUint;
-use rsa::traits::PrivateKeyParts; 
-fn generate_rsa_private_key(bits: usize) -> Vec<RsaBigUint> {
+use rsa::traits:: {PrivateKeyParts,PublicKeyParts}; 
+
+//Fonction de génération de la clef RSA :
+pub fn generate_rsa_private_key(bits: usize) -> Vec<RsaBigUint> {
     //On créer une clef RSA 
     let mut rng = rand::thread_rng();
     let priv_key = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
     let pub_key = RsaPublicKey::from(&priv_key);
-    //On récupère les facteurs premiers de la clef privée
+    let e = pub_key.e().clone();
     let p = priv_key.primes()[0].clone();
     let q = priv_key.primes()[1].clone();
-    //On renvoie n,p,q
-    let n = RsaBigUint::from_bytes_be(&p.to_bytes_be())*RsaBigUint::from_bytes_be(&p.to_bytes_be());
-    vec![n,RsaBigUint::from_bytes_be(&p.to_bytes_be()),RsaBigUint::from_bytes_be(&p.to_bytes_be())]
+    let d = priv_key.d().clone();
+    let n = p.clone()*q.clone();
+    vec![n,e,p,q,d]
 }
 
-//Fonction de vérification de RSA : 
+
+
 use std::str::FromStr;
+//Fonction de vérification de RSA : 
 pub fn all_security_tests(n_value : String , e_value: String, p_value: String, q_value: String , d_value: String) -> bool/*-> enum<bool>*/ {
     //Return une énum avec les différents tests associés a leur validité ou non
     let mut validation = true;
@@ -35,12 +35,16 @@ pub fn all_security_tests(n_value : String , e_value: String, p_value: String, q
     validation
 }
 
+
+
+use num_primes::Verification;
+//Toutes les fonctions utilisés dans all_security_tests :
 fn bits_pub_key(n : &RsaBigUint) -> bool {
     let n_bits = n.bits(); // Renvoie le nombre de bits de n
     n_bits >= 2048 //Vrai si >=2048 faut sinon
 }
 
-use num_primes::Verification;
+
 fn primalite(p : &RsaBigUint) -> bool { // !!!!!!!!!! Implémenter MILLER RABIN tout seul
     //Pour l'instant test de num_primes, masi essayant en le faisant nous même 
     //2 lignes du dessous pour converitr RsaBigUint en num_primes::BigUint
@@ -50,9 +54,11 @@ fn primalite(p : &RsaBigUint) -> bool { // !!!!!!!!!! Implémenter MILLER RABIN 
     Verification::is_prime(&p_prime)
 }
 
+
 fn are_prime_factors(p : &RsaBigUint, q : &RsaBigUint) -> bool {
     primalite(p) && primalite(q)
 }
+
 
 fn is_valid_factorisation(n : &RsaBigUint, p : &RsaBigUint, q : &RsaBigUint) -> bool {
     let n_calc = p *q; // Calcul du produit des facteurs premiers
@@ -61,17 +67,19 @@ fn is_valid_factorisation(n : &RsaBigUint, p : &RsaBigUint, q : &RsaBigUint) -> 
     n.eq(&n_calc) && are_prime_factors(p, q)
 }
 
+
 fn is_valid_encryption_decryption(n : &RsaBigUint, pub_key : &RsaPublicKey, priv_key : &RsaPrivateKey) -> bool {
     true
 }
+
 
 fn are_valide_e_d() -> bool {
     true
 }
 
 
-// Module de test
-#[cfg(test)] //N'est compîlé que si cargo test
+// Module de test pour les tests unitaires
+#[cfg(test)] //N'est compîlé que si "cargo test" est exécuté
 mod tests {
     use super::*; // Import les elts du code principale
 

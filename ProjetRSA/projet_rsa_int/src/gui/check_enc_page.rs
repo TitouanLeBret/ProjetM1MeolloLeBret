@@ -41,10 +41,18 @@ impl ValidRsaChifPage {
 
 
     pub fn view(&self) -> Element<gui::Message> {
-        let wrapper = Column::new()
-            .push(text("Validité Chiffrement RSA").size(64))
-            .push(input_field("N : ", &self.n_value)
-                .on_input(
+        let title = Text::new("Validité Chiffrement RSA")
+            .size(48)
+            .horizontal_alignment(Horizontal::Center);
+            //.style(Color::from_rgb(0.2, 0.2, 0.6))
+
+        let pub_key_section = Column::new()
+            .spacing(10)
+            .push(Text::new("Clé publique :"))
+            .push(Row::new()// N : text field et e : text field
+                .spacing(15)
+                .push(Text::new("N :"))
+                .push(MyTextInput::new("N", &self.n_value).width(Length::Fill).on_input(
                     | n_value | {
                         gui::Message::FieldChangedRsaChiff(
                             n_value, 
@@ -55,10 +63,9 @@ impl ValidRsaChifPage {
                             )
                         
                         }
-                    )
-                )
-            .push(input_field("e : ", &self.e_value)
-                .on_input(
+                    ))
+                .push(Text::new("e :"))
+                .push(MyTextInput::new("e", &self.e_value).width(Length::Fill).on_input(
                     | e_value | {
                         gui::Message::FieldChangedRsaChiff(
                             self.n_value.clone(), 
@@ -68,10 +75,16 @@ impl ValidRsaChifPage {
                             self.d_value.clone(),
                             )
                         }
-                    )
-                )
-            .push(input_field("p : ", &self.p_value)
-                .on_input(
+                    ))
+            );
+
+        let priv_key_section = Column::new()
+            .spacing(10)
+            .push(Text::new("Clé privée :"))
+            .push(Row::new()
+                .spacing(15)
+                .push(Text::new("p :"))
+                .push(MyTextInput::new("p", &self.p_value).width(Length::Fill).on_input(
                     | p_value | {
                         gui::Message::FieldChangedRsaChiff(
                             self.n_value.clone(), 
@@ -81,10 +94,9 @@ impl ValidRsaChifPage {
                             self.d_value.clone(),
                             )
                         }
-                    )
-                )
-            .push(input_field("q : ", &self.q_value)
-                .on_input(
+                    ))
+                .push(Text::new("q :"))
+                .push(MyTextInput::new("q", &self.q_value).width(Length::Fill).on_input(
                     | q_value | {
                         gui::Message::FieldChangedRsaChiff(
                             self.n_value.clone(), 
@@ -94,10 +106,9 @@ impl ValidRsaChifPage {
                             self.d_value.clone(),
                             )
                         }
-                    )
-                )
-            .push(input_field("d : ", &self.d_value)
-                .on_input(
+                    ))
+                .push(Text::new("d :"))
+                .push(MyTextInput::new("d", &self.d_value).width(Length::Fill).on_input(
                     | d_value | {
                         gui::Message::FieldChangedRsaChiff(
                             self.n_value.clone(), 
@@ -107,26 +118,46 @@ impl ValidRsaChifPage {
                             d_value,
                             )
                         }
-                    )
-                )
-            .push(button("Vérifier la validité").on_press(gui::Message::CheckButtonPressedRsaChiff));
+                    ))
+            );
+
+        let new_values_button = button(text("Générer une clé RSA valide "))
+            .padding(10)
+            .on_press(gui::Message::NewValuesRsaEnc);
+
+
+
+        let check_button = button(text("Vérifier la validité"))
+            .padding(10)
+            .on_press(gui::Message::CheckButtonPressedRsaChiff);
+
+        let wrapper = Column::new()
+            .align_items(Alignment::Center)
+            .spacing(20)
+            .push(title)
+            .push(new_values_button)
+            .push(pub_key_section)
+            .push(priv_key_section)
+            .push(check_button);
 
         container(wrapper)
             .width(Length::Fill)
             .height(Length::Fill)
+            .padding(20)
             .center_x()
-            .center_y()
+            .center_y() // Fond standard
             .into()
     }
 
 
     //Méthode qui affiche les valeurs entrées dans les champs
     pub fn display_values(&self) {
-        println!("Values are: N:{}, E:{}, P:{}, Q:{}, D:{}",self.n_value.clone(), self.e_value.clone(),self.p_value.clone(),self.q_value.clone(),self.d_value.clone());
+        let p : num_bigint::BigUint = self.p_value.parse().expect("Echec conversion");
+        let q : num_bigint::BigUint = self.q_value.parse().expect("Echec conversion");
+        println!("Values are: N:{}\n, E:{}\n, P:{}\n, Q:{}\n, D:{}\n, p*q = {}\n",self.n_value.clone(), self.e_value.clone(),self.p_value.clone(),self.q_value.clone(),self.d_value.clone(),p*q);
     }
 
-
-    pub fn check_values(&self) {
+    pub fn check_values(&mut self) {
         if check_enc::all_security_tests(self.n_value.clone(), self.e_value.clone(), self.p_value.clone(), self.q_value.clone(), self.d_value.clone()) {
             println!("Tous les tests de sécurité ont été réussis");
         } else {
@@ -139,7 +170,7 @@ impl gui::PageContent for ValidRsaChifPage {
     fn view(&self) -> Element<gui::Message> {
         let wrapper = Column::new()
             .push(text("Validité Chiffrement RSA").size(64))
-            .push(input_field("N : ", &self.n_value)
+            .push(MyTextInput::new("N : ", &self.n_value)
                 .on_input(
                     | n_value | {
                         gui::Message::FieldChangedRsaChiff(
@@ -152,10 +183,10 @@ impl gui::PageContent for ValidRsaChifPage {
                         }
                     )
                 )
-            .push(input_field("e : ", &self.e_value))
-            .push(input_field("p : ", &self.p_value))
-            .push(input_field("q : ", &self.q_value))
-            .push(input_field("d : ", &self.d_value));
+            .push(MyTextInput::new("e : ", &self.e_value))
+            .push(MyTextInput::new("p : ", &self.p_value))
+            .push(MyTextInput::new("q : ", &self.q_value))
+            .push(MyTextInput::new("d : ", &self.d_value));
             //.push(chek_button);
 
         container(wrapper)
@@ -182,9 +213,67 @@ impl gui::PageContent for ValidRsaChifPage {
 
 
 //A mettre dans component : 
-fn input_field( _placeholder:&str,_value : &str,) -> TextInput<'static, gui::Message> {
-    TextInput::new(_placeholder,_value)
-        .width(Length::Fixed(500.0))
-        .padding(Padding::from(10))
-        .line_height(text::LineHeight::Relative(1.75))
+
+//      Text input field
+use iced::Color;
+use iced::widget::text_input::StyleSheet;
+use iced::widget::text_input::Appearance;
+struct MyTextInput ;
+
+impl MyTextInput {
+    fn create() -> Self{
+        MyTextInput
+    }
+
+    pub fn new( _placeholder:&str,_value : &str,) -> TextInput<'static, gui::Message> {
+        TextInput::new(_placeholder,_value)
+            .line_height(text::LineHeight::Relative(1.75))
+            .padding(Padding::from(12))
+            .width(Length::Fixed(300.0))
+            .style(iced::theme::TextInput::Custom(Box::new(MyTextInput::create())))
+    }
+}
+
+impl StyleSheet for MyTextInput {
+    type Style = Theme;
+
+    fn active(&self, _: &Self::Style) -> Appearance {
+        text_input::Appearance {
+            background: Background::Color(iced::Color::from_rgb8(5, 11, 31)),
+            border: Border::with_radius(10),
+            icon_color: iced::Color::from_rgb(0.8, 0.8, 0.8),
+        }
+    }
+
+    fn focused(&self, _: &Self::Style) -> Appearance {
+        text_input::Appearance {
+            background: Background::Color(iced::Color::from_rgb8(5, 11, 51)),
+            border: Border::with_radius(10),
+            icon_color: iced::Color::from_rgb(0.8, 0.8, 0.8),
+        }
+    }
+
+    fn placeholder_color(&self, _: &Self::Style) -> Color {
+        Color::from_rgb8(70, 70, 70)
+    }
+
+    fn value_color(&self, _: &Self::Style) -> Color {
+        Color::from_rgb8(255, 255, 255)
+    }
+
+    fn selection_color(&self, _: &Self::Style) -> Color {
+        Color::from_rgb(0.8, 0.8, 1.0)
+    }
+
+    fn disabled_color(&self, _: &Self::Style) -> Color {
+        Color::from_rgb(0.6, 0.6, 0.6)
+    }
+
+    fn disabled(&self, _: &Self::Style) -> Appearance { //Mettre tout en gris
+        text_input::Appearance {
+            background: Background::Color(iced::Color::from_rgb(0.9, 0.9, 0.9)),
+            border: Border::with_radius(5),
+            icon_color: iced::Color::from_rgb(1., 1., 1.),
+        }
+    }
 }

@@ -11,6 +11,8 @@ use super::check_enc_page;
 use super::components;
 use super::home_page;
 
+use crate::rsa::check_enc;
+
 
 
 
@@ -55,6 +57,11 @@ impl Sandbox for App{
                 println!("Check button pressed");
                 self.valid_rsa_chif_page.display_values();
                 self.valid_rsa_chif_page.check_values();
+            }
+
+            Message::NewValuesRsaEnc => {
+                let key = check_enc::generate_rsa_private_key(2048);
+                self.valid_rsa_chif_page.update(key[0].to_string(),key[2].to_string(),key[3].to_string(),key[1].to_string(),key[4].to_string());
             }
 
 
@@ -131,6 +138,7 @@ pub enum Message{
     //Méthode call back RSA Chiffrement
     FieldChangedRsaChiff(String, String, String, String, String),
     CheckButtonPressedRsaChiff,
+    NewValuesRsaEnc,
 
 
     //'a est le lifetime de la ref emprunte sur ValidRsaChifPage, valable aussi longtemp que Message<'a>
