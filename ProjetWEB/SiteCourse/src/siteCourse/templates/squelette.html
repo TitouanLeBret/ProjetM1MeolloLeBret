@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Mon Site de Course{% endblock %}</title>
+</head>
+<body>
+    <header class="bg-blue-600 text-white py-4">
+    <nav class="container mx-auto flex justify-between items-center px-4">
+        <a href="{% url 'accueil' %}" class="text-2xl font-bold">Course</a>
+        <div class="space-x-6">
+            <a href="{% url 'inscriptions' %}" class="hover:text-gray-200">Inscription</a>
+            <a href="{% url 'parcours' %}" class="hover:text-gray-200">Parcours</a>
+            <a href="{% url 'compte' %}" class="hover:text-gray-200">Compte</a>
+        </div>
+    </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto text-center text-sm">
+            © 2024 Projet M1 Cybersécurité - Tous droits réservés.
+        </div>
+    </footer>
+</body>
+</html>

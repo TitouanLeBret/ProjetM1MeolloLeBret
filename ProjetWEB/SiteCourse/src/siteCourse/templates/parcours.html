@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Parcours</title>
-</head>
-<body>
-    <h1>Page sur le parcours</h1>
-    <a href="{% url 'accueil' %}"><button>Aller a l'accueil</button></a>
-</body>
-</html>
+{% extends 'squelette.html' %}
+
+{% block title %}Parcours{% endblock %}
+{% block content %}
+<h1>Page sur les parcours</h1>
+<p>Affichage du/des parcours dans des maps</p>
+{% endblock %}

@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Compte</title>
-</head>
-<body>
-  <h1>Page de gestion du Compte</h1>
-    <a href="{% url 'accueil' %}"><button>Aller a l'accueil</button></a>
-</body>
-</html>
+{% extends 'squelette.html' %}
+
+{% block title %}Compte{% endblock %}
+{% block content %}
+<h1>Mon compte</h1>
+<p>Liste des infos ici, avec possibilité de modifs</p>
+{% endblock %}
