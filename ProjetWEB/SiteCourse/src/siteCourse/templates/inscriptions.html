@@ -3,10 +3,8 @@
 
 {% block title %}Inscription{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="{% static 'inscriptions/styles.css' %}">
-
-<div class="flex items-center justify-center min-h-screen bg-gray-100 py-8">
-    <form method="post" action="{% url 'inscriptions' %}" class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-8">
+    <form method="post" action="{% url 'inscriptions' %}" class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md mb-8">
         {% csrf_token %}
         <h1 class="text-3xl font-bold text-center text-gray-700 mb-6">Inscription à la Course</h1>
 
@@ -36,9 +34,23 @@
         </select>
 
         <button type="submit"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">
+                class="w-full bg-neutral-600 hover:bg-neutral-800 text-white font-bold py-2 px-4 rounded-md transition duration-300">
             S'inscrire
         </button>
     </form>
+    {% if inscription_complete %}
+        <div class="bg-green-100 text-green-700 p-4 rounded mb-6">
+            <p>Inscription réussie !</p>
+            <ul class="mt-2">
+                <li><strong>Nom :</strong> {{ nom }}</li>
+                <li><strong>Prénom :</strong> {{ prenom }}</li>
+                <li><strong>Email :</strong> {{ email }}</li>
+                <li><strong>Âge :</strong> {{ age }}</li>
+                <li><strong>Course :</strong> {{ course }}</li>
+            </ul>
+        </div>
+    {% endif %}
+
+
 </div>
 {% endblock %}
