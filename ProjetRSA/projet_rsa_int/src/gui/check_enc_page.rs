@@ -1,6 +1,6 @@
 //Page sur validite RSA Chiffrement
 use iced::theme::{Theme};
-use iced::widget::{button, container, text, Button, Column, Container, Row, Text, TextInput,text_input};
+use iced::widget::{button, container, text, text_input, Button, Checkbox, Column, Container, Row, Text, TextInput};
 use iced:: { Alignment, Sandbox, Settings, Element, Background, Shadow, Vector, Border, Padding,Length};
 use iced::alignment::{Horizontal, Vertical};
 use iced_core::text::Paragraph;
@@ -8,6 +8,12 @@ use iced_core::text::Paragraph;
 use super::gui;
 use crate::rsa::check_enc;
 
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TestStatus {
+    pub name: &'static str,
+    pub is_valid: bool,
+}
 
 #[derive(Default,Debug,Clone,PartialEq,Eq)]
 pub struct ValidRsaChifPage {
@@ -17,7 +23,9 @@ pub struct ValidRsaChifPage {
     e_value: String,
     d_value: String,
     check_button: button::State,
+    tests: Vec::<TestStatus>,
 }
+
 
 impl ValidRsaChifPage {
     pub fn new() -> Self {
@@ -28,6 +36,12 @@ impl ValidRsaChifPage {
             e_value: String::new(),
             d_value: String::new(),
             check_button: button::State::new(),
+            tests: vec![
+                TestStatus {
+                    name: "Test de sécurité complet (faire une version ou on voit le résultat de chaque test)",
+                    is_valid: false,
+                },
+            ],
         }
     }
 
@@ -43,9 +57,15 @@ impl ValidRsaChifPage {
     pub fn view(&self) -> Element<gui::Message> {
         let title = Text::new("Validité Chiffrement RSA")
             .size(48)
-            .horizontal_alignment(Horizontal::Center);
-            //.style(Color::from_rgb(0.2, 0.2, 0.6))
+            .horizontal_alignment(Horizontal::Center)
+            .style(Color::from_rgb(0.2, 0.2, 0.6));
 
+        //Boutton pour générer une nouvelle clé RSA valide
+        let new_values_button = button(text("Générer une clé RSA valide "))
+            .padding(10)
+            .on_press(gui::Message::NewValuesRsaEnc);
+
+        //Section pour la partie de la clé publique
         let pub_key_section = Column::new()
             .spacing(10)
             .push(Text::new("Clé publique :"))
@@ -78,6 +98,7 @@ impl ValidRsaChifPage {
                     ))
             );
 
+        //Section pour la partie de la clé privée
         let priv_key_section = Column::new()
             .spacing(10)
             .push(Text::new("Clé privée :"))
@@ -121,15 +142,30 @@ impl ValidRsaChifPage {
                     ))
             );
 
-        let new_values_button = button(text("Générer une clé RSA valide "))
-            .padding(10)
-            .on_press(gui::Message::NewValuesRsaEnc);
-
-
-
+        //Boutton pour vérifier la validité des clés RSA
         let check_button = button(text("Vérifier la validité"))
             .padding(10)
             .on_press(gui::Message::CheckButtonPressedRsaChiff);
+
+        // Section des tests de sécurité avec les cases validées ou non
+        let test_results = self.tests.iter()
+            .fold(Column::new()
+                .spacing(10), |column: Column<'_, gui::Message>, test| { column
+                    .push(
+                        Row::new()
+                            .spacing(10)
+                            .push(Text::new(test.name))
+                            .push(
+                                Checkbox::new(
+                                    "",
+                                    test.is_valid,
+                                )
+                                //.style(if test.is_valid { ValidStyle::Checked } else { ValidStyle::Unchecked })
+                            )
+                    )
+                }
+            );
+
 
         let wrapper = Column::new()
             .align_items(Alignment::Center)
@@ -138,7 +174,8 @@ impl ValidRsaChifPage {
             .push(new_values_button)
             .push(pub_key_section)
             .push(priv_key_section)
-            .push(check_button);
+            .push(check_button)
+            .push(test_results);
 
         container(wrapper)
             .width(Length::Fill)
@@ -149,6 +186,11 @@ impl ValidRsaChifPage {
             .into()
     }
 
+    //Getter et setter : 
+    pub fn get_tests_status(&self) -> Vec<TestStatus> {
+        self.tests.clone()
+    }
+
 
     //Méthode qui affiche les valeurs entrées dans les champs
     pub fn display_values(&self) {
@@ -157,13 +199,14 @@ impl ValidRsaChifPage {
         println!("Values are: N:{}\n, E:{}\n, P:{}\n, Q:{}\n, D:{}\n, p*q = {}\n",self.n_value.clone(), self.e_value.clone(),self.p_value.clone(),self.q_value.clone(),self.d_value.clone(),p*q);
     }
 
-    pub fn check_values(&mut self) {
-        if check_enc::all_security_tests(self.n_value.clone(), self.e_value.clone(), self.p_value.clone(), self.q_value.clone(), self.d_value.clone()) {
-            println!("Tous les tests de sécurité ont été réussis");
-        } else {
-            print!("Un ou plusieurs test(s) a/ont échoué(s)");
+    pub fn check_values(&mut self) -> Vec<TestStatus>{
+        let all_test_status = check_enc::all_security_tests_status(self.n_value.clone(), self.e_value.clone(), self.p_value.clone(), self.q_value.clone(), self.d_value.clone());
+        for i in 0..all_test_status.len() {
+            self.tests[i].is_valid = all_test_status[i].is_valid;
         }
+        all_test_status
     }
+
 }
 /*
 impl gui::PageContent for ValidRsaChifPage {

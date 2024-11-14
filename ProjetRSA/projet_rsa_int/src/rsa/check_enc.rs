@@ -20,7 +20,7 @@ pub fn generate_rsa_private_key(bits: usize) -> Vec<RsaBigUint> {
 
 
 use std::str::FromStr;
-//Fonction de vérification de RSA : 
+//Fonction de vérification de RSA (vérsion de base, a ne pas garder :!!!!!!): 
 pub fn all_security_tests(n_value : String , e_value: String, p_value: String, q_value: String , d_value: String) -> bool/*-> enum<bool>*/ {
     //Return une énum avec les différents tests associés a leur validité ou non
     let mut validation = true;
@@ -35,6 +35,26 @@ pub fn all_security_tests(n_value : String , e_value: String, p_value: String, q
     validation
 }
 
+
+use crate::gui::check_enc_page::TestStatus;
+pub fn all_security_tests_status(n_value : String , e_value: String, p_value: String, q_value: String , d_value: String) -> Vec<TestStatus> {
+    //Return une énum avec les différents tests associés a leur validité ou non
+    let mut validation = true;
+    let n = RsaBigUint::from_str(&n_value).expect("Conversion échouée");
+    let e = RsaBigUint::from_str(&e_value).expect("Conversion échouée");
+    let p = RsaBigUint::from_str(&p_value).expect("Conversion échouée");
+    let q = RsaBigUint::from_str(&q_value).expect("Conversion échouée");
+    let d = RsaBigUint::from_str(&d_value).expect("Conversion échouée");
+    let priv_key : RsaPrivateKey = RsaPrivateKey::from_components(n.clone(), e.clone(), d.clone(),vec![p.clone(), q.clone()]).expect("Conversion échouée");
+    let pub_key : RsaPublicKey = RsaPublicKey::from(&priv_key);
+    validation = validation && bits_pub_key(&n) && is_valid_factorisation(&n, &p, &q) && is_valid_encryption_decryption(&n, &pub_key, &priv_key) && are_valide_e_d();
+    vec![
+        TestStatus {
+            name: "Test de sécurité complet (faire une version ou on voit le résultat de chaque test)",
+            is_valid: validation,
+        },
+        ]
+}
 
 
 use num_primes::Verification;

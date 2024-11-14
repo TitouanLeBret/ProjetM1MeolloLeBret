@@ -26,3 +26,7 @@ A implémenter :
 
 4 page différentes : ValiditeChiffrementRSA / ValiditeSignatureRSA / SecuriteChiffrementRSA / SecuriteSignatureRSA
 Pour l'instant dans le dossier fonctions, début de ValiditeChiffrement, et dans icedTuto, debut de l'interface graphique mais qui ne fais rien
+
+
+A faire : 
+	Implémenter tous les tests de check validation RSA, il reste test E, D, et peut etre d'autres...
