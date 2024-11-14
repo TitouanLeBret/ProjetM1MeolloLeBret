@@ -21,3 +21,24 @@ Réflexion sur les différents langages a utiliser our le projet WEB (gestion co
 
 Idée maquette WEB : 
         https://www.figma.com/design/amrZdVVDUFribXdWAmQT8O/Untitled?node-id=0-1&node-type=canvas&t=X3b16CzSb3xfNHJF-0
+
+
+Pour lancer : 
+	Pour créer env virtuel : 
+		python -m venv .env
+	Pour activer env virtel (windows) : 
+		.\.env\Scripts\activate
+		source .env/bin/activate (macos et linux)
+	Pour désactiver env virtuel : 
+		deactivate
+
+	Vérifier que c'est bien l'env virutel : 
+		Windows : py -c "import sys; print(sys.executable)" et voir si le chemin est bien dans DocBlog
+		Linux : which python
+
+	pour installer les dépendances : 
+		Dans DocBlog : pip install -r requirements.txt
+
+
+	Django : 
+		Lancer serveur de production : cd src , python manage.py runserver
