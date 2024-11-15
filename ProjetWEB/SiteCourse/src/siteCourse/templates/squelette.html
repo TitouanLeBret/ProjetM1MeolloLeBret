@@ -9,11 +9,14 @@
     <header class="bg-neutral-600 text-white py-4">
     <nav class="container mx-auto flex justify-between items-center px-4">
         <a href="{% url 'accueil' %}" class="text-2xl font-bold">Course</a>
-        <div class="space-x-6">
+        <div class="space-x-6 flex">
             <a href="{% url 'inscriptions' %}" class="hover:text-gray-200">Inscription</a>
             <a href="{% url 'parcours' %}" class="hover:text-gray-200">Parcours</a>
             {% if user.is_authenticated %}
-                <p class="hover:text-gray-200">Connécté sous {{ user.username }}</p> | <a href="{% url 'account:logout' %}" class="hover:text-gray-200">Déconnexion</a><!-- Remplacé par account::compte_page -->
+            <div class="flex space-x-6">
+                <p class="hover:text-gray-200">Connécté sous {{ user.username }}</p>
+                <a href="{% url 'account:logout' %}" class="hover:text-gray-200">Déconnexion</a>
+            </div>
             {% else %}
                 <a href="{% url 'account:login' %}" class="hover:text-gray-200">Connexion</a>
                 <!-- <a href="{% url 'account:register' %}" class="hover:text-gray-200">Création compte</a> -->
