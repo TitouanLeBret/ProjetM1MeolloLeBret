@@ -12,7 +12,12 @@
         <div class="space-x-6">
             <a href="{% url 'inscriptions' %}" class="hover:text-gray-200">Inscription</a>
             <a href="{% url 'parcours' %}" class="hover:text-gray-200">Parcours</a>
-            <a href="{% url 'compte' %}" class="hover:text-gray-200">Compte</a> <!-- Renvoie vers page de login si pas de jeton de co -->
+            {% if user.is_authenticated %}
+                <p class="hover:text-gray-200">Connécté sous {{ user.username }}</p> | <a href="{% url 'account:logout' %}" class="hover:text-gray-200">Déconnexion</a><!-- Remplacé par account::compte_page -->
+            {% else %}
+                <a href="{% url 'account:login' %}" class="hover:text-gray-200">Connexion</a>
+                <!-- <a href="{% url 'account:register' %}" class="hover:text-gray-200">Création compte</a> -->
+            {% endif %}
         </div>
     </nav>
     </header>

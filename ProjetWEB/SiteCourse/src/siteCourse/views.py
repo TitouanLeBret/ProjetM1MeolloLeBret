@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from inscription_course.models import InscriptionCourse
+from inscriptions.models import InscriptionCourse
 
 
 def accueil(request):
@@ -47,5 +47,5 @@ def parcours(request):
 def login_page(request):
     return render(request, 'login_page.html')
 
-def compte(request):
-    return render(request, 'compte.html')
+def account(request):
+    return render(request, 'account.html')

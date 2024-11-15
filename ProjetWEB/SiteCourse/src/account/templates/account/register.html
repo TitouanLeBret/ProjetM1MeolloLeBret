@@ -1,0 +1,23 @@
+{% extends 'squelette.html' %}
+
+{% block title %}Connexion{% endblock %}
+{% block content %}
+
+
+
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-8">
+  {% for message in messages %}
+    <p class="bg-red-500 rounded-lg shadow-lg p-8 w-full max-w-md mb-8">{{ message }}</p>
+  {% endfor %}
+  <form method="POST" class="bg-white rounded-lg shadow-lg w-full max-w-md mb-8">
+    {% csrf_token %}
+    {{ form}}
+    <button type="submit"
+                class="w-full bg-neutral-600 hover:bg-neutral-800 text-white font-bold py-2 px-4 rounded-md transition duration-300">
+            Créer un compte
+    </button>
+  </form>
+</div>
+
+
+{% endblock %}

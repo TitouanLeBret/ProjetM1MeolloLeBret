@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .views import accueil, inscriptions, parcours, compte, login_page
+from .views import accueil, inscriptions, parcours, login_page
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,7 +24,7 @@ urlpatterns = [
     path('accueil/', accueil , name='accueil'),
     path('inscriptions/' , inscriptions , name = "inscriptions"),
     path('parcours/' , parcours ,  name='parcours'),
-    path('compte/', compte , name='compte'),
+    path('account/', include('account.urls') ), #quand app on ne peut pas mettre name
     path('login/', login_page , name='login_page'),
     #path('inscriptions/', include('inscriptions.urls')), pour avoir inscriptions/...
 ]
