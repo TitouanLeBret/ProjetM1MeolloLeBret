@@ -38,8 +38,8 @@ def inscriptions(request):
             'course': course,
             'inscription_complete': True  # Indicateur pour afficher le message
         }
-        return render(request, 'inscriptions.html', context)
-    return render(request, 'inscriptions.html')
+        return render(request, 'inscriptions/accueil.html', context)
+    return render(request, 'inscriptions/accueil.html')
 
 def parcours(request):
     return render(request, 'parcours.html')

@@ -22,7 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', accueil , name='accueil'),
     path('accueil/', accueil , name='accueil'),
-    path('inscriptions/' , inscriptions , name = "inscriptions"),
+    path('inscriptions/' , include('inscriptions.urls')),
     path('parcours/' , parcours ,  name='parcours'),
     path('account/', include('account.urls') ), #quand app on ne peut pas mettre name
     path('login/', login_page , name='login_page'),
