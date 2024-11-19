@@ -30,6 +30,7 @@ class InscriptionCompte(models.Model):
     prenom = models.CharField(max_length=255)
     age = models.IntegerField()
     lien_vers_certificat = models.CharField(max_length=2048)
+    inscription_complete = models.BooleanField(null=False, default=False)
 
     def __str__(self):
         return str(self.email)

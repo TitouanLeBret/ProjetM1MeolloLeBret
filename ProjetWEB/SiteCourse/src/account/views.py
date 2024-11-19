@@ -2,8 +2,17 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django import forms
+from django.contrib.auth import get_user_model
 
-# Create your views here.
+#Pour utiliser notre modèle d'user perso de custom_user
+User = get_user_model()
+class EmailUserCreationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ('email', 'password1', 'password2')  # Utilisation de l'email et des mots de passe
+
+    email = forms.EmailField(label='Email', max_length=254)  # Champ pour l'email
 
 def login_user(request):
     if request.method=="POST" :
@@ -26,12 +35,13 @@ def logout_user(request):
 
 def register_user(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = EmailUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            login(request,user)
             return redirect("accueil")
 
     else :
-        form = UserCreationForm()
+        form = EmailUserCreationForm()
 
     return render (request, 'account/register.html', {'form': form})

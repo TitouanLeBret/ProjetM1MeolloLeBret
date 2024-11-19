@@ -32,6 +32,11 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+
+    #Pour auth par email :
+    'django_use_email_as_username.apps.DjangoUseEmailAsUsernameConfig',
+    'custom_user.apps.CustomUserConfig',
+
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -40,6 +45,8 @@ INSTALLED_APPS = [
     'account',
     'inscriptions',
 ]
+
+AUTH_USER_MODEL = 'custom_user.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
