@@ -40,7 +40,7 @@ class InscriptionCourse(models.Model):
 
 """
  Surement A supprimer, car gestion faites par django directement
- 
+ """
 class InscriptionCompte(models.Model):
     email = models.CharField(max_length=255,null=False)
     mot_de_passe = models.CharField(max_length=2048,null=False)
@@ -52,9 +52,7 @@ class InscriptionCompte(models.Model):
     inscription_complete = models.BooleanField(null=False, default=False)
 
     def __str__(self):
-        return str(self.email)
+        return str(self.email) +str(self.mot_de_passe)
 
     class Meta:
         db_table = "InscriptionCompte"
-
-"""

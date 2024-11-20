@@ -4,7 +4,107 @@
 {% block content %}
 
 <div class="grid items-center justify-center min-h-screen bg-gray-100 py-8">
-    <h1>Mon compte</h1>
-    <p>Liste des infos ici, avec possibilité de modifs</p>
+    {% if user.is_authenticated %}
+        <h1 class="text-3xl font-bold text-center text-gray-700 mb-6">Votre compte :</h1>
+
+        <form method="POST" action="" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form}}
+            <button type="submit" class="btn btn-primary mt-4">Enregistrer les modifications</button>
+        </form>
+    {% else %}
+        <h1>Mon compte (non connecté)</h1>
+        <p>Vous devez être connecté pour accéder à cette page.</p>
+    {% endif %}
 </div>
+
+<style>
+    /* Style global pour le formulaire */
+    form {
+        background-color: #ffffff; /* Fond blanc */
+        border-radius: 0.5rem; /* Coins arrondis */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre subtile */
+        padding: 2rem; /* Espacement intérieur */
+        max-width: 28rem; /* Largeur maximale */
+        width: 100%; /* Largeur complète */
+        margin-bottom: 2rem; /* Espacement en bas */
+    }
+    
+    /* Titre du formulaire */
+    form h1 {
+        font-size: 1.875rem; /* Taille de police */
+        font-weight: bold; /* Texte en gras */
+        text-align: center; /* Centré */
+        color: #4a5568; /* Gris foncé */
+        margin-bottom: 1.5rem; /* Espacement en bas */
+    }
+    
+    /* Label des champs */
+    form label {
+        display: block; /* Chaque label sur une ligne */
+        color: #000000; /* Noir */
+        margin-bottom: 0.5rem; /* Espacement sous le label */
+    }
+    
+    /* Champs de saisie */
+    form input,
+    form select {
+        width: 100%; /* Largeur complète */
+        padding: 0.5rem 1rem; /* Espacement intérieur */
+        border: 1px solid #cbd5e0; /* Bordure gris clair */
+        border-radius: 0.375rem; /* Coins arrondis */
+        font-size: 1rem; /* Taille de police */
+        color: #4a5568; /* Gris foncé */
+        margin-bottom: 1rem; /* Espacement sous chaque champ */
+        outline: none; /* Supprime le contour par défaut */
+        transition: all 0.2s ease; /* Animation douce */
+    }
+    
+    /* Focus sur les champs */
+    form input:focus,
+    form select:focus {
+        border-color: #4299e1; /* Bordure bleue au focus */
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Halo bleu */
+    }
+    
+    /* Bouton de soumission */
+    form button {
+        width: 100%; /* Largeur complète */
+        background-color: #4a5568; /* Fond gris neutre */
+        color: #ffffff; /* Texte blanc */
+        font-weight: bold; /* Texte en gras */
+        padding: 0.5rem 1rem; /* Espacement intérieur */
+        border-radius: 0.375rem; /* Coins arrondis */
+        text-align: center; /* Centré */
+        transition: all 0.3s ease; /* Animation douce */
+        border: none; /* Pas de bordure */
+        cursor: pointer; /* Curseur pointeur */
+    }
+    
+    /* Bouton hover */
+    form button:hover {
+        background-color: #2d3748; /* Fond plus foncé au survol */
+    }
+    
+    
+    
+    /* Texte descriptif sous les champs */
+    .helptext {
+        font-size: 0.7rem; /* Texte plus petit */
+        color: #718096; /* Gris moyen */
+        margin-top: -0.5rem; /* Réduit l'espace au-dessus */
+        margin-bottom: 1rem; /* Espacement en bas */
+    }
+    
+    /*Message d'erreur : */
+    
+    ul.errorlist > li {
+      font-size: 0.7rem;
+      background-color: #fff5f5; /* Rouge clair */
+      color: #e53e3e; /* Texte rouge */
+    }
+    
+    
+</style>
+
 {% endblock %}
