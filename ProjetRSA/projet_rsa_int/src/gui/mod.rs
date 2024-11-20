@@ -1,3 +1,5 @@
+// Ce fichier sert à définir les modules publics de ce dossier.
+// Ces modules pourront ainsi être "use" dans le dossier rsa par exemple
 
 pub mod check_enc_page;
 pub mod gui;

@@ -3,6 +3,16 @@ use rsa::{RsaPrivateKey, RsaPublicKey };
 use rsa::BigUint as RsaBigUint;
 use rsa::traits:: {PrivateKeyParts,PublicKeyParts}; 
 
+
+/// Représente le statut d'un test de sécurité.
+/// Chaque test a un nom (`name`) et un statut de validation (`is_valid`).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TestStatus {
+    pub name: &'static str,
+    pub is_valid: bool,
+}
+
+
 //Fonction de génération de la clef RSA :
 pub fn generate_rsa_private_key(bits: usize) -> Vec<RsaBigUint> {
     //On créer une clef RSA 
@@ -36,7 +46,6 @@ pub fn all_security_tests(n_value : String , e_value: String, p_value: String, q
 }
 
 
-use crate::gui::check_enc_page::TestStatus;
 pub fn all_security_tests_status(n_value : String , e_value: String, p_value: String, q_value: String , d_value: String) -> Vec<TestStatus> {
     //Return une énum avec les différents tests associés a leur validité ou non
     let mut validation = true;
