@@ -9,7 +9,143 @@
         {% csrf_token %}
         <h1 class="text-3xl font-bold text-center text-gray-700 mb-6">Inscription à la Course</h1>
 <!--Mettre de l'auto complétion si jamais l'user est connecté, on met directement son email, son nom prénom etc...-->
-        <label for="nom" class="block text-gray-600 mb-2">Nom :</label>
+        {{form}}
+
+        <button type="submit"
+                class="w-full bg-neutral-600 hover:bg-neutral-800 text-white font-bold py-2 px-4 rounded-md transition duration-300">
+            S'inscrire
+        </button>
+    </form>
+
+    <!-- Affichage des inscriptions -->
+
+    <!-- ATTENTION : PEUT ETRE PLUTOT GERER AVEC LES USER_ID QU'AVEC LES EMAILS -->
+
+
+    <!-- Si l'user est connecté, on affiche ces inscriptions
+                    Si aucune inscirptions on affiche "aucune inscription"
+         Si pas connecté on affiche : connecté vous pour voir vos inscriptions
+        -->
+    {% if user.is_authenticated %}
+        <h2 class="text-2xl font-bold text-center text-gray-700 mb-6">Vos Inscriptions</h2>
+
+        <!-- Liste des inscriptions de l'utilisateur -->
+        <div class="w-full max-w-md">
+            {% for inscription in inscriptions %}
+                {% if inscription.email == user.email %} <!-- ATTENTION MODIFIER NOM ET EMAIL PAR NOM OU EMAIL -->
+                    <div class="bg-white rounded-lg shadow-lg p-4 mb-4">
+                        <p class="text-gray-600"><strong>Nom :</strong> {{ inscription.nom }} </p>
+                        <p class="text-gray-600"><strong>Prénom :</strong> {{ inscription.prenom }}</p>
+                        <p class="text-gray-600"><strong>Âge :</strong> {{ inscription.age }} ans</p>
+                        <p class="text-gray-600"><strong>Course :</strong> {{ inscription.course }}</p>
+                        <p class="text-gray-600"><strong>Statut :</strong> {% if inscription.inscription_complete %} Complète {% else %} Incomplète {% endif %}</p>
+                        <p class="text-gray-600"><strong>Date de l'inscription :</strong> {{ inscription.inscription_date }}</p>
+                        <a href="{{ inscription.lien_vers_certificat }}" class="text-blue-500 hover:underline">Voir le certificat</a>
+                    </div>
+                {% endif %}
+            {% empty %}
+                <p class="text-gray-600 text-center">Aucune inscription trouvée.</p>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-600 text-center">Veuillez vous connecter pour voir vos inscriptions.</p>
+    {% endif %}
+
+</div>
+<style>
+/* Style global pour le formulaire */
+form {
+    background-color: #ffffff; /* Fond blanc */
+    border-radius: 0.5rem; /* Coins arrondis */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre subtile */
+    padding: 2rem; /* Espacement intérieur */
+    max-width: 28rem; /* Largeur maximale */
+    width: 100%; /* Largeur complète */
+    margin-bottom: 2rem; /* Espacement en bas */
+}
+
+/* Titre du formulaire */
+form h1 {
+    font-size: 1.875rem; /* Taille de police */
+    font-weight: bold; /* Texte en gras */
+    text-align: center; /* Centré */
+    color: #4a5568; /* Gris foncé */
+    margin-bottom: 1.5rem; /* Espacement en bas */
+}
+
+/* Label des champs */
+form label {
+    display: block; /* Chaque label sur une ligne */
+    color: #000000; /* Noir */
+    margin-bottom: 0.5rem; /* Espacement sous le label */
+}
+
+/* Champs de saisie */
+form input,
+form select {
+    width: 100%; /* Largeur complète */
+    padding: 0.5rem 1rem; /* Espacement intérieur */
+    border: 1px solid #cbd5e0; /* Bordure gris clair */
+    border-radius: 0.375rem; /* Coins arrondis */
+    font-size: 1rem; /* Taille de police */
+    color: #4a5568; /* Gris foncé */
+    margin-bottom: 1rem; /* Espacement sous chaque champ */
+    outline: none; /* Supprime le contour par défaut */
+    transition: all 0.2s ease; /* Animation douce */
+}
+
+/* Focus sur les champs */
+form input:focus,
+form select:focus {
+    border-color: #4299e1; /* Bordure bleue au focus */
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Halo bleu */
+}
+
+/* Bouton de soumission */
+form button {
+    width: 100%; /* Largeur complète */
+    background-color: #4a5568; /* Fond gris neutre */
+    color: #ffffff; /* Texte blanc */
+    font-weight: bold; /* Texte en gras */
+    padding: 0.5rem 1rem; /* Espacement intérieur */
+    border-radius: 0.375rem; /* Coins arrondis */
+    text-align: center; /* Centré */
+    transition: all 0.3s ease; /* Animation douce */
+    border: none; /* Pas de bordure */
+    cursor: pointer; /* Curseur pointeur */
+}
+
+/* Bouton hover */
+form button:hover {
+    background-color: #2d3748; /* Fond plus foncé au survol */
+}
+
+
+
+/* Texte descriptif sous les champs */
+.helptext {
+    font-size: 0.7rem; /* Texte plus petit */
+    color: #718096; /* Gris moyen */
+    margin-top: -0.5rem; /* Réduit l'espace au-dessus */
+    margin-bottom: 1rem; /* Espacement en bas */
+}
+
+/*Message d'erreur : */
+
+ul.errorlist > li {
+  font-size: 0.7rem;
+  background-color: #fff5f5; /* Rouge clair */
+  color: #e53e3e; /* Texte rouge */
+}
+
+
+</style>
+{% endblock %}
+
+
+
+<!--
+<label for="nom" class="block text-gray-600 mb-2">Nom :</label>
         <input type="text" id="nom" name="nom" required
                class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
 
@@ -34,24 +170,4 @@
             <option value="marathon">Marathon</option>
         </select>
 
-        <button type="submit"
-                class="w-full bg-neutral-600 hover:bg-neutral-800 text-white font-bold py-2 px-4 rounded-md transition duration-300">
-            S'inscrire
-        </button>
-    </form>
-    {% if inscription_complete %}
-        <div class="bg-green-100 text-green-700 p-4 rounded mb-6">
-            <p>Inscription réussie !</p>
-            <ul class="mt-2">
-                <li><strong>Nom :</strong> {{ nom }}</li>
-                <li><strong>Prénom :</strong> {{ prenom }}</li>
-                <li><strong>Email :</strong> {{ email }}</li>
-                <li><strong>Âge :</strong> {{ age }}</li>
-                <li><strong>Course :</strong> {{ course }}</li>
-            </ul>
-        </div>
-    {% endif %}
-
-
-</div>
-{% endblock %}
+-->

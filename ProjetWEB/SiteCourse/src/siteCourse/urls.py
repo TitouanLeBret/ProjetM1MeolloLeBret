@@ -20,7 +20,10 @@ from .views import accueil, parcours, login_page
 from inscriptions.views import inscriptions
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+#IMPORTANT ; Penser a modifier /admin en autre chose pour que les gens ne puissnet pas attérir sur la page d'admin du site
+#expliquer ce choiix dans rapport :
+    #si failles sur django admin, les gens ne peuvent pas trouver notre page automatiquement, donc compléxifie la chose
+    path('admin_gestion/', admin.site.urls),
     path('', accueil , name='accueil'),
     path('accueil/', accueil , name='accueil'),
     path('inscriptions/' , include('inscriptions.urls')),

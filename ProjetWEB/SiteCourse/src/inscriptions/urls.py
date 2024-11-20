@@ -3,12 +3,15 @@ from . import views
 #from siteCourse.views import inscriptions
 
 
+#Défini le nom de l'application, que  l'on utilisera donc dans "siteCourse"
 app_name = "inscriptions"
 
 urlpatterns = [
+    # Page d'accueil, redirige vers la vue 'inscriptions'
+    # --> Cette page peut etre appelé dans siteCourse par : inscriptions:home
     path('', views.inscriptions , name='home'),
-    path('insc_complete/', views.insc_complete , name='complete'),
-    path('insc_failed/', views.insc_failed , name='failed'),
+
+
+    #Peut être utile plus tard lors de la gestion du paiement
     path('paiement/', views.paiement , name='paiement'),
-    #path('mdpchange,.../......) etc
 ]

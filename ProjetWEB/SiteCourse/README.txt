@@ -20,3 +20,11 @@ Pour base de données :
 
 Pour gérer le lien entre inscription course et un compte : https://www.youtube.com/watch?v=UxTwFMZ4r5k
 
+Pour créer un superuser (compte admin) : python manage.py createsuperuser
+
+
+custom_user : générer entierement par "python manage.py create_custom_user_app"
+        --> Voir doc : https://pypi.org/project/django-use-email-as-username/
+
+inscriptions : app qui sert pour la gestion de la BDD ,gère les table InscriptionCompte et InscriptionCourse
+        --> Voir le lien avec la table custom_user_user, pour lié compte et course

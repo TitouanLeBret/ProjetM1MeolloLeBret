@@ -5,19 +5,42 @@ from django import forms
 
 #Création de notre formulaire d'inscription a une course a partie d'un formulaire Django
 class InscriptionForm(forms.Form):
+    # Définition des champs du formulaire d'inscription
     nom = forms.CharField(max_length=100)
     prenom = forms.CharField(max_length=100)
     email = forms.EmailField()
-    age = forms.IntegerField(min_value=1)
+    age = forms.IntegerField(min_value=1, max_value=110)
     course = forms.ChoiceField(choices=[('5km', '5 km'), ('10km', '10 km'), ('semi-marathon', 'Semi-marathon'), ('marathon', 'Marathon')])
 
 
 def inscriptions(request):
+    # Vérification si l'utilisateur est authentifié pour
+    # donner a la page ses inscriptions si c'est le cas
+    if request.user.is_authenticated:
+        # Récupération des inscriptions précédentes de l'utilisateur en filtrant par son emails
+        # ! ! ! ! ! ! ! ! !
+        # ! ! ! ! ! ! ! ! !
+        # A modifié par le user_id peut etre
+        # ! ! ! ! ! ! ! ! !
+        # ! ! ! ! ! ! ! ! !
+        inscriptions = InscriptionCourse.objects.filter(
+            email=request.user.email,
+        )
+    else :
+        # Si l'utilisateur n'est pas authentifié, on initialise une variable vide pour les inscriptions
+        inscriptions = ()
+
+    # Traitement du formulaire lorsqu'une qu'il est soumis (requete POST)
     if request.method == "POST":
-        form = InscriptionForm(request.POST)
-        if form.is_valid():
-            #Sauvegarde sécurisé grâce à cleaned_data
-            InscriptionCourse.objects.create(
+        form = InscriptionForm(request.POST) # Création du formulaire avec les données soumises
+        if form.is_valid(): # Vérification de la validité des données soumises
+            #Sauvegarde dans BDD sécurisé grâce à cleaned_data
+            # ! ! ! ! ! ! ! ! !
+            # ! ! ! ! ! ! ! ! !
+            # Voir exactement l'effet de cleaned_data (pour expliquer dans rapport):
+            # ! ! ! ! ! ! ! ! !
+            # ! ! ! ! ! ! ! ! !
+            insc = InscriptionCourse.objects.create(
                 nom=form.cleaned_data['nom'],
                 prenom=form.cleaned_data['prenom'],
                 email=form.cleaned_data['email'],
@@ -25,19 +48,20 @@ def inscriptions(request):
                 course=form.cleaned_data['course'],
                 inscription_complete = True
             )
-            return redirect('inscriptions:complete')  # Redirection vers une page de succès
+            # Redirection vers une page de succès avec les infos de l'inscriptions a afficher
+            return render(request,'inscriptions/insc_complete.html',{'insc': insc , 'inscriptions' : inscriptions})
         else:
-            print("loupé")
-            return render(request, 'inscriptions/accueil.html', {'form': form})
+            # Si le formulaire est invalide, on renvoie la page d'accueil avec les erreurs du formulaire
+            # Ce cas n'arrive jamais je penses, car le POST n'est effectué que si les données sont valides
+            # Mais laisser pour sécurité maximum ?
+            return render(request, 'inscriptions/accueil.html', {'form': form , 'inscriptions' : inscriptions})
     else:
+        # Si pas de soumission POST, on créer formulaire vierge et on affiche la page
         form = InscriptionForm()
-        return render(request, 'inscriptions/accueil.html', {'form': form})
+        return render(request, 'inscriptions/accueil.html', {'form': form , 'inscriptions' : inscriptions})
 
-def insc_complete(request):
-    return render (request, 'inscriptions/insc_complete.html', )
 
-def insc_failed(request):
-    return render (request, 'inscriptions/insc_failed.html', )
 
+#Vue a implémenter pour le systeme de paiement (si celui ci n'est pas sur la page d'inscriptions directement
 def paiement(request):
     return render (request, 'inscriptions/paiement.html', )

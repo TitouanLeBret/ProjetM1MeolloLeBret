@@ -1,10 +1,9 @@
-from django.apps import AppConfig
+from django_use_email_as_username.models import BaseUser, BaseUserManager
+
 
 """
 Fichier générer automatiquement par python manage.py create_custom_user_app
 Voir doc : https://pypi.org/project/django-use-email-as-username/
 """
-
-class CustomUserConfig(AppConfig):
-    name = 'custom_user'
-    verbose_name = 'Custom User Management'
+class User(BaseUser):
+    objects = BaseUserManager()
