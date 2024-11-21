@@ -1,5 +1,6 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render ,get_object_or_404, redirect
 from .models import InscriptionCourse
+from django.contrib import messages
 from django import forms
 
 
@@ -59,6 +60,28 @@ def inscriptions(request):
         # Si pas de soumission POST, on créer formulaire vierge et on affiche la page
         form = InscriptionForm()
         return render(request, 'inscriptions/accueil.html', {'form': form , 'inscriptions' : inscriptions})
+
+
+
+def supprimer_inscription(request):
+    if request.method == 'POST':
+        inscription_id = request.POST.get('inscription_id')
+        inscription = InscriptionCourse.objects.filter(id=inscription_id) #le first ici sert a avoir un elt et pas une liste
+
+        if inscription:
+            # Si l'inscription existe, supprimer
+            inscription.delete()
+
+            # Ajouter un message de confirmation
+            messages.success(request, "L'inscription a été supprimée avec succès.")
+        else:
+            # Si l'inscription n'existe pas
+            messages.error(request, "L'inscription que vous tentez de supprimer n'existe pas.")
+
+        return redirect('inscriptions:home')
+
+        # Si ce n'est pas une requête POST, rediriger vers la page des inscriptions
+    return redirect('inscriptions:home')
 
 
 
