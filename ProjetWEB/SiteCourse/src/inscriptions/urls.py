@@ -11,6 +11,7 @@ urlpatterns = [
     # --> Cette page peut etre appelé dans siteCourse par : inscriptions:home
     path('', views.inscriptions , name='home'),
 
+    path('supprimer/', views.supprimer_inscription, name='supprimer_inscription'),
 
     #Peut être utile plus tard lors de la gestion du paiement
     path('paiement/', views.paiement , name='paiement'),

@@ -42,8 +42,8 @@ def account(request):
             user.age = request.POST.get('age')
             # Enregistre les modifications dans la base de données
             user.save()
-            # Redirection vers la mêm page (PEUT ETRE A MODIFIER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!)
-            return redirect("account:home")
+            # Redirection vers la même page (PEUT ETRE A MODIFIER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!)
+            return render(request, 'account.html', {'form': form , 'success': True})
         else:
             # Si le formulaire est invalide, on renvoie la page d'accueil avec les erreurs du formulaire
             # Ce cas n'arrive jamais je penses, car le POST n'est effectué que si les données sont valides
@@ -60,9 +60,9 @@ def account(request):
                 'age': request.user.age,
             }  # Rempli avec les données de l'utilisateur connecté
             form = AccountForm(initial=initial_data)
-            return render(request, 'account.html', {'form': form })
-        #si pas connecté :
+            return render(request, 'account.html', {'form': form})
+        #si pas connecté
         # Formulaire vide
         else :
             form = AccountForm()
-            return render(request, 'account.html', {'form': form })
+            return render(request, 'account.html', {'form': form})

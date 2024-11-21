@@ -1,16 +1,30 @@
 {% extends 'squelette.html' %}
-
+{% load static %}
 {% block title %}Compte{% endblock %}
 {% block content %}
 
 <div class="grid items-center justify-center min-h-screen bg-gray-100 py-8">
     {% if user.is_authenticated %}
-        <h1 class="text-3xl font-bold text-center text-gray-700 mb-6">Votre compte :</h1>
-
         <form method="POST" action="" enctype="multipart/form-data">
+            <h1 class="text-3xl font-bold text-center text-gray-700 mb-6">Votre compte :</h1>
             {% csrf_token %}
             {{form}}
-            <button type="submit" class="btn btn-primary mt-4">Enregistrer les modifications</button>
+            <button type="submit" class="w-full bg-neutral-600 hover:bg-neutral-800 text-white font-bold py-2 px-4 rounded-md transition duration-300">Enregistrer les modifications</button>
+
+            <!-- Bouton de suppression du compte-->
+            <button class="flex items-center w-full bg-neutral-600 hover:bg-neutral-800 text-red-600 font-bold py-2 px-4 rounded-md transition duration-300 mt-4"
+                    onclick="delete_account('{{ inscription.id }}')">
+                <img src="{% static 'images/logo_croix_grise.png' %}" alt="Supprimer_compte" class="w-6 h-6 mr-2">
+                <span>Supprimer mon compte</span>
+            </button>
+
+            {% if success %}
+                <div class="bg-green-100 text-green-700 p-4 rounded mb-6 mt-6">
+                    <p>Modification(s) validée(s) !</p>
+                </div>
+            {% endif %}
+
+
         </form>
     {% else %}
         <h1>Mon compte (non connecté)</h1>
@@ -18,93 +32,50 @@
     {% endif %}
 </div>
 
-<style>
-    /* Style global pour le formulaire */
-    form {
-        background-color: #ffffff; /* Fond blanc */
-        border-radius: 0.5rem; /* Coins arrondis */
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre subtile */
-        padding: 2rem; /* Espacement intérieur */
-        max-width: 28rem; /* Largeur maximale */
-        width: 100%; /* Largeur complète */
-        margin-bottom: 2rem; /* Espacement en bas */
+
+
+
+<!-- Gestion du boutton de suppression d'un compte en JS -->
+<!--
+
+On demande confirmation dans pop up
+
+
+-->
+<script>
+    function delete_account(userId) {
+        // Afficher une pop de confirmation
+        const confirmation = confirm(
+            "Êtes-vous sûr de vouloir supprimer Votre Compte ? "
+        );
+        if (confirmation) {
+            //Effectuer la suppression dans la BDD, et renvoyer vers une page inscription supprimer (ou un message)
+            // Créer un formulaire de suppression
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'supprimer/';  // L'URL de votre vue Django pour supprimer l'inscription
+
+            // Ajouter le CSRF token pour sécuriser le formulaire
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            // Ajouter l'ID de l'inscription
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'inscription_id';
+            idInput.value = inscriptionId;
+
+            // Ajouter les champs au formulaire
+            form.appendChild(csrfInput);
+            form.appendChild(idInput);
+
+            // Ajouter le formulaire à la page et soumettre
+            document.body.appendChild(form);
+            form.submit();
+        }
     }
-    
-    /* Titre du formulaire */
-    form h1 {
-        font-size: 1.875rem; /* Taille de police */
-        font-weight: bold; /* Texte en gras */
-        text-align: center; /* Centré */
-        color: #4a5568; /* Gris foncé */
-        margin-bottom: 1.5rem; /* Espacement en bas */
-    }
-    
-    /* Label des champs */
-    form label {
-        display: block; /* Chaque label sur une ligne */
-        color: #000000; /* Noir */
-        margin-bottom: 0.5rem; /* Espacement sous le label */
-    }
-    
-    /* Champs de saisie */
-    form input,
-    form select {
-        width: 100%; /* Largeur complète */
-        padding: 0.5rem 1rem; /* Espacement intérieur */
-        border: 1px solid #cbd5e0; /* Bordure gris clair */
-        border-radius: 0.375rem; /* Coins arrondis */
-        font-size: 1rem; /* Taille de police */
-        color: #4a5568; /* Gris foncé */
-        margin-bottom: 1rem; /* Espacement sous chaque champ */
-        outline: none; /* Supprime le contour par défaut */
-        transition: all 0.2s ease; /* Animation douce */
-    }
-    
-    /* Focus sur les champs */
-    form input:focus,
-    form select:focus {
-        border-color: #4299e1; /* Bordure bleue au focus */
-        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Halo bleu */
-    }
-    
-    /* Bouton de soumission */
-    form button {
-        width: 100%; /* Largeur complète */
-        background-color: #4a5568; /* Fond gris neutre */
-        color: #ffffff; /* Texte blanc */
-        font-weight: bold; /* Texte en gras */
-        padding: 0.5rem 1rem; /* Espacement intérieur */
-        border-radius: 0.375rem; /* Coins arrondis */
-        text-align: center; /* Centré */
-        transition: all 0.3s ease; /* Animation douce */
-        border: none; /* Pas de bordure */
-        cursor: pointer; /* Curseur pointeur */
-    }
-    
-    /* Bouton hover */
-    form button:hover {
-        background-color: #2d3748; /* Fond plus foncé au survol */
-    }
-    
-    
-    
-    /* Texte descriptif sous les champs */
-    .helptext {
-        font-size: 0.7rem; /* Texte plus petit */
-        color: #718096; /* Gris moyen */
-        margin-top: -0.5rem; /* Réduit l'espace au-dessus */
-        margin-bottom: 1rem; /* Espacement en bas */
-    }
-    
-    /*Message d'erreur : */
-    
-    ul.errorlist > li {
-      font-size: 0.7rem;
-      background-color: #fff5f5; /* Rouge clair */
-      color: #e53e3e; /* Texte rouge */
-    }
-    
-    
-</style>
+</script>
 
 {% endblock %}

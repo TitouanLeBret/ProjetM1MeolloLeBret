@@ -29,6 +29,15 @@
     {% if user.is_authenticated %}
         <h2 class="text-2xl font-bold text-center text-gray-700 mb-6">Vos Inscriptions</h2>
 
+        <!-- SI une suppresion a eu lieu on affiche le message ici -->
+        {% if messages %}
+        <div class="bg-green-100 text-green-700 p-4 rounded mb-6">
+            {% for message in messages %}
+                <p class="{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <!-- Liste des inscriptions de l'utilisateur -->
         <div class="w-full max-w-md">
             {% for inscription in inscriptions %}
@@ -41,133 +50,76 @@
                         <p class="text-gray-600"><strong>Statut :</strong> {% if inscription.inscription_complete %} Complète {% else %} Incomplète {% endif %}</p>
                         <p class="text-gray-600"><strong>Date de l'inscription :</strong> {{ inscription.inscription_date }}</p>
                         <a href="{{ inscription.lien_vers_certificat }}" class="text-blue-500 hover:underline">Voir le certificat</a>
+
+                        <!-- Bouton de suppression de l'inscription -->
+                        <button class="mt-2 flex items-center text-red-500 hover:text-red-700 focus:outline-none"
+                                onclick="confirmer_suppression('{{ inscription.id }}')">
+                            <img src="{% static 'images/logo_croix_grise.png' %}" alt="Supprimer" class="w-6 h-6 mr-2">
+                            <span>Supprimer</span>
+                        </button>
                     </div>
                 {% endif %}
+
+            <!-- Si aucune inscriptions  -->
             {% empty %}
                 <p class="text-gray-600 text-center">Aucune inscription trouvée.</p>
             {% endfor %}
+
         </div>
+
+    <!-- Si l'utilisateur est déconnecté -->
     {% else %}
         <p class="text-gray-600 text-center">Veuillez vous connecter pour voir vos inscriptions.</p>
     {% endif %}
 
 </div>
-<style>
-/* Style global pour le formulaire */
-form {
-    background-color: #ffffff; /* Fond blanc */
-    border-radius: 0.5rem; /* Coins arrondis */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre subtile */
-    padding: 2rem; /* Espacement intérieur */
-    max-width: 28rem; /* Largeur maximale */
-    width: 100%; /* Largeur complète */
-    margin-bottom: 2rem; /* Espacement en bas */
-}
-
-/* Titre du formulaire */
-form h1 {
-    font-size: 1.875rem; /* Taille de police */
-    font-weight: bold; /* Texte en gras */
-    text-align: center; /* Centré */
-    color: #4a5568; /* Gris foncé */
-    margin-bottom: 1.5rem; /* Espacement en bas */
-}
-
-/* Label des champs */
-form label {
-    display: block; /* Chaque label sur une ligne */
-    color: #000000; /* Noir */
-    margin-bottom: 0.5rem; /* Espacement sous le label */
-}
-
-/* Champs de saisie */
-form input,
-form select {
-    width: 100%; /* Largeur complète */
-    padding: 0.5rem 1rem; /* Espacement intérieur */
-    border: 1px solid #cbd5e0; /* Bordure gris clair */
-    border-radius: 0.375rem; /* Coins arrondis */
-    font-size: 1rem; /* Taille de police */
-    color: #4a5568; /* Gris foncé */
-    margin-bottom: 1rem; /* Espacement sous chaque champ */
-    outline: none; /* Supprime le contour par défaut */
-    transition: all 0.2s ease; /* Animation douce */
-}
-
-/* Focus sur les champs */
-form input:focus,
-form select:focus {
-    border-color: #4299e1; /* Bordure bleue au focus */
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Halo bleu */
-}
-
-/* Bouton de soumission */
-form button {
-    width: 100%; /* Largeur complète */
-    background-color: #4a5568; /* Fond gris neutre */
-    color: #ffffff; /* Texte blanc */
-    font-weight: bold; /* Texte en gras */
-    padding: 0.5rem 1rem; /* Espacement intérieur */
-    border-radius: 0.375rem; /* Coins arrondis */
-    text-align: center; /* Centré */
-    transition: all 0.3s ease; /* Animation douce */
-    border: none; /* Pas de bordure */
-    cursor: pointer; /* Curseur pointeur */
-}
-
-/* Bouton hover */
-form button:hover {
-    background-color: #2d3748; /* Fond plus foncé au survol */
-}
 
 
-
-/* Texte descriptif sous les champs */
-.helptext {
-    font-size: 0.7rem; /* Texte plus petit */
-    color: #718096; /* Gris moyen */
-    margin-top: -0.5rem; /* Réduit l'espace au-dessus */
-    margin-bottom: 1rem; /* Espacement en bas */
-}
-
-/*Message d'erreur : */
-
-ul.errorlist > li {
-  font-size: 0.7rem;
-  background-color: #fff5f5; /* Rouge clair */
-  color: #e53e3e; /* Texte rouge */
-}
-
-
-</style>
-{% endblock %}
-
-
-
+<!-- Gestion du boutton de suppression en JS -->
 <!--
-<label for="nom" class="block text-gray-600 mb-2">Nom :</label>
-        <input type="text" id="nom" name="nom" required
-               class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
 
-        <label for="prenom" class="block text-gray-600 mb-2">Prénom :</label>
-        <input type="text" id="prenom" name="prenom" required
-               class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-        <label for="email" class="block text-gray-600 mb-2">Email :</label>
-        <input type="email" id="email" name="email" required
-               class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-        <label for="age" class="block text-gray-600 mb-2">Âge :</label>
-        <input type="number" id="age" name="age" min="1" required
-               class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-        <label for="course" class="block text-gray-600 mb-2">Choix de la course :</label>
-        <select id="course" name="course" required
-                class="w-full px-4 py-2 mb-6 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="5km">5 km</option>
-            <option value="10km">10 km</option>
-            <option value="semi-marathon">Semi-marathon</option>
-            <option value="marathon">Marathon</option>
-        </select>
+On demande confirmation dans pop up
+Si validé :
+    on créer un formulaire avec les infos (id de l'inscription, jeton crsf ...)
+    on submit ce formulaire vers l'url de suppression de compte
+    qui fera appel a la fonction supprimer
+Si l'utilisateur ne valide pas on ne fait rien
 
 -->
+<script>
+    function confirmer_suppression(inscriptionId) {
+        // Afficher une pop de confirmation
+        const confirmation = confirm(
+            "Êtes-vous sûr de vouloir supprimer cette inscription ? (Aucun remboursement ne sera effectué)"
+        );
+        if (confirmation) {
+            //Effectuer la suppression dans la BDD, et renvoyer vers une page inscription supprimer (ou un message)
+            // Créer un formulaire de suppression
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'supprimer/';  // L'URL de votre vue Django pour supprimer l'inscription
+
+            // Ajouter le CSRF token pour sécuriser le formulaire
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            // Ajouter l'ID de l'inscription
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'inscription_id';
+            idInput.value = inscriptionId;
+
+            // Ajouter les champs au formulaire
+            form.appendChild(csrfInput);
+            form.appendChild(idInput);
+
+            // Ajouter le formulaire à la page et soumettre
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+
+{% endblock %}
