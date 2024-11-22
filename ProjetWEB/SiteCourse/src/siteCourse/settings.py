@@ -134,3 +134,12 @@ print(os.listdir(os.path.join(BASE_DIR, "siteCourse/static")))
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+#Pour gestion des sessions de connexion
+# Durée de vie de la session en secondes (6 heures ici)
+SESSION_COOKIE_AGE = 6 * 60 * 60  # 6 heures
+
+# Session expire si le nav se ferme
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

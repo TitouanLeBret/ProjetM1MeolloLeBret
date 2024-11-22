@@ -9,14 +9,24 @@
             <h1 class="text-3xl font-bold text-center text-gray-700 mb-6">Votre compte :</h1>
             {% csrf_token %}
             {{form}}
-            <button type="submit" class="w-full bg-neutral-600 hover:bg-neutral-800 text-white font-bold py-2 px-4 rounded-md transition duration-300">Enregistrer les modifications</button>
+            <button type="submit" class="w-full bg-neutral-600 hover:bg-neutral-800 text-white font-bold py-2 px-4 rounded-md transition duration-300">
+                Enregistrer les modifications
+            </button>
 
-            <!-- Bouton de suppression du compte-->
+
+            <!-- Ancien Bouton de suppression du compte ( AVEC JS )
             <button class="flex items-center w-full bg-neutral-600 hover:bg-neutral-800 text-red-600 font-bold py-2 px-4 rounded-md transition duration-300 mt-4"
-                    onclick="delete_account('{{ inscription.id }}')">
+                    onclick="delete_account('{{ user.SOIT_ID_SOIT_EMAIL_JE_PENSE }}')">
                 <img src="{% static 'images/logo_croix_grise.png' %}" alt="Supprimer_compte" class="w-6 h-6 mr-2">
                 <span>Supprimer mon compte</span>
             </button>
+            -->
+
+
+            <!-- Lien pour changer email et password et supprimer son compte -->
+            <a href="{% url 'account:delete_account' %}" class="flex items-center w-full bg-neutral-600 hover:bg-neutral-800 text-red-600 font-bold py-2 px-4 rounded-md transition duration-300 mt-4">Supprimer mon compte</a>
+            <a href="{% url 'account:change_email' %}" class="flex items-center w-full bg-neutral-600 hover:bg-neutral-800 text-red-600 font-bold py-2 px-4 rounded-md transition duration-300 mt-4">Changer mon email</a>
+            <a href="{% url 'account:change_password' %}" class="flex items-center w-full bg-neutral-600 hover:bg-neutral-800 text-red-600 font-bold py-2 px-4 rounded-md transition duration-300 mt-4">Changer mon mot de passe</a>
 
             {% if success %}
                 <div class="bg-green-100 text-green-700 p-4 rounded mb-6 mt-6">
@@ -24,6 +34,14 @@
                 </div>
             {% endif %}
 
+            <!-- Si une modifs a eu lieu on affiche le message ici -->
+            {% if messages %}
+            <div class="bg-green-100 text-green-700 p-4 rounded mb-6 mt-6">
+                {% for message in messages %}
+                    <p class="{{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
 
         </form>
     {% else %}
@@ -48,33 +66,7 @@ On demande confirmation dans pop up
         const confirmation = confirm(
             "Êtes-vous sûr de vouloir supprimer Votre Compte ? "
         );
-        if (confirmation) {
-            //Effectuer la suppression dans la BDD, et renvoyer vers une page inscription supprimer (ou un message)
-            // Créer un formulaire de suppression
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'supprimer/';  // L'URL de votre vue Django pour supprimer l'inscription
 
-            // Ajouter le CSRF token pour sécuriser le formulaire
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = 'csrfmiddlewaretoken';
-            csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-            // Ajouter l'ID de l'inscription
-            const idInput = document.createElement('input');
-            idInput.type = 'hidden';
-            idInput.name = 'inscription_id';
-            idInput.value = inscriptionId;
-
-            // Ajouter les champs au formulaire
-            form.appendChild(csrfInput);
-            form.appendChild(idInput);
-
-            // Ajouter le formulaire à la page et soumettre
-            document.body.appendChild(form);
-            form.submit();
-        }
     }
 </script>
 

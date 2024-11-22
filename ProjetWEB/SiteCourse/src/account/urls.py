@@ -6,14 +6,22 @@ Ce module associe chaque URL à une fonction de vue spécifique.
 
 from django.urls import path
 from . import views
-from siteCourse.views import account
 
 #Défini le nom de l'application, que  l'on utilisera donc dans "siteCourse"
 app_name = "account"
 
 urlpatterns = [
     # Page d'accueil, redirige vers la vue 'account'
-    path('', account , name='home'),
+    path('', views.account , name='home'),
+
+    # Page de suppresion de compte
+    path('delete/', views.delete_account, name='delete_account'),
+
+    # Page de changement d'email
+    path('change_email/', views.change_email, name='change_email'),
+
+    # Page de changement de mot de passe
+    path('change_password/', views.change_password, name='change_password'),
 
     # Page de connexion, redirige vers la vue 'login_user'
     path('login/', views.login_user , name='login'),
