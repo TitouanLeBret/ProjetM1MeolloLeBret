@@ -39,7 +39,7 @@ class InscriptionCourse(models.Model):
 
 
 """
- Surement A supprimer, car gestion faites par django directement
+ Surement A supprimer, car gestion faites par django directement dans custom_user_user pour a table
  """
 class InscriptionCompte(models.Model):
     email = models.CharField(max_length=255,null=False)

@@ -5,10 +5,10 @@
 {% block content %}
 <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-8">
     <form method="post" action="{% url 'inscriptions:home' %}" class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md mb-8">
-        <!--Modifier ici le action, pour que ça renvoie soit vers complete soit vers failde ?????? Peut etre pas utile-->
+
         {% csrf_token %}
         <h1 class="text-3xl font-bold text-center text-gray-700 mb-6">Inscription à la Course</h1>
-<!--Mettre de l'auto complétion si jamais l'user est connecté, on met directement son email, son nom prénom etc...-->
+
         {{form}}
 
         <button type="submit"

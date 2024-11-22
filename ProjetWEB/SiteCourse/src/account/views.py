@@ -14,6 +14,10 @@ from django.shortcuts import render, redirect
 from django import forms
 from django.contrib.auth import get_user_model
 
+#Pour la modification du mot de passe
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+
 """
 Utilisation du modèle d'utilisateur personnalisé (custom user), définis dans l'app custom_user dans models.py
 Ce custom user vient du module Django django_use_email_as_username
@@ -176,14 +180,14 @@ class AccountForm(forms.Form):
 """
 Fonction pour la vue du compte
 
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+Permet à l'utilisateur de visualiser et de modifier ses informations personnelles, telles que son prénom, nom et âge.
+- Si une requête POST est envoyée :
+    - Vérifie la validité des données soumises via un formulaire.
+    - Si valide, met à jour les informations de l'utilisateur dans la base de données.
+    - Si invalide, affiche les erreurs et réinitialise le formulaire.
+- Si aucune requête POST :
+    - Pré-remplit les champs avec les données actuelles de l'utilisateur s'il est connecté.
+    - Affiche la page sans formulaire si l'utilisateur n'est pas connecté
 """
 def account(request):
     # Traitement du formulaire lorsqu'une qu'il est soumis (requete POST)
@@ -191,9 +195,9 @@ def account(request):
         form = AccountForm(request.POST) # Création du formulaire avec les données soumises
         if form.is_valid(): # Vérification de la validité des données soumises
             user = request.user
-            user.prenom = request.POST.get('prenom')
-            user.nom = request.POST.get('nom')
-            user.age = request.POST.get('age')
+            user.prenom = form.cleaned_data.get('prenom')
+            user.nom = form.cleaned_data.get('nom')
+            user.age = form.cleaned_data.get('age')
             # Enregistre les modifications dans la base de données
             user.save()
             # Redirection vers la même page (PEUT ETRE A MODIFIER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!)
@@ -218,8 +222,7 @@ def account(request):
         #si pas connecté
         # Formulaire vide
         else :
-            form = AccountForm()
-            return render(request, 'account/account.html', {'form': form})
+            return render(request, 'account/account.html')
 
 
 
@@ -240,13 +243,7 @@ Ce formulaire est une modification d'un formulaire django
 -Champs 1 : Email
 -Champs 2 : Mot de passe
 
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
 
 """
 class UserDeleteAccountForm(forms.Form):
@@ -271,15 +268,15 @@ class UserDeleteAccountForm(forms.Form):
 
 
 """
-Fonction pour suppression d'un compte
+Fonction pour la suppression de compte
 
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Permet à l'utilisateur de supprimer définitivement son compte après vérification de son email et de son mot de passe.
+- Si une requête POST est envoyée :
+    - Vérifie les identifiants soumis (email et mot de passe) via un formulaire.
+    - Si valide, supprime l'utilisateur de la base de données et affiche un message de confirmation.
+    - Si invalide, affiche un message d'erreur.
+- Si aucune requête POST :
+    - Affiche un formulaire de suppression de compte.
 
 """
 
@@ -322,13 +319,7 @@ Ce formulaire est une modification d'un formulaire django
 -Champs 2 : Mot de passe
 -Champs 3 : Nouvel email
 
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
 
 """
 class UserChangeMailForm(forms.Form):
@@ -359,13 +350,13 @@ class UserChangeMailForm(forms.Form):
 """
 Fonction pour le changement d'email d'un compte
 
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Permet à l'utilisateur de modifier son adresse email après vérification de l'ancien email et du mot de passe.
+- Si une requête POST est envoyée :
+    - Vérifie les données via un formulaire.
+    - Si valide, met à jour l'email de l'utilisateur dans la base de données et affiche un message de confirmation.
+    - Si invalide, affiche un message d'erreur.
+- Si aucune requête POST :
+    - Affiche un formulaire pour le changement d'email.
 
 """
 def change_email(request):
@@ -409,13 +400,7 @@ Ce formulaire est une modification d'un formulaire django
 -Champs 2 : Mot de passe actuel
 -Champs 3 : Nouveau Mot de passe
 
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
 
 """
 class UserChangePasswordForm(forms.Form):
@@ -430,40 +415,33 @@ class UserChangePasswordForm(forms.Form):
 
 # Fonction clean_xxx appelé automatiquement par django lors de is_valid()
 
-    """Cette fonction est impossible car compare avec le HASH
-    def clean_old_password(self):
-        old_password = self.cleaned_data.get('old_password')
-        print("JE SUIS LAAAAAA")
-        if old_password != self.user.password:
-            print(self.user.password)
-            raise forms.ValidationError("L'ancien mot de passe ne correspond pas à celui associé à votre compte.")
-        return old_password
+    """Cette fonction permet de tester que l'utilisateur essaie bien de changer le mots de passe du bon compte
+        Comme on n'a l'unicité sur les email, il doit forcement donnée le mots de passe associé a son email 
+        (On ne peut pas comparer directement les password car ils sont stocké sous forme de HASH)
     """
-
-
-    """
-    def clean_new_password(self):
-        new_password = self.cleaned_data.get('new_password')
-        #FAIRE DES TEST SUR LE MOTS DE PASSE ?
-        #LOGIQUEMENT NON CAR DEJA FAIT PAR widget=forms.PasswordInput
-        return new_password
-        
-"""
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email != self.user.email:
+            raise forms.ValidationError("L'Email ou le mot de passe est/sont incorrect(s).") #On met ce message pour ne pas donner trop d'informations
+        return email
 
 
 
 """
 Fonction pour le changement de mot de passe d'un compte
 
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-A FAIRE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+Permet à l'utilisateur de modifier son mot de passe après vérification de l'ancien mot de passe.
+- Si une requête POST est envoyée :
+    - Vérifie les données via un formulaire.
+    - Si valide :
+        verifie que le mot de passe respecte les regles de sécurité django : validate_password()
+            si oui : met à jour le mot de passe de l'utilisateur dans la base de données, reconnecte l'utilisateur et affiche un message de confirmation.
+            si non : renvoie sur la page de base avec la les messages d'erreur renvoyé par la fonction validate_password (1 ou plusieurs messages)
+    - Si invalide, affiche un message d'erreur.
+- Si aucune requête POST :
+    - Affiche un formulaire pour le changement de mot de passe.
 """
+
 def change_password(request):
     if request.method == "POST":
         form = UserChangePasswordForm(request.user,request.POST)
@@ -474,11 +452,23 @@ def change_password(request):
 
             user = authenticate(request, email=email, password=old_password)
             if user:
-                user.set_password(new_password)
-                user.save()
-                messages.success(request, "Votre mot de passe a été changé.")
-                login(request, user)  # Reconnexion automatique
-                return redirect('account:home')
+                try:
+# Valider le nouveau mot de passe avec les règles de Django
+                    validate_password(new_password, user=user)
+                    
+                    # Si valide, enregistrer le nouveau mot de passe
+                    user.set_password(new_password)
+                    user.save()
+                    messages.success(request, "Votre mot de passe a été changé.")
+                    
+                    # Reconnexion automatique
+                    login(request, user)
+                    return redirect('account:home')
+                # Si le nouveau mot de passe ne respecte pas les règles de Django 
+                except ValidationError as e:
+                    #On parcours toutes les erreurs pour les ajouter et que l'utilisateur voit quelle regles il ne respecte pas
+                    for error in e:
+                        messages.error(request, error) #exemple d'erreur : mot de passe trop court, trop courant, entierement numérique
             else:
                 messages.error(request, "Les informations saisies sont incorrectes.")
     else:

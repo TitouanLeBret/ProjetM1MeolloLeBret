@@ -1,3 +1,5 @@
+<!-- PAGE POUR AFFICHAGE D'UN COMPTE -->
+
 {% extends 'squelette.html' %}
 {% load static %}
 {% block title %}Compte{% endblock %}
@@ -12,15 +14,6 @@
             <button type="submit" class="w-full bg-neutral-600 hover:bg-neutral-800 text-white font-bold py-2 px-4 rounded-md transition duration-300">
                 Enregistrer les modifications
             </button>
-
-
-            <!-- Ancien Bouton de suppression du compte ( AVEC JS )
-            <button class="flex items-center w-full bg-neutral-600 hover:bg-neutral-800 text-red-600 font-bold py-2 px-4 rounded-md transition duration-300 mt-4"
-                    onclick="delete_account('{{ user.SOIT_ID_SOIT_EMAIL_JE_PENSE }}')">
-                <img src="{% static 'images/logo_croix_grise.png' %}" alt="Supprimer_compte" class="w-6 h-6 mr-2">
-                <span>Supprimer mon compte</span>
-            </button>
-            -->
 
 
             <!-- Lien pour changer email et password et supprimer son compte -->
