@@ -1,0 +1,31 @@
+fn log_in_page(login_field: &LoginField) -> Container<Message> {
+    let column = Column::new()
+        .push(text("Interface graphique avec Iced !"))
+        .push(
+            input_field("Adresse mail...", &login_field.email)
+            .on_input(
+                //si email change on met a jour avec le noveau mail et un clone de password, puisqu'il ne change pas
+                |email| {
+                    Message::LoginFieldChanged(
+                        email, 
+                        login_field.password.clone()
+                    )
+                },
+            ),
+        )
+        .push(
+            input_field("Mot de passe...", &login_field.password)
+            .on_input(
+                //Si mot de passe change alors on met a jour avec mdp a jour et un clone d'email, puisqu'il ne change pas
+                |password| {Message::LoginFieldChanged(login_field.email.clone(), password)
+                },
+            ),
+        )
+        .push(submit_btn("Login", Message::LoginSubmit))
+        .padding(Padding::from([50,20]))
+        .align_items(Alignment::Center)
+        .spacing(40);
+    container(column)
+        .padding(Padding::from(20))
+        .style(iced::theme::Container::Custom(Box::new(ContainerStyle)))
+}

@@ -11,6 +11,8 @@ use crate::rsa::check_enc;
 use super::components::MyTextInput;
 use crate::rsa::check_enc::TestStatus; //Pour utiliser directemet TestStatus et pas check_enc::TestStatus
 
+use crate::rsa::check_enc::all_status_to_false; //Pour remettre tous les status à false
+use crate::rsa::check_enc::ALL_TEST_STATUS; //Pour utiliser la lsite de check_enc.rs
 
 /// Gère l'état de la page "Validité Chiffrement RSA".
 /// Cette structure contient les valeurs de clé publique et privée, 
@@ -29,8 +31,9 @@ pub struct ValidRsaChifPage {
     d_value: String,
     /// État du bouton pour vérifier la validité des clés.
     check_button: button::State,
-    /// Liste des résultats des tests de sécurité, (sert pour afficher les résultats)
-    tests: Vec::<TestStatus>,
+
+    //La page de validation se sert de la liste de tests directement présente dans check_enc.rs, étant donnée que celle-ci est publique, nous n'avons pas besoin de garder une référence
+
 }
 
 
@@ -45,12 +48,6 @@ impl ValidRsaChifPage {
             e_value: String::new(),
             d_value: String::new(),
             check_button: button::State::new(),
-            tests: vec![
-                TestStatus {
-                    name: "Test de sécurité complet (faire une version ou on voit le résultat de chaque test)",
-                    is_valid: false,
-                },
-            ],
         }
     }
 
@@ -102,6 +99,9 @@ impl ValidRsaChifPage {
                 .push(Text::new("N :"))
                 .push(MyTextInput::new("N", &self.n_value).width(Length::Fill).on_input(
                     | n_value | {
+                        //Réinitialise tous les tests a False, car une case a était modifiée
+                        all_status_to_false();  
+
                         gui::Message::FieldChangedRsaChiff(
                             n_value, 
                             self.p_value.clone(),
@@ -115,6 +115,9 @@ impl ValidRsaChifPage {
                 .push(Text::new("e :"))
                 .push(MyTextInput::new("e", &self.e_value).width(Length::Fill).on_input(
                     | e_value | {
+                        //Réinitialise tous les tests a False, car une case a était modifiée
+                        all_status_to_false();
+                        
                         gui::Message::FieldChangedRsaChiff(
                             self.n_value.clone(), 
                             self.p_value.clone(),
@@ -135,6 +138,9 @@ impl ValidRsaChifPage {
                 .push(Text::new("p :"))
                 .push(MyTextInput::new("p", &self.p_value).width(Length::Fill).on_input(
                     | p_value | {
+                        //Réinitialise tous les tests a False, car une case a était modifiée
+                        all_status_to_false();
+
                         gui::Message::FieldChangedRsaChiff(
                             self.n_value.clone(), 
                             p_value,
@@ -147,6 +153,9 @@ impl ValidRsaChifPage {
                 .push(Text::new("q :"))
                 .push(MyTextInput::new("q", &self.q_value).width(Length::Fill).on_input(
                     | q_value | {
+                        //Réinitialise tous les tests a False, car une case a était modifiée
+                        all_status_to_false();
+
                         gui::Message::FieldChangedRsaChiff(
                             self.n_value.clone(), 
                             self.p_value.clone(),
@@ -159,6 +168,9 @@ impl ValidRsaChifPage {
                 .push(Text::new("d :"))
                 .push(MyTextInput::new("d", &self.d_value).width(Length::Fill).on_input(
                     | d_value | {
+                        //Réinitialise tous les tests a False, car une case a était modifiée
+                        all_status_to_false();
+
                         gui::Message::FieldChangedRsaChiff(
                             self.n_value.clone(), 
                             self.p_value.clone(),
@@ -176,7 +188,7 @@ impl ValidRsaChifPage {
             .on_press(gui::Message::CheckButtonPressedRsaChiff);
 
         // Section des tests de sécurité avec les cases validées ou non
-        let test_results = self.tests.iter()
+        let test_results = ALL_TEST_STATUS.lock().unwrap().iter()
             .fold(Column::new()
                 .spacing(10), |column: Column<'_, gui::Message>, test| { column
                     .push(
@@ -218,7 +230,7 @@ impl ValidRsaChifPage {
 
     /// Retourne l'état actuel des tests de sécurité. 
     pub fn get_tests_status(&self) -> Vec<TestStatus> {
-        self.tests.clone()
+        ALL_TEST_STATUS.lock().unwrap().clone()
     }
 
 
@@ -231,12 +243,8 @@ impl ValidRsaChifPage {
 
     /// Vérifie la validité de la clé RSA en exécutant tous les tests de sécurité.
     /// Met à jour les résultats des tests dans l'état de la page.
-    pub fn check_values(&mut self) -> Vec<TestStatus>{
-        let all_test_status = check_enc::all_security_tests_status(self.n_value.clone(), self.e_value.clone(), self.p_value.clone(), self.q_value.clone(), self.d_value.clone());
-        for i in 0..all_test_status.len() {
-            self.tests[i].is_valid = all_test_status[i].is_valid;
-        }
-        all_test_status
+    pub fn check_values(&mut self){
+        check_enc::calc_all_security_tests_status(self.n_value.clone(), self.e_value.clone(), self.p_value.clone(), self.q_value.clone(), self.d_value.clone());
     }
 
 }

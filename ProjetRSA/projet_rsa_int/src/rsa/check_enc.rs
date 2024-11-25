@@ -12,8 +12,57 @@ pub struct TestStatus {
     pub is_valid: bool,
 }
 
+use once_cell::sync::Lazy;
+use std::sync::Mutex;
+//Ce vecteur a un Mutex, pour pouvoir etre une variable globale mutable,
+//On s'en sert dans check_enc_page.rs, mais on pourrais récréer une autre page qui s'en sert sans problème
+pub static ALL_TEST_STATUS : Lazy<Mutex<Vec<TestStatus>>> = Lazy::new(||
+    Mutex::new(vec![
+    TestStatus {
+        name: "Test de la taille de N (>= 2048 bits)",
+        is_valid: false,
+    },
+    TestStatus {
+        name: "Test de factorisation (N=p*q)",
+        is_valid: false,
+    },
+    TestStatus {
+        name: "Test de chiffrement / déchiffrement",
+        is_valid: false,
+    },
+    TestStatus {
+        name: "Test de sécurité sur e et d",
+        is_valid: false,
+    },
+    TestStatus {
+        name: "Test de sécurité complet",
+        is_valid: false,
+    },
+    TestStatus {
+        name: "Rajouter test dans ALL_TEST_STATUS",
+        is_valid: false,
+    },
+    ])
+);
 
-//Fonction de génération de la clef RSA :
+//Mets le status a l'index "index" a la valeur new_status
+pub fn update_test_status(index: usize, new_status: bool) {
+    let mut tests = ALL_TEST_STATUS.lock().unwrap();
+    if let Some(test) = tests.get_mut(index) {
+        test.is_valid = new_status;
+    }
+}
+
+//Remets tous les .is_valid a false (réinitialise les status)
+pub fn all_status_to_false(){
+    let mut tests = ALL_TEST_STATUS.lock().unwrap();
+    for test in tests.iter_mut() {
+        test.is_valid = false;
+    }
+}
+
+
+//Fonction de génération de la clef RSA : // A mettre dans keygen.rs peut etre ? 
 pub fn generate_rsa_private_key(bits: usize) -> Vec<RsaBigUint> {
     //On créer une clef RSA 
     let mut rng = rand::thread_rng();
@@ -31,6 +80,7 @@ pub fn generate_rsa_private_key(bits: usize) -> Vec<RsaBigUint> {
 
 use std::str::FromStr;
 //Fonction de vérification de RSA (vérsion de base, a ne pas garder :!!!!!!): 
+// ******************** PAS UTILISE ****************************
 pub fn all_security_tests(n_value : String , e_value: String, p_value: String, q_value: String , d_value: String) -> bool/*-> enum<bool>*/ {
     //Return une énum avec les différents tests associés a leur validité ou non
     let mut validation = true;
@@ -41,14 +91,13 @@ pub fn all_security_tests(n_value : String , e_value: String, p_value: String, q
     let d = RsaBigUint::from_str(&d_value).expect("Conversion échouée");
     let priv_key : RsaPrivateKey = RsaPrivateKey::from_components(n.clone(), e.clone(), d.clone(),vec![p.clone(), q.clone()]).expect("Conversion échouée");
     let pub_key : RsaPublicKey = RsaPublicKey::from(&priv_key);
-    validation = validation && bits_pub_key(&n) && is_valid_factorisation(&n, &p, &q) && is_valid_encryption_decryption(&n, &pub_key, &priv_key) && are_valide_e_d();
+    validation = validation && bits_pub_key(&n) && is_valid_factorisation(&n, &p, &q) && is_valid_encryption_decryption(&pub_key, &priv_key) && are_valide_e_d(&pub_key,&priv_key);
     validation
 }
 
 
-pub fn all_security_tests_status(n_value : String , e_value: String, p_value: String, q_value: String , d_value: String) -> Vec<TestStatus> {
+pub fn calc_all_security_tests_status(n_value : String , e_value: String, p_value: String, q_value: String , d_value: String) {
     //Return une énum avec les différents tests associés a leur validité ou non
-    let mut validation = true;
     let n = RsaBigUint::from_str(&n_value).expect("Conversion échouée");
     let e = RsaBigUint::from_str(&e_value).expect("Conversion échouée");
     let p = RsaBigUint::from_str(&p_value).expect("Conversion échouée");
@@ -56,13 +105,16 @@ pub fn all_security_tests_status(n_value : String , e_value: String, p_value: St
     let d = RsaBigUint::from_str(&d_value).expect("Conversion échouée");
     let priv_key : RsaPrivateKey = RsaPrivateKey::from_components(n.clone(), e.clone(), d.clone(),vec![p.clone(), q.clone()]).expect("Conversion échouée");
     let pub_key : RsaPublicKey = RsaPublicKey::from(&priv_key);
-    validation = validation && bits_pub_key(&n) && is_valid_factorisation(&n, &p, &q) && is_valid_encryption_decryption(&n, &pub_key, &priv_key) && are_valide_e_d();
-    vec![
-        TestStatus {
-            name: "Test de sécurité complet (faire une version ou on voit le résultat de chaque test)",
-            is_valid: validation,
-        },
-        ]
+    let validation_bits_pub_key =  bits_pub_key(&n) ;
+    let validation_facto = is_valid_factorisation(&n, &p, &q) ;
+    let validation_enc_dec =  is_valid_encryption_decryption( &pub_key, &priv_key) ;
+    let validation_e_d = are_valide_e_d(&pub_key,&priv_key);
+    let validation_complete = validation_bits_pub_key && validation_facto && validation_enc_dec && validation_e_d;
+    update_test_status(0,validation_bits_pub_key);
+    update_test_status(1,validation_facto);
+    update_test_status(2,validation_enc_dec);
+    update_test_status(3,validation_e_d);
+    update_test_status(4,validation_complete);
 }
 
 
@@ -84,25 +136,78 @@ fn primalite(p : &RsaBigUint) -> bool { // !!!!!!!!!! Implémenter MILLER RABIN 
 }
 
 
-fn are_prime_factors(p : &RsaBigUint, q : &RsaBigUint) -> bool {
+fn are_prime(p : &RsaBigUint, q : &RsaBigUint) -> bool {
     primalite(p) && primalite(q)
 }
 
 
 fn is_valid_factorisation(n : &RsaBigUint, p : &RsaBigUint, q : &RsaBigUint) -> bool {
     let n_calc = p *q; // Calcul du produit des facteurs premiers
-    //println!("n_calc : {}", n_calc);
-    //println!("n : {}", n);
-    n.eq(&n_calc) && are_prime_factors(p, q)
+    n.eq(&n_calc) && are_prime(p, q)
 }
 
 
-fn is_valid_encryption_decryption(n : &RsaBigUint, pub_key : &RsaPublicKey, priv_key : &RsaPrivateKey) -> bool {
-    true
+//Voir : https://docs.rs/rsa/latest/rsa/index.html
+use rsa::Pkcs1v15Encrypt; // C'est le padding Pkcs1
+//Cette fonction peut en soit remplacer la fonction qui effectue tous les tests, car si elle est vraie, alors tous les tests sont vrais.
+fn is_valid_encryption_decryption(pub_key : &RsaPublicKey, priv_key : &RsaPrivateKey) -> bool {
+    let data = b"Hello world! C'est  le test de chiffrement/dechiffrement";
+    let mut rng = rand::thread_rng();
+    /*
+    let enc_data = pub_key.encrypt(&mut rng,Pkcs1v15Encrypt, &data[..]);
+    //&data[..] permet de renvoyer une référence vers une slice du tableau, qui fait la taill entière du tableau.
+    if enc_data.is_err(){
+        return false;
+    } 
+
+    //On redéfini enc_data, pour lui enlever la possiblité d'etre une erreur, car on sait qu'il n'y'en a pas et donc qu'il soit &[u8]
+    let enc_data = &enc_data.unwrap();
+    
+    let dec_data = priv_key.decrypt(Pkcs1v15Encrypt, enc_data);
+    
+    if dec_data.is_err(){
+        return false;
+    } 
+
+    //On redéfini dec_data, pour lui enlever la possiblité d'etre une erreur, car on sait qu'il n'y'en a pas et donc qu'il soit &[u8]
+    let dec_data = dec_data.unwrap();
+    */
+    //Plus simple qu'au dessus : 
+    let enc_data = pub_key.encrypt(&mut rng,Pkcs1v15Encrypt, &data[..]).unwrap_or_else(|_| vec![]); // si on ne peut pas unwrap on renvoie un vecteur vide
+
+    let dec_data = priv_key.decrypt(Pkcs1v15Encrypt, &enc_data).unwrap_or_else(|_| vec![]);// si on ne peut pas unwrap on renvoie un vecteur vide
+    data == &dec_data[..] // On retourne vrai si c'est égale, faux sinon
+
 }
 
 
-fn are_valide_e_d() -> bool {
+
+
+
+//use num_integer::Integer; // Pour le trait gcd() --> Mais on a préférer refaire euclide étendue nous même
+use super::utils::pgcd; 
+//Fonction de calcul du pgcd (PEUT ETRE A METTRE DANS UN FICHIER utils.rs, car peut reservir)
+fn are_valide_e_d(pub_key : &RsaPublicKey, priv_key : &RsaPrivateKey) -> bool {
+    // Récupérer les valeurs de la clé publique et privée
+    let e = pub_key.e(); // Exposant public
+    let d = priv_key.d(); // Exposant privé
+    let n = pub_key.n(); // Modulus (N)
+    let p = priv_key.primes()[0].clone(); // Premier facteur de N
+    let q = priv_key.primes()[1].clone(); // Deuxième facteur de N
+
+    // Calculer φ(N) = (p - 1) * (q - 1)
+    let phi_n = (p - RsaBigUint::from(1u8)) * (q - RsaBigUint::from(1u8));
+
+    // Vérifier que e et φ(N) sont premiers entre eux grâce aui pgcd
+    if pgcd(&e,&phi_n) != RsaBigUint::from(1u8) {
+        return false; // e n'est pas valide
+    };
+
+    // Vérifier que (e * d) % φ(N) == 1
+    if (e * d) % &phi_n != RsaBigUint::from(1u8) {
+        return false; // d n'est pas valide
+    };
+
     true
 }
 
