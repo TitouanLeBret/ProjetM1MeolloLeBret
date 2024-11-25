@@ -12,7 +12,7 @@ use super::components;
 use super::home_page;
 
 use crate::rsa::check_enc;
-
+use crate::rsa::check_enc::all_status_to_false; //Pour remettre tous les status à false
 
 
 
@@ -60,6 +60,7 @@ impl Sandbox for App{
 
             Message::NewValuesRsaEnc => {
                 let key = check_enc::generate_rsa_private_key(2048);
+                all_status_to_false(); // On mets de nouvelles valeurs donc on remet les status de tests a false
                 self.valid_rsa_chif_page.update(key[0].to_string(),key[2].to_string(),key[3].to_string(),key[1].to_string(),key[4].to_string());
             }
 

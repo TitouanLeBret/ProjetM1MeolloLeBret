@@ -1,3 +1,7 @@
+
+// N, e et un ou plusieurs chiffrés ct1, ct2 etccc ???
+
+
 fn check_sign_page() -> Container<'static, Message> {
     let n ="" ; let p ="" ; let q ="" ; let e ="" ; let d ="" ;
     let wrapper = Column::new()
