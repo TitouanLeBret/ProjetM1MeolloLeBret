@@ -1,6 +1,10 @@
 from django.apps import AppConfig
 
+"""
+Fichier générer automatiquement par python manage.py create_custom_user_app
+Voir doc : https://pypi.org/project/django-use-email-as-username/
+"""
 
-class AccountConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
+class CustomUserConfig(AppConfig):
     name = 'account'
+    verbose_name = 'Custom user management application'

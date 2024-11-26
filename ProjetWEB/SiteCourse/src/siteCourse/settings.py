@@ -35,7 +35,7 @@ INSTALLED_APPS = [
 
     #Pour auth par email :
     'django_use_email_as_username.apps.DjangoUseEmailAsUsernameConfig',
-    'custom_user.apps.CustomUserConfig',
+    #'account.apps.CustomUserConfig',
 
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'inscriptions',
 ]
 
-AUTH_USER_MODEL = 'custom_user.User'
+AUTH_USER_MODEL = 'account.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
