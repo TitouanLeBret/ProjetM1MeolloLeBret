@@ -1,11 +1,14 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
 # Modèle représentant une inscription à une course.
 class InscriptionCourse(models.Model):
     """
        Ce modèle stocke les informations relatives à l'inscription d'un participant à une course.
     """
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     nom = models.CharField(max_length=255)
     prenom = models.CharField(max_length=255)
     email = models.CharField(max_length=255)
@@ -33,26 +36,3 @@ class InscriptionCourse(models.Model):
     """
     class Meta:
         db_table = "InscriptionCourse"  # Nom exact de la table dans la base de données
-
-
-
-
-
-"""
- Surement A supprimer, car gestion faites par django directement dans custom_user_user pour a table
- """
-class InscriptionCompte(models.Model):
-    email = models.CharField(max_length=255,null=False)
-    mot_de_passe = models.CharField(max_length=2048,null=False)
-    #Champs optionnel a l'inscription pour créer un compte : 
-    nom = models.CharField(max_length=255)
-    prenom = models.CharField(max_length=255)
-    age = models.IntegerField()
-    lien_vers_certificat = models.CharField(max_length=2048)
-    inscription_complete = models.BooleanField(null=False, default=False)
-
-    def __str__(self):
-        return str(self.email) +str(self.mot_de_passe)
-
-    class Meta:
-        db_table = "InscriptionCompte"

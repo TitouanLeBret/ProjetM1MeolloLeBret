@@ -25,7 +25,7 @@ def inscriptions(request):
         # ! ! ! ! ! ! ! ! !
         # ! ! ! ! ! ! ! ! !
         inscriptions = InscriptionCourse.objects.filter(
-            email=request.user.email,
+            email=request.user.email,user = request.user,
         )
     else :
         # Si l'utilisateur n'est pas authentifié, on initialise une variable vide pour les inscriptions
@@ -42,6 +42,7 @@ def inscriptions(request):
             # ! ! ! ! ! ! ! ! !
             # ! ! ! ! ! ! ! ! !
             insc = InscriptionCourse.objects.create(
+                user = request.user,
                 nom=form.cleaned_data['nom'],
                 prenom=form.cleaned_data['prenom'],
                 email=form.cleaned_data['email'],

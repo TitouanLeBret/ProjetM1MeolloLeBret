@@ -21,6 +21,10 @@ from captcha.fields import CaptchaField
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
+
+from inscriptions.models import InscriptionCourse
+
+
 """
 Utilisation du modèle d'utilisateur personnalisé (custom user), définis dans l'app custom_user dans models.py
 Ce custom user vient du module Django django_use_email_as_username
@@ -314,6 +318,9 @@ def delete_account(request):
 
             user = authenticate(request, email=email, password=password)
             if user:
+                # Supprimer les inscriptions associées à l'email de l'utilisateur
+                InscriptionCourse.objects.filter(email=email).delete()
+
                 user.delete()
                 messages.success(request, "Votre compte a été supprimé avec succès.")
                 return redirect('account:login')  # Rediriger vers la page de connexion
