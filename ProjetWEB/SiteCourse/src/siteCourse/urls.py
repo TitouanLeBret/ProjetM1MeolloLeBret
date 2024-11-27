@@ -31,4 +31,6 @@ urlpatterns = [
     path('account/', include('account.urls') ), #quand app on ne peut pas mettre name
     path('login/', login_page , name='login_page'),
     #path('inscriptions/', include('inscriptions.urls')), pour avoir inscriptions/...
+
+    path('captcha/', include('captcha.urls')),
 ]

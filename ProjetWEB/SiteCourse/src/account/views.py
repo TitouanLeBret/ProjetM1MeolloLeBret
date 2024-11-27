@@ -14,6 +14,9 @@ from django.shortcuts import render, redirect
 from django import forms
 from django.contrib.auth import get_user_model
 
+#Pour le captcha
+from captcha.fields import CaptchaField
+
 #Pour la modification du mot de passe
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -35,6 +38,16 @@ User = get_user_model()
 """
 
 
+"""
+Formulaire personnaliser de connexion (on se ressert de celui fournis mais on lui ajoute un captcha)
+
+-Champs 1 et 2, champs de base de AuthenticationForm
+-Captcha
+"""
+class AuthenticationFormCaptcha(AuthenticationForm):
+    captcha = CaptchaField()
+
+
 
 
 """
@@ -49,17 +62,23 @@ S'il n'y a pas de requete
 """
 def login_user(request):
     if request.method=="POST" :
-        username = request.POST['username']
-        password = request.POST['password']
+        form = AuthenticationFormCaptcha(data=request.POST)
+        print(request.POST)
+        if form.is_valid():
+            human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
+            username = request.POST['username']  # email
+            password = request.POST['password']
 
-        user = authenticate(request, username=username, password=password)
+            user = authenticate(request, username=username, password=password)
 
-        if user is not None:
-            login(request, user)
-            return redirect('accueil')
+            if user is not None :
+                login(request, user)
+                return redirect('accueil')
+            else :
+                messages.info(request, 'Identifiant et/ou mot de passe incorrect')
         else :
-            messages.info(request, 'Identifiant et/ou mot de passe incorrect')
-    form = AuthenticationForm()
+            messages.info(request, 'Captcha incorrect ou mauvais identifiant/mot de passe')
+    form = AuthenticationFormCaptcha()
     return render(request, 'account/login.html', {'form': form})
 
 
@@ -114,6 +133,7 @@ Ce formulaire est une modification d'un formulaire django
 -Champs 3 : Verification mot de passe
 """
 class EmailUserCreationForm(UserCreationForm):
+    captcha = CaptchaField()
     class Meta:
         model = User
         fields = ('email', 'password1', 'password2')  # Utilisation de l'email et des mots de passe
@@ -139,6 +159,7 @@ def register_user(request):
     if request.method == "POST":
         form = EmailUserCreationForm(request.POST)
         if form.is_valid():
+            human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             user = form.save()
             login(request,user)
             return redirect("accueil")
@@ -171,6 +192,7 @@ class AccountForm(forms.Form):
     nom = forms.CharField(max_length=100, required=False)
     #email = forms.EmailField()
     age = forms.IntegerField(min_value=1, max_value=110, required=False)
+    captcha = CaptchaField()
 
 
 
@@ -194,6 +216,7 @@ def account(request):
     if request.method == "POST":
         form = AccountForm(request.POST) # Création du formulaire avec les données soumises
         if form.is_valid(): # Vérification de la validité des données soumises
+            human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             user = request.user
             user.prenom = form.cleaned_data.get('prenom')
             user.nom = form.cleaned_data.get('nom')
@@ -249,6 +272,7 @@ La fonction __init__ intialise un formulaire mais en lui donnant un user, pour p
 class UserDeleteAccountForm(forms.Form):
     email = forms.EmailField(label='Email', max_length=254)
     password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput)
+    captcha = CaptchaField()
 
 #Explication de pourquoi *args et **kwargs sur stackoverflow : https://stackoverflow.com/questions/871037/django-overriding-init-for-custom-forms
     def __init__(self, user ,*args, **kwargs):
@@ -284,6 +308,7 @@ def delete_account(request):
     if request.method == "POST":
         form = UserDeleteAccountForm(request.user,request.POST)
         if form.is_valid():
+            human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
 
@@ -326,6 +351,7 @@ class UserChangeMailForm(forms.Form):
     old_email = forms.EmailField(label='Ancien Email', max_length=254)
     password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput)
     new_email = forms.EmailField(label='Nouvel Email', max_length=254)
+    captcha = CaptchaField()
 
 #Explication de pourquoi *args et **kwargs sur stackoverflow : https://stackoverflow.com/questions/871037/django-overriding-init-for-custom-forms
     def __init__(self, user ,*args, **kwargs):
@@ -363,6 +389,7 @@ def change_email(request):
     if request.method == "POST":
         form = UserChangeMailForm(request.user,request.POST)
         if form.is_valid():
+            human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             old_email = form.cleaned_data.get("old_email")
             password = form.cleaned_data.get("password")
             new_email = form.cleaned_data.get("new_email")
@@ -407,6 +434,7 @@ class UserChangePasswordForm(forms.Form):
     email = forms.EmailField(label='Ancien Email', max_length=254)
     old_password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput)
     new_password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput)
+    captcha = CaptchaField()
 
 #Explication de pourquoi *args et **kwargs sur stackoverflow : https://stackoverflow.com/questions/871037/django-overriding-init-for-custom-forms
     def __init__(self, user ,*args, **kwargs):
@@ -446,6 +474,7 @@ def change_password(request):
     if request.method == "POST":
         form = UserChangePasswordForm(request.user,request.POST)
         if form.is_valid():
+            human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             email = form.cleaned_data.get('email')
             old_password = form.cleaned_data.get('old_password')
             new_password = form.cleaned_data.get('new_password')

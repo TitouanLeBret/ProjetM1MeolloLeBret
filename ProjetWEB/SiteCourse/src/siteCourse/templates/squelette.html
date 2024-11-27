@@ -17,7 +17,7 @@
             <a href="{% url 'parcours' %}" class="hover:text-gray-200">Parcours</a>
             {% if user.is_authenticated %}
             <div class="flex space-x-6">
-                <a href="{% url 'account:home' %}" class="hover:text-gray-200">Mon compte : {{user.prenom}}</a>
+                <a href="{% url 'account:home' %}" class="hover:text-gray-200">Mon compte {% if user.prenom %} : {{user.prenom}} {% endif %}  </a>
                 <a href="{% url 'account:logout' %}" class="hover:text-gray-200">Déconnexion</a>
             </div>
             {% else %}

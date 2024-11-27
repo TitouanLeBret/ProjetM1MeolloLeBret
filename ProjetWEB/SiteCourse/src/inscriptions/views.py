@@ -2,7 +2,7 @@ from django.shortcuts import redirect, render ,get_object_or_404, redirect
 from .models import InscriptionCourse
 from django.contrib import messages
 from django import forms
-
+from captcha.fields import CaptchaField
 
 #Création de notre formulaire d'inscription a une course a partie d'un formulaire Django
 class InscriptionForm(forms.Form):
@@ -12,7 +12,7 @@ class InscriptionForm(forms.Form):
     email = forms.EmailField()
     age = forms.IntegerField(min_value=1, max_value=110)
     course = forms.ChoiceField(choices=[('5km', '5 km'), ('10km', '10 km'), ('semi-marathon', 'Semi-marathon'), ('marathon', 'Marathon')])
-
+    captcha = CaptchaField()
 
 def inscriptions(request):
     # Vérification si l'utilisateur est authentifié pour
@@ -49,6 +49,7 @@ def inscriptions(request):
                 course=form.cleaned_data['course'],
                 inscription_complete = True
             )
+            human = True #form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             # Redirection vers une page de succès avec les infos de l'inscriptions a afficher
             return render(request,'inscriptions/insc_complete.html',{'insc': insc , 'inscriptions' : inscriptions})
         else:

@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'account',
     'inscriptions',
+
+    #Pour les captchas
+    'captcha',
 ]
 
 AUTH_USER_MODEL = 'account.User'
