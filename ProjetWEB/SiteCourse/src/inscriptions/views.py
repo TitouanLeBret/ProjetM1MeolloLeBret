@@ -41,15 +41,25 @@ def inscriptions(request):
             # Voir exactement l'effet de cleaned_data (pour expliquer dans rapport):
             # ! ! ! ! ! ! ! ! !
             # ! ! ! ! ! ! ! ! !
-            insc = InscriptionCourse.objects.create(
-                user = request.user,
-                nom=form.cleaned_data['nom'],
-                prenom=form.cleaned_data['prenom'],
-                email=form.cleaned_data['email'],
-                age=form.cleaned_data['age'],
-                course=form.cleaned_data['course'],
-                inscription_complete = True
-            )
+            if request.user.is_authenticated:
+                insc = InscriptionCourse.objects.create(
+                    user = request.user,
+                    nom=form.cleaned_data['nom'],
+                    prenom=form.cleaned_data['prenom'],
+                    email=form.cleaned_data['email'],
+                    age=form.cleaned_data['age'],
+                    course=form.cleaned_data['course'],
+                    inscription_complete = True
+                )
+            else :
+                insc = InscriptionCourse.objects.create(
+                    nom=form.cleaned_data['nom'],
+                    prenom=form.cleaned_data['prenom'],
+                    email=form.cleaned_data['email'],
+                    age=form.cleaned_data['age'],
+                    course=form.cleaned_data['course'],
+                    inscription_complete=True
+                )
             human = True #form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             # Redirection vers une page de succès avec les infos de l'inscriptions a afficher
             return render(request,'inscriptions/insc_complete.html',{'insc': insc , 'inscriptions' : inscriptions})

@@ -249,7 +249,7 @@ def account(request):
         #si pas connecté
         # Formulaire vide
         else :
-            return render(request, 'account/account.html')
+            return render(request, 'account/register.html')
 
 
 
