@@ -42,14 +42,45 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'account',
+    'account_own',
     'inscriptions',
 
     #Pour les captchas
     'captcha',
+
+    # Allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.strava',
 ]
 
-AUTH_USER_MODEL = 'account.User'
+# requis par django-allauth
+SITE_ID = 1
+
+# URL où rediriger après la connexion/déconnexion
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+# Configuration de l'authentification
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # Authentification Django classique
+    'allauth.account.auth_backends.AuthenticationBackend',  # Authentification sociale
+)
+
+# Allauth - Configuration email
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'  # Authentification par email
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+
+
+
+
+
+
+AUTH_USER_MODEL = 'account_own.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -59,6 +90,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    #Pour Oauth
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'siteCourse.urls'

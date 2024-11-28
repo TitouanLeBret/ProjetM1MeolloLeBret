@@ -28,9 +28,11 @@ urlpatterns = [
     path('accueil/', accueil , name='accueil'),
     path('inscriptions/' , include('inscriptions.urls')),
     path('parcours/' , parcours ,  name='parcours'),
-    path('account/', include('account.urls') ), #quand app on ne peut pas mettre name
+    path('account/', include('account_own.urls') ), #quand app on ne peut pas mettre name
     path('login/', login_page , name='login_page'),
     #path('inscriptions/', include('inscriptions.urls')), pour avoir inscriptions/...
 
     path('captcha/', include('captcha.urls')),
+
+    path('accounts/', include('allauth.urls')),
 ]

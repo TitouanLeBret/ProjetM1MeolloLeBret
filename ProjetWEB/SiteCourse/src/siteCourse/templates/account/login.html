@@ -1,0 +1,23 @@
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion</title>
+</head>
+<body>
+    <h1>Connexion</h1>
+
+    <!-- Formulaire de connexion classique -->
+    <form method="post" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Se connecter</button>
+    </form>
+
+    <hr>
+
+    <!-- Connexion via Google -->
+    <a href="{% provider_login_url 'google' %}">Se connecter avec Google</a>
+</body>
+</html>

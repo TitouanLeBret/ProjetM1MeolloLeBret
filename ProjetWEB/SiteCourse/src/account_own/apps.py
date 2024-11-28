@@ -6,5 +6,5 @@ Voir doc : https://pypi.org/project/django-use-email-as-username/
 """
 
 class CustomUserConfig(AppConfig):
-    name = 'account'
+    name = 'account_own'
     verbose_name = 'Custom user management application'
