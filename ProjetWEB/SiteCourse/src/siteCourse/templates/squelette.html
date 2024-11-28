@@ -1,14 +1,15 @@
 <!--  Squelette de base (utilisé par TOUTES les pages)  -->
 {% load static %}
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="min-h-screen">
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Mon Site de Course{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/siteCourse/style_form.css' %}">
     <script src="https://cdn.tailwindcss.com"></script>
+    {% block head_supplement_content %}{% endblock %}
 </head>
-<body>
+<body class="min-h-screen">
     <header class="bg-neutral-600 text-white py-4">
     <nav class="container mx-auto flex justify-between items-center px-4">
         <a href="{% url 'accueil' %}" class="text-2xl font-bold">Course</a>
