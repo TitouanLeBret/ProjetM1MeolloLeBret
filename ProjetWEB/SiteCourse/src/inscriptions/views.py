@@ -9,7 +9,6 @@ class InscriptionForm(forms.Form):
     # Définition des champs du formulaire d'inscription
     nom = forms.CharField(max_length=100)
     prenom = forms.CharField(max_length=100)
-    email = forms.EmailField()
     age = forms.IntegerField(min_value=1, max_value=110)
     course = forms.ChoiceField(choices=[('5km', '5 km'), ('10km', '10 km'), ('semi-marathon', 'Semi-marathon'), ('marathon', 'Marathon')])
     captcha = CaptchaField()
@@ -18,7 +17,7 @@ def inscriptions(request):
     # Vérification si l'utilisateur est authentifié pour
     # donner a la page ses inscriptions si c'est le cas
     if request.user.is_authenticated:
-        # Récupération des inscriptions précédentes de l'utilisateur en filtrant par son emails
+        # Récupération des inscriptions précédentes de l'utilisateur en filtrant par user id
         # ! ! ! ! ! ! ! ! !
         # ! ! ! ! ! ! ! ! !
         # A modifié par le user_id peut etre
@@ -47,7 +46,6 @@ def inscriptions(request):
                     user = request.user,
                     nom=form.cleaned_data['nom'],
                     prenom=form.cleaned_data['prenom'],
-                    email=form.cleaned_data['email'].lower(),
                     age=form.cleaned_data['age'],
                     course=form.cleaned_data['course'],
                     inscription_complete = True
@@ -56,7 +54,6 @@ def inscriptions(request):
                 insc = InscriptionCourse.objects.create(
                     nom=form.cleaned_data['nom'],
                     prenom=form.cleaned_data['prenom'],
-                    email=form.cleaned_data['email'].lower(),
                     age=form.cleaned_data['age'],
                     course=form.cleaned_data['course'],
                     inscription_complete=True

@@ -11,7 +11,6 @@ class InscriptionCourse(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     nom = models.CharField(max_length=255)
     prenom = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
     age = models.IntegerField()
     course = models.CharField(max_length=255)
     # Statut de l'inscription (complète ou non)
@@ -28,7 +27,7 @@ class InscriptionCourse(models.Model):
     """
     def __str__(self):
         status = "Complète" if self.inscription_complete else "Incomplète"
-        return f"Inscription: {self.prenom} {self.nom} ({self.age} ans) - Course: {self.course} - Statut: {status} - Email: {self.email}"
+        return f"Inscription: {self.prenom} {self.nom} ({self.age} ans) - Course: {self.course} - Statut: {status} "
 
 
     """
