@@ -31,9 +31,10 @@ pub struct ValidRsaChifPage {
     d_value: String,
     /// État du bouton pour vérifier la validité des clés.
     check_button: button::State,
-
     //La page de validation se sert de la liste de tests directement présente dans check_enc.rs, étant donnée que celle-ci est publique, nous n'avons pas besoin de garder une référence
 
+    //Liste des messages d'erreur
+    error_messages: Vec<String>,
 }
 
 
@@ -48,6 +49,7 @@ impl ValidRsaChifPage {
             e_value: String::new(),
             d_value: String::new(),
             check_button: button::State::new(),
+            error_messages: Vec::new(),
         }
     }
 
@@ -205,6 +207,14 @@ impl ValidRsaChifPage {
                     )
                 }
             );
+        
+        // Section des messages d'erreur
+        let error_message_section: Column<'_, gui::Message> = self.error_messages.iter().fold(
+            Column::new().spacing(5),
+            |column, error| {
+                column.push(Text::new(error.clone()).style(Color::from_rgb(0.8, 0.2, 0.2)))
+            },
+        );
 
 
         let wrapper = Column::new()
@@ -215,7 +225,8 @@ impl ValidRsaChifPage {
             .push(pub_key_section)
             .push(priv_key_section)
             .push(check_button)
-            .push(test_results);
+            .push(test_results)
+            .push(error_message_section);
 
         container(wrapper)
             .width(Length::Fill)
@@ -242,13 +253,22 @@ impl ValidRsaChifPage {
     }
 
 
+    fn add_error_message(&mut self, msg: &str) {
+        self.error_messages.push(msg.to_string());
+    }
+
+    pub fn remove_all_error_message(&mut self){
+        self.error_messages.clear();
+    }
+
     /// Vérifie la validité de la clé RSA en exécutant tous les tests de sécurité.
     /// Met à jour les résultats des tests dans l'état de la page.
     pub fn check_values(&mut self){
         //Test pour voir si toutes les cases sont bien convertibles en int
+        self.remove_all_error_message();
         match validate_inputs(&self.n_value.clone(), &self.e_value.clone(), &self.p_value.clone(), &self.q_value.clone(), &self.d_value.clone()) {
             Ok(_) => {
-                println!("Toutes les valeurs sont valides !");
+                check_enc::calc_all_security_tests_status(self.n_value.clone(), self.e_value.clone(), self.p_value.clone(), self.q_value.clone(), self.d_value.clone());
             }
             Err(errors) => {
                 // Affiche une popup ou un message d'erreur
@@ -256,16 +276,15 @@ impl ValidRsaChifPage {
                     "Attention, les erreurs suivantes ont été détectées :\n{}",
                     errors.join("\n")
                 );
-                println!("POPUP: {}", &error_message);
+                self.add_error_message(&error_message);
             }
         }
-
-
-        check_enc::calc_all_security_tests_status(self.n_value.clone(), self.e_value.clone(), self.p_value.clone(), self.q_value.clone(), self.d_value.clone());
     }
 
 }
 
+
+use std::str::FromStr;
 /// Fonction de validation des entré (vérif que ce sont bien des entiers valide)
 fn validate_inputs(n_value: &str, e_value: &str, p_value: &str, q_value: &str, d_value: &str) -> Result<(), Vec<String>> {
     let mut errors = Vec::new();
@@ -274,16 +293,16 @@ fn validate_inputs(n_value: &str, e_value: &str, p_value: &str, q_value: &str, d
     if num_bigint::BigUint::from_str(n_value).is_err() {
         errors.push("N n'est pas un entier valide.".to_string());
     }
-    if try_parse_biguint(e_value).is_err() {
+    if num_bigint::BigUint::from_str(e_value).is_err() {
         errors.push("E n'est pas un entier valide.".to_string());
     }
-    if try_parse_biguint(p_value).is_err() {
-        errors.push("P n'est pas un entier valide.".to_string());
+    if num_bigint::BigUint::from_str(p_value).is_err() || num_bigint::BigUint::from_str(p_value).unwrap() <= num_bigint::BigUint::from(1u32) {
+        errors.push("P n'est pas un entier valide (doit etre > 1).".to_string());
     }
-    if try_parse_biguint(q_value).is_err() {
-        errors.push("Q n'est pas un entier valide.".to_string());
+    if num_bigint::BigUint::from_str(q_value).is_err() || num_bigint::BigUint::from_str(q_value).unwrap() <= num_bigint::BigUint::from(1u32) {
+        errors.push("Q n'est pas un entier valide (doit etre > 1).".to_string());
     }
-    if try_parse_biguint(d_value).is_err() {
+    if num_bigint::BigUint::from_str(d_value).is_err() {
         errors.push("D n'est pas un entier valide.".to_string());
     }
 
