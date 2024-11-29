@@ -9,6 +9,8 @@ class User(BaseUser):
     prenom = models.CharField(max_length=50, blank=True, null=True)
     nom = models.CharField(max_length=50, blank=True, null=True)
     age = models.PositiveIntegerField(blank=True, null=True)
+    username = models.CharField(max_length=50, blank=True, null=True)
+    is_social_account = models.BooleanField(default=True)
     objects = BaseUserManager()
 
     def __str__(self):

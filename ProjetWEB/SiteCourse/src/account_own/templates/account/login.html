@@ -1,4 +1,5 @@
 {% extends 'squelette.html' %}
+{% load socialaccount %}
 
 {% block title %}Connexion{% endblock %}
 {% block content %}
@@ -20,9 +21,18 @@
         <button  type="submit" class="w-full bg-neutral-600 hover:bg-neutral-800 text-white font-bold py-2 px-4 rounded-md transition duration-300">
           Se connecter
         </button>
-        <a class="inline-block align-baseline font-bold text-sm text-neutral-600 hover:text-neutral-800" href="{%url 'account:register'%}">
+        <a class="inline-block align-baseline font-bold text-sm text-neutral-600 hover:text-neutral-800" href="{%url 'account_signup'%}">
           Créer un compte
         </a>
+    </div>
+
+    <div class="flex flex-col items-center space-y-4 max-w-sm mx-auto mt-8">
+      <!-- Bouton Google -->
+      <a href="{% provider_login_url 'google' %}"
+         class="flex items-center justify-center w-full py-3 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md transition duration-300">
+        <img src="/static/images/google_logo.png" alt="Google Logo" class="w-5 h-5 mr-3">
+        Connexion avec Google
+      </a>
     </div>
   </form>
 </div>

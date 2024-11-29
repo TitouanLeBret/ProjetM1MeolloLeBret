@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from .views import accueil, parcours, login_page
 from inscriptions.views import inscriptions
+from account_own.views import account
 
 urlpatterns = [
 #IMPORTANT ; Penser a modifier /admin en autre chose pour que les gens ne puissnet pas attérir sur la page d'admin du site
@@ -34,5 +35,9 @@ urlpatterns = [
 
     path('captcha/', include('captcha.urls')),
 
-    path('accounts/', include('allauth.urls')),
+
+    path('account/', include('allauth.urls')),
+    path('account/home', account , name='home'),
+
+
 ]

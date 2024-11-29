@@ -41,7 +41,7 @@
         <!-- Liste des inscriptions de l'utilisateur -->
         <div class="w-full max-w-md">
             {% for inscription in inscriptions %}
-                {% if inscription.email == user.email %} <!-- ATTENTION MODIFIER NOM ET EMAIL PAR NOM OU EMAIL -->
+                {% if inscription.user_id == user.id %} <!-- ATTENTION MODIFIER NOM ET EMAIL PAR NOM OU EMAIL -->
                     <div class="bg-white rounded-lg shadow-lg p-4 mb-4">
                         <p class="text-gray-600"><strong>Nom :</strong> {{ inscription.nom }} </p>
                         <p class="text-gray-600"><strong>Prénom :</strong> {{ inscription.prenom }}</p>

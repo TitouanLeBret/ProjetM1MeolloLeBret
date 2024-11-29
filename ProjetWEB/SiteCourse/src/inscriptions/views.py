@@ -25,11 +25,12 @@ def inscriptions(request):
         # ! ! ! ! ! ! ! ! !
         # ! ! ! ! ! ! ! ! !
         inscriptions = InscriptionCourse.objects.filter(
-            email=request.user.email,user = request.user,
+            user_id = request.user.id,
         )
     else :
         # Si l'utilisateur n'est pas authentifié, on initialise une variable vide pour les inscriptions
         inscriptions = ()
+
 
     # Traitement du formulaire lorsqu'une qu'il est soumis (requete POST)
     if request.method == "POST":
@@ -46,7 +47,7 @@ def inscriptions(request):
                     user = request.user,
                     nom=form.cleaned_data['nom'],
                     prenom=form.cleaned_data['prenom'],
-                    email=form.cleaned_data['email'],
+                    email=form.cleaned_data['email'].lower(),
                     age=form.cleaned_data['age'],
                     course=form.cleaned_data['course'],
                     inscription_complete = True
@@ -55,7 +56,7 @@ def inscriptions(request):
                 insc = InscriptionCourse.objects.create(
                     nom=form.cleaned_data['nom'],
                     prenom=form.cleaned_data['prenom'],
-                    email=form.cleaned_data['email'],
+                    email=form.cleaned_data['email'].lower(),
                     age=form.cleaned_data['age'],
                     course=form.cleaned_data['course'],
                     inscription_complete=True

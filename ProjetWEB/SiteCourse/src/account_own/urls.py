@@ -7,10 +7,13 @@ Ce module associe chaque URL à une fonction de vue spécifique.
 from django.urls import path
 from . import views
 
+from django.urls import path, re_path, include
+
 #Défini le nom de l'application, que  l'on utilisera donc dans "siteCourse"
 app_name = "account"
 
 urlpatterns = [
+#ici on écrit par dessus les urls de allauth
     # Page d'accueil, redirige vers la vue 'account'
     path('', views.account , name='home'),
 
@@ -27,7 +30,7 @@ urlpatterns = [
     path('login/', views.login_user , name='login'),
 
     # Page d'inscription, redirige vers la vue 'register_user'
-    path('register/', views.register_user , name='register'),
+    path('signup/', views.register_user , name='signup'),
 
     # Page de déconnexion, redirige vers la vue 'logout_user'
     path('logout/', views.logout_user , name='logout'),

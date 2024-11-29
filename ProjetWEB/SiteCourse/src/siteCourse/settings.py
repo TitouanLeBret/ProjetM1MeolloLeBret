@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-s1gv0ng@)g1doz+0x9r_&6n3f95tt_xwpij_g2g7zhu7_g8@1x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'account_own',
     'inscriptions',
 
@@ -53,7 +54,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.strava',
+    'allauth.socialaccount.providers.github',
 ]
 
 # requis par django-allauth
@@ -62,6 +63,9 @@ SITE_ID = 1
 # URL où rediriger après la connexion/déconnexion
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
 
 # Configuration de l'authentification
 AUTHENTICATION_BACKENDS = (
@@ -73,7 +77,8 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'  # Authentification par email
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
+#ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 
 
@@ -100,7 +105,11 @@ ROOT_URLCONF = 'siteCourse.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ os.path.join(BASE_DIR, "siteCourse/templates") ],
+        'DIRS': [
+            os.path.join(BASE_DIR, "siteCourse/templates"),
+            os.path.join(BASE_DIR, "inscriptions/templates"),
+            os.path.join(BASE_DIR, "account_own/templates")
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

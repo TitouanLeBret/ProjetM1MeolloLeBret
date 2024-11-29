@@ -6,6 +6,7 @@ Vues pour la gestion des utilisateurs dans l'application 'account' :
 - Inscription : Permet à un nouvel utilisateur de s'inscrire avec son email et un mot de passe.
 
 """
+from http.cookiejar import request_path
 
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import authenticate, login, logout
@@ -67,7 +68,6 @@ S'il n'y a pas de requete
 def login_user(request):
     if request.method=="POST" :
         form = AuthenticationFormCaptcha(data=request.POST)
-        print(request.POST)
         if form.is_valid():
             human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             username = request.POST['username']  # email
@@ -165,12 +165,14 @@ def register_user(request):
         if form.is_valid():
             human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             user = form.save()
-            login(request,user)
+            user.is_social_account = False
+            user.save()
+            login(request,user,backend='django.contrib.auth.backends.ModelBackend')
             return redirect("accueil")
 
     else :
         form = EmailUserCreationForm()
-    return render (request, 'account/register.html', {'form': form})
+    return render (request, 'account/signup.html', {'form': form})
 
 
 
@@ -247,9 +249,9 @@ def account(request):
             form = AccountForm(initial=initial_data)
             return render(request, 'account/account.html', {'form': form})
         #si pas connecté
-        # Formulaire vide
+        # doiit allé s'inscrire
         else :
-            return render(request, 'account/register.html')
+            return login_user(request)
 
 
 
@@ -323,7 +325,7 @@ def delete_account(request):
 
                 user.delete()
                 messages.success(request, "Votre compte a été supprimé avec succès.")
-                return redirect('account:login')  # Rediriger vers la page de connexion
+                return redirect('account_login')  # Rediriger vers la page de connexion
         else:
             messages.error(request, "Les informations saisies sont incorrectes ou ne correspondent pas a votre compte.")
     else :

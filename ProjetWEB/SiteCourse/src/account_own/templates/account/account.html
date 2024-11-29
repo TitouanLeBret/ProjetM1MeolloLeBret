@@ -16,10 +16,18 @@
             </button>
 
 
-            <!-- Lien pour changer email et password et supprimer son compte -->
+            {% if user.is_social_account %}
+            <!-- Lien pour suppresion compte si création compte par applicaitons social (car gestion mdp et email faites par l'appli sociale en question)-->
+            <a href="{% url 'account:delete_account' %}" class="flex items-center w-full bg-neutral-600 hover:bg-neutral-800 text-red-600 font-bold py-2 px-4 rounded-md transition duration-300 mt-4">Supprimer mon compte</a>
+
+
+            {% else %}
+            <!-- Lien pour changer email et password et supprimer son compte si création du compte par mail-->
             <a href="{% url 'account:delete_account' %}" class="flex items-center w-full bg-neutral-600 hover:bg-neutral-800 text-red-600 font-bold py-2 px-4 rounded-md transition duration-300 mt-4">Supprimer mon compte</a>
             <a href="{% url 'account:change_email' %}" class="flex items-center w-full bg-neutral-600 hover:bg-neutral-800 text-red-600 font-bold py-2 px-4 rounded-md transition duration-300 mt-4">Changer mon email</a>
             <a href="{% url 'account:change_password' %}" class="flex items-center w-full bg-neutral-600 hover:bg-neutral-800 text-red-600 font-bold py-2 px-4 rounded-md transition duration-300 mt-4">Changer mon mot de passe</a>
+            {% endif %}
+
 
             {% if success %}
                 <div class="bg-green-100 text-green-700 p-4 rounded mb-6 mt-6">
