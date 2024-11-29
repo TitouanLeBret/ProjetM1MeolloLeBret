@@ -54,7 +54,6 @@ impl Sandbox for App{
             }
 
             Message::CheckButtonPressedRsaChiff =>{
-                println!("Check button pressed");
                 self.valid_rsa_chif_page.check_values();
             }
 

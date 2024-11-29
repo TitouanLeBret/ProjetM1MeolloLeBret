@@ -241,11 +241,55 @@ impl ValidRsaChifPage {
         println!("Values are: N:{}\n, E:{}\n, P:{}\n, Q:{}\n, D:{}\n, p*q = {}\n",self.n_value.clone(), self.e_value.clone(),self.p_value.clone(),self.q_value.clone(),self.d_value.clone(),p*q);
     }
 
+
     /// Vérifie la validité de la clé RSA en exécutant tous les tests de sécurité.
     /// Met à jour les résultats des tests dans l'état de la page.
     pub fn check_values(&mut self){
+        //Test pour voir si toutes les cases sont bien convertibles en int
+        match validate_inputs(&self.n_value.clone(), &self.e_value.clone(), &self.p_value.clone(), &self.q_value.clone(), &self.d_value.clone()) {
+            Ok(_) => {
+                println!("Toutes les valeurs sont valides !");
+            }
+            Err(errors) => {
+                // Affiche une popup ou un message d'erreur
+                let error_message = format!(
+                    "Attention, les erreurs suivantes ont été détectées :\n{}",
+                    errors.join("\n")
+                );
+                println!("POPUP: {}", &error_message);
+            }
+        }
+
+
         check_enc::calc_all_security_tests_status(self.n_value.clone(), self.e_value.clone(), self.p_value.clone(), self.q_value.clone(), self.d_value.clone());
     }
 
 }
 
+/// Fonction de validation des entré (vérif que ce sont bien des entiers valide)
+fn validate_inputs(n_value: &str, e_value: &str, p_value: &str, q_value: &str, d_value: &str) -> Result<(), Vec<String>> {
+    let mut errors = Vec::new();
+
+    // Essayer de convertir chaque valeur
+    if num_bigint::BigUint::from_str(n_value).is_err() {
+        errors.push("N n'est pas un entier valide.".to_string());
+    }
+    if try_parse_biguint(e_value).is_err() {
+        errors.push("E n'est pas un entier valide.".to_string());
+    }
+    if try_parse_biguint(p_value).is_err() {
+        errors.push("P n'est pas un entier valide.".to_string());
+    }
+    if try_parse_biguint(q_value).is_err() {
+        errors.push("Q n'est pas un entier valide.".to_string());
+    }
+    if try_parse_biguint(d_value).is_err() {
+        errors.push("D n'est pas un entier valide.".to_string());
+    }
+
+    if errors.is_empty() {
+        Ok(()) // Pas d'erreurs
+    } else {
+        Err(errors) // Renvoie les erreurs
+    }
+}
