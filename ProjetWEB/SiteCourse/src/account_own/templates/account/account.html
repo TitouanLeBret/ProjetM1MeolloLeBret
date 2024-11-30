@@ -18,7 +18,7 @@
 
             {% if user.is_social_account %}
             <!-- Lien pour suppresion compte si création compte par applicaitons social (car gestion mdp et email faites par l'appli sociale en question)-->
-            <a href="{% url 'account:delete_account' %}" class="flex items-center w-full bg-neutral-600 hover:bg-neutral-800 text-red-600 font-bold py-2 px-4 rounded-md transition duration-300 mt-4">Supprimer mon compte</a>
+            <a href="{% url 'account:delete_social_account' %}" class="flex items-center w-full bg-neutral-600 hover:bg-neutral-800 text-red-600 font-bold py-2 px-4 rounded-md transition duration-300 mt-4">Supprimer mon compte</a>
 
 
             {% else %}

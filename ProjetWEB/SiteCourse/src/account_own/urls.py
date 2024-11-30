@@ -20,6 +20,9 @@ urlpatterns = [
     # Page de suppresion de compte
     path('delete/', views.delete_account, name='delete_account'),
 
+    # Active la suppression d'un compte social, sans passé par une page intermédiaire
+    path('delete_social/', views.delete_social_account, name='delete_social_account'),
+
     # Page de changement d'email
     path('change_email/', views.change_email, name='change_email'),
 

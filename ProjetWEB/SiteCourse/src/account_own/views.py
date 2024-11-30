@@ -320,8 +320,8 @@ def delete_account(request):
 
             user = authenticate(request, email=email, password=password)
             if user:
-                # Supprimer les inscriptions associées à l'email de l'utilisateur
-                InscriptionCourse.objects.filter(email=email).delete()
+                # Supprimer les inscriptions associées à l'id de l'utilisateur
+                InscriptionCourse.objects.filter(user_id=user.id).delete()
 
                 user.delete()
                 messages.success(request, "Votre compte a été supprimé avec succès.")
@@ -334,6 +334,24 @@ def delete_account(request):
 
 
 
+"""
+Même principe qu'au dessus, mais pas de vérifications ici, car si on demande a l'user de se reconnecter a son comtpe social,
+il est la plupart du temps enregistré, donc pas d'intérêt
+"""
+
+def delete_social_account(request):
+    if request.user.is_authenticated :
+        if request.user.is_social_account :
+            user = request.user
+            # Supprimer les inscriptions associées à l'id de l'utilisateur
+            InscriptionCourse.objects.filter(user_id=user.id).delete()
+            user.delete()
+            messages.success(request, "Votre compte a été supprimé avec succès.")
+            return redirect('account_login')  # Rediriger vers la page de connexion
+        else :
+            return redirect('/account')
+    else :
+        return redirect('account_login') # Rediriger vers la page de connexion
 
 """
 
