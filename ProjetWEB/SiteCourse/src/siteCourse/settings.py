@@ -66,6 +66,8 @@ LOGOUT_REDIRECT_URL = '/'
 
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
+#Permet de passer directement a la vue de connexion pour le social account, sans passer par une page intermediaire
+SOCIALACCOUNT_LOGIN_ON_GET = True
 
 # Configuration de l'authentification
 AUTHENTICATION_BACKENDS = (
