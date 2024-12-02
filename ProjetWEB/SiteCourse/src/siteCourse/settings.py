@@ -55,6 +55,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
+
+    #paypal
+    'paypal.standard.ipn',
 ]
 
 # requis par django-allauth
@@ -206,3 +209,8 @@ SESSION_COOKIE_AGE = 6 * 60 * 60  # 6 heures
 
 # Session expire si le nav se ferme
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+#ajout parametre paypal
+#set sandbox to true
+PAYPAL_TEST = True
+PAYPAL_RECEIVER_EMAIL = 'business@etu.unicaen.fr' #Business sandBox account
