@@ -7,9 +7,6 @@
 
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-8">
-  {% for message in messages %}
-    <p class="bg-red-500 rounded-lg shadow-lg p-8 w-full max-w-md mb-8">{{ message }}</p>
-  {% endfor %}
 
 
   <form method="POST" class="bg-white rounded-lg shadow-lg w-full max-w-md mb-8">
@@ -21,8 +18,11 @@
         <button  type="submit" class="w-full bg-neutral-600 hover:bg-neutral-800 text-white font-bold py-2 px-4 rounded-md transition duration-300">
           Se connecter
         </button>
-        <a class="inline-block align-baseline font-bold text-sm text-neutral-600 hover:text-neutral-800" href="{%url 'account_signup'%}">
+        <a class="inline-block align-baseline font-bold text-sm text-neutral-600 hover:text-neutral-800" href="{%url 'accounts:signup'%}">
           Créer un compte
+        </a><br>
+        <a class="inline-block align-baseline font-bold text-sm text-neutral-600 hover:text-neutral-800" href="{%url 'accounts:validation_link_sender'%}">
+          Renvoyer un mail de vérification
         </a>
     </div>
 

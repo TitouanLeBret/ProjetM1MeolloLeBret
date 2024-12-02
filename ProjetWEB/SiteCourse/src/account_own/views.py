@@ -66,6 +66,8 @@ S'il n'y a pas de requete
     PS : ce formulaire AuthenticationForm prend automatiquement en compte notre custom_user et a donc un champs email et password
 """
 def login_user(request):
+    if request.user.is_authenticated :
+        return redirect("accounts:home")
     if request.method=="POST" :
         form = AuthenticationFormCaptcha(data=request.POST)
         if form.is_valid():
@@ -74,16 +76,13 @@ def login_user(request):
             password = request.POST['password']
 
             user = authenticate(request, username=username, password=password)
-
-            if user is not None :
-                login(request, user)
-                return redirect('accueil')
-            else :
-                messages.info(request, 'Identifiant et/ou mot de passe incorrect')
+            #On peut connecter le user sans risque qu'il n'existe pas car AuthenticationForm vérifie qu'il existe et qu'il soit actif
+            login(request, user)
+            return redirect('accueil')
         else :
-            messages.info(request, 'Captcha incorrect ou mauvais identifiant/mot de passe')
+            messages.error(request, 'Captcha incorrect ou mauvais identifiant/mot de passe')
     form = AuthenticationFormCaptcha()
-    return render(request, 'account/login.html', {'form': form})
+    return render(request, 'accounts/login.html', {'form': form})
 
 
 
@@ -159,20 +158,107 @@ Si la requete est de type POST
 S'il n'y a pas de requete 
     Renvoie un formulaire EmailUserCreationForm() (structure que l'on a définis plus haut)
 """
+
+#La partie vérification mail a était réaliser grace au tutoriel : https://www.youtube.com/watch?v=wB1qOExDsYY
+
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import EmailMessage
+
+from .tokens import account_activation_token
+
+def activate_account(request, uidb64, token): #uidb64 = représentation en base 64
+    try :
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(id=uid)
+    except :
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, 'Votre compte a été activé avec succès')
+        return redirect('accounts:login')
+    else :
+        messages.error(request,'Ce lien d\'activation est invalide ou à expiré')
+    return redirect('accueil')
+
+def activateEmail(request,user,email):
+    mail_subject = "Activer votre compte."
+    message = render_to_string('email/activation_mail.html', {
+        'user': user,
+        'domain': get_current_site(request).domain,
+        'uid': urlsafe_base64_encode(force_bytes(user.id)),
+        'token': account_activation_token.make_token(user),
+        'protocol': 'https' if request.is_secure else 'http',
+    })
+    mail_message = EmailMessage(mail_subject, message, to=[email])
+    if mail_message.send():
+        messages.success(request,f'Un lien de vérification viens de vous être envoyer par mail à l\'adresse {email}. \
+        Attention, ce mail est valide durant 30 minutes')
+    else :
+        messages.error(request, f'Il y\'a eu un problème pendant l\'envois du mail de vérification à l\'email :{email}, vérifiez si celle-ci est correcte')
+
+
 def register_user(request):
+    if request.user.is_authenticated :
+        return redirect("accounts:home")
     if request.method == "POST":
         form = EmailUserCreationForm(request.POST)
         if form.is_valid():
             human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
-            user = form.save()
+            user = form.save(commit=False)
+            user.is_active = False
             user.is_social_account = False
             user.save()
-            login(request,user,backend='django.contrib.auth.backends.ModelBackend')
-            return redirect("accueil")
+            #login(request,user,backend='django.contrib.auth.backends.ModelBackend')
+            activateEmail(request,user,form.cleaned_data['email'])
+            #Peut etre ici faire une vérif pour si activateEmail ne s'envoie pas on supprime le user ?????
+            return redirect("accounts:login")
 
     else :
         form = EmailUserCreationForm()
-    return render (request, 'account/signup.html', {'form': form})
+    return render (request, 'accounts/signup.html', {'form': form})
+
+
+"""
+Partie pour le renvoie d'un mail de vérification 
+
+"""
+class SendEmailValidForm(forms.Form):
+    email = forms.EmailField(label='Email', max_length=254, required=True)
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        return email
+
+
+
+def validation_link_sender(request):
+    if request.method == 'POST':
+        form = SendEmailValidForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try :
+                user = User.objects.get(email=email)
+
+            except User.DoesNotExist :
+                messages.error(request,'Aucun compte avec cette adresse mail n\'existe')
+                #Pas sécuriser d'indiquer ça, il faut le retirer, mais c'est pratique pendant la prod, pour savoir les comptes qui existes quand on test
+                return redirect("accounts:login")
+
+            if user.is_active:
+                messages.error(request,"Cet utilisateur est déjà activé.")
+                return redirect("accounts:login")
+
+
+            # Génération du lien de validation
+            activateEmail(request,user,form.cleaned_data['email'])
+            return redirect("accounts:login")
+    else:
+        form = SendEmailValidForm()
+
+    return render(request, 'accounts/send_email_verif.html', {'form': form})
 
 
 
@@ -230,12 +316,12 @@ def account(request):
             # Enregistre les modifications dans la base de données
             user.save()
             # Redirection vers la même page (PEUT ETRE A MODIFIER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!)
-            return render(request, 'account/account.html', {'form': form , 'success': True})
+            return render(request, 'accounts/accounts.html', {'form': form , 'success': True})
         else:
             # Si le formulaire est invalide, on renvoie la page d'accueil avec les erreurs du formulaire
             # Ce cas n'arrive jamais je penses, car le POST n'est effectué que si les données sont valides
             # Mais laisser pour sécurité maximum ?
-            return render(request, 'account/account.html', {'form': form })
+            return render(request, 'accounts/accounts.html', {'form': form })
     else:
         # Si pas de soumission POST, on créer formulaire vierge et on affiche la page
         if request.user.is_authenticated :
@@ -247,7 +333,7 @@ def account(request):
                 'age': request.user.age,
             }  # Rempli avec les données de l'utilisateur connecté
             form = AccountForm(initial=initial_data)
-            return render(request, 'account/account.html', {'form': form})
+            return render(request, 'accounts/accounts.html', {'form': form})
         #si pas connecté
         # doiit allé s'inscrire
         else :
@@ -311,6 +397,8 @@ Permet à l'utilisateur de supprimer définitivement son compte après vérifica
 """
 
 def delete_account(request):
+    if not request.user.is_authenticated :
+        return redirect("accounts:home")
     if request.method == "POST":
         form = UserDeleteAccountForm(request.user,request.POST)
         if form.is_valid():
@@ -330,7 +418,7 @@ def delete_account(request):
             messages.error(request, "Les informations saisies sont incorrectes ou ne correspondent pas a votre compte.")
     else :
         form = UserDeleteAccountForm(request.user)
-    return render(request, 'account/delete_account.html', {'form': form})
+    return render(request, 'accounts/delete_account.html', {'form': form})
 
 
 
@@ -340,6 +428,8 @@ il est la plupart du temps enregistré, donc pas d'intérêt
 """
 
 def delete_social_account(request):
+    if not request.user.is_authenticated :
+        return redirect("accounts:home")
     if request.user.is_authenticated :
         if request.user.is_social_account :
             user = request.user
@@ -349,7 +439,7 @@ def delete_social_account(request):
             messages.success(request, "Votre compte a été supprimé avec succès.")
             return redirect('account_login')  # Rediriger vers la page de connexion
         else :
-            return redirect('/account')
+            return redirect('/accounts')
     else :
         return redirect('account_login') # Rediriger vers la page de connexion
 
@@ -413,6 +503,8 @@ Permet à l'utilisateur de modifier son adresse email après vérification de l'
 
 """
 def change_email(request):
+    if not request.user.is_authenticated :
+        return redirect("accounts:home")
     if request.method == "POST":
         form = UserChangeMailForm(request.user,request.POST)
         if form.is_valid():
@@ -425,12 +517,12 @@ def change_email(request):
                 user.email = new_email
                 user.save()
                 messages.success(request, "Votre email a été mis à jour.")
-                return redirect('account:home')  # Rediriger vers la page compte
+                return redirect('accounts:home')  # Rediriger vers la page compte
             else:
                 messages.error(request, "Les informations saisies sont incorrectes.")
     else :
         form = UserChangeMailForm(request.user)
-    return render(request, 'account/change_email.html', {'form': form})
+    return render(request, 'accounts/change_email.html', {'form': form})
 
 
 """
@@ -498,6 +590,8 @@ Permet à l'utilisateur de modifier son mot de passe après vérification de l'a
 """
 
 def change_password(request):
+    if not request.user.is_authenticated :
+        return redirect("accounts:home")
     if request.method == "POST":
         form = UserChangePasswordForm(request.user,request.POST)
         if form.is_valid():
@@ -519,7 +613,7 @@ def change_password(request):
                     
                     # Reconnexion automatique
                     login(request, user)
-                    return redirect('account:home')
+                    return redirect('accounts:home')
                 # Si le nouveau mot de passe ne respecte pas les règles de Django 
                 except ValidationError as e:
                     #On parcours toutes les erreurs pour les ajouter et que l'utilisateur voit quelle regles il ne respecte pas
@@ -529,4 +623,11 @@ def change_password(request):
                 messages.error(request, "Les informations saisies sont incorrectes.")
     else:
         form = UserChangePasswordForm(request.user)
-    return render(request, 'account/change_password.html', {'form': form})
+    return render(request, 'accounts/change_password.html', {'form': form})
+
+
+
+
+def error_google_creation(request):
+    messages.error(request,"L'email de votre compte google est déja utilisé par un compte utilisateur")
+    return redirect('accounts:login')

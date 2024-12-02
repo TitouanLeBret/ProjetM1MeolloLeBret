@@ -10,7 +10,7 @@ from . import views
 from django.urls import path, re_path, include
 
 #Défini le nom de l'application, que  l'on utilisera donc dans "siteCourse"
-app_name = "account"
+app_name = "accounts"
 
 urlpatterns = [
 #ici on écrit par dessus les urls de allauth
@@ -37,6 +37,15 @@ urlpatterns = [
 
     # Page de déconnexion, redirige vers la vue 'logout_user'
     path('logout/', views.logout_user , name='logout'),
+
+    #Chemin pour l'activation de comptes
+    path('activate/<uidb64>/<token>/', views.activate_account, name='activate'),
+
+    #Chemin pour la page qui sert a renvoyer un nouveau lien
+    path('validation_link_sender/', views.validation_link_sender, name='validation_link_sender'),
+
+    #Lien utilisé pour erreurs de création compte avec google, si l'email est déja use par ocmpte utilisateur
+    path('3rdparty/signup/', views.error_google_creation, name="error_google_creation"),
 
     # TODO : Ajouter d'autres URL si nécessaire
     #path('mdpchange,.../......) etc

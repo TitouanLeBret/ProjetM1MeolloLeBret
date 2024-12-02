@@ -60,6 +60,8 @@ INSTALLED_APPS = [
 # requis par django-allauth
 SITE_ID = 1
 
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # URL où rediriger après la connexion/déconnexion
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
@@ -75,12 +77,6 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',  # Authentification sociale
 )
 
-# Config de l'envois d'email pour vérifier les comptes
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = 'email'  # Authentification par email
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-ACCOUNT_EMAIL_REQUIRED = True
-
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -90,10 +86,20 @@ EMAIL_HOST_USER = 'titouanlebretuniv@gmail.com'
 EMAIL_HOST_PASSWORD = 'lnnj zhmg wtyx xxcn' #Mot de passe d'application
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1  # Expiration des liens de confirmation
-ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/'  # Redirection après confirmation
-ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False
-ACCOUNT_LOGIN_ON_SIGNUP = False
+#Durée de vie du token de vérification -> sera utilisé pour vérifer que le temps actuel n'est pas différent de plus de
+# 1800 secondes (30 min) du temps a laquelle le token de validation par mail a était crée
+PASSWORD_RESET_TIMEOUT = 1800
+
+
+ACCOUNT_EMAIL_REQUIRED = True  # Pour s'assurer que l'email est requis
+SOCIALACCOUNT_EMAIL_REQUIRED = True  # Pour rendre l'email obligatoire lors de la connexion via Google
+SOCIALACCOUNT_QUERY_EMAIL = True  # Pour s'assurer que l'email est demandé lors de l'inscription
+
+#Désactive les mecanismes de base de allauth
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # Ne pas envoyer de mail de vérification automatique
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'  # Pas de vérification de l'email lors de la connexion sociale
+
+
 
 
 

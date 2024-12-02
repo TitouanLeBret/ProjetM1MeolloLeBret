@@ -60,7 +60,8 @@ def inscriptions(request):
                 )
             human = True #form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             # Redirection vers une page de succès avec les infos de l'inscriptions a afficher
-            return render(request,'inscriptions/insc_complete.html',{'insc': insc , 'inscriptions' : inscriptions})
+            messages.success(request,"Votre inscription a bien était prise en compte")
+            return redirect('accueil')
         else:
             # Si le formulaire est invalide, on renvoie la page d'accueil avec les erreurs du formulaire
             # Ce cas n'arrive jamais je penses, car le POST n'est effectué que si les données sont valides
