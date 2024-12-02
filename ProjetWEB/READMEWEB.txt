@@ -48,3 +48,9 @@ Pour lancer :
 
 Source envoi mail verification: 
 https://medium.com/@dszafranski/email-register-confirmation-django-django-allauth-299c4427726f
+
+
+Pour amélioration Rapport :
+On pourrait envoyer un mail après l'inscription a aune course, comme ça quand inscriptions
+faites sans etre connecté, on envoie un mail a une adresse que l'user inscrit et celui-ci peut
+lier cette inscription a un compte s'il veut en cliquant sur le lien et se connectant a son compte
