@@ -42,3 +42,9 @@ Pour lancer :
 
 	Django : 
 		Lancer serveur de production : cd src , python manage.py runserver
+
+
+
+
+Source envoi mail verification: 
+https://medium.com/@dszafranski/email-register-confirmation-django-django-allauth-299c4427726f

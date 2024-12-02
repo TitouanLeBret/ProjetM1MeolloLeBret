@@ -75,15 +75,25 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',  # Authentification sociale
 )
 
-# Allauth - Configuration email
-ACCOUNT_EMAIL_REQUIRED = True
+# Config de l'envois d'email pour vérifier les comptes
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'  # Authentification par email
-#ACCOUNT_EMAIL_VERIFICATION = 'optional'
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_REQUIRED = True
 
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'titouanlebretuniv@gmail.com'
+EMAIL_HOST_PASSWORD = 'lnnj zhmg wtyx xxcn' #Mot de passe d'application
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1  # Expiration des liens de confirmation
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/'  # Redirection après confirmation
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False
+ACCOUNT_LOGIN_ON_SIGNUP = False
 
 
 
