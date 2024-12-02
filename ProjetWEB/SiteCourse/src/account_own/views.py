@@ -315,8 +315,8 @@ def account(request):
             user.age = form.cleaned_data.get('age')
             # Enregistre les modifications dans la base de données
             user.save()
-            # Redirection vers la même page (PEUT ETRE A MODIFIER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!)
-            return render(request, 'accounts/accounts.html', {'form': form , 'success': True})
+            messages.success(request,"Modifactions validées")
+            return render(request, 'accounts/accounts.html', {'form': form})
         else:
             # Si le formulaire est invalide, on renvoie la page d'accueil avec les erreurs du formulaire
             # Ce cas n'arrive jamais je penses, car le POST n'est effectué que si les données sont valides
