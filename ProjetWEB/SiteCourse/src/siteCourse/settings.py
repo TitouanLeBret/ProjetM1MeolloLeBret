@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-s1gv0ng@)g1doz+0x9r_&6n3f95tt_xwpij_g2g7zhu7_g8@1x'
+SECRET_KEY = config("SECRET_KEY", default="fallback-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -47,7 +48,7 @@ INSTALLED_APPS = [
     'inscriptions',
 
     #Pour les captchas
-    'captcha',
+    'django_recaptcha',
 
     # Allauth
     'allauth',
@@ -86,7 +87,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'titouanlebretuniv@gmail.com'
-EMAIL_HOST_PASSWORD = 'lnnj zhmg wtyx xxcn' #Mot de passe d'application
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="") #Mot de passe d'application
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 #Durée de vie du token de vérification -> sera utilisé pour vérifer que le temps actuel n'est pas différent de plus de
@@ -98,12 +99,16 @@ ACCOUNT_EMAIL_REQUIRED = True  # Pour s'assurer que l'email est requis
 SOCIALACCOUNT_EMAIL_REQUIRED = True  # Pour rendre l'email obligatoire lors de la connexion via Google
 SOCIALACCOUNT_QUERY_EMAIL = True  # Pour s'assurer que l'email est demandé lors de l'inscription
 
-#Désactive les mecanismes de base de allauth
+#Désactive les mecanismes de base de allauth car on le gere nous meme
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # Ne pas envoyer de mail de vérification automatique
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'  # Pas de vérification de l'email lors de la connexion sociale
 
 
 
+#Pour les captcah GOOGLE :
+#NE PAS LES LAISSER LA, NOUS DEVONS LES IMPORT
+RECAPTCHA_PUBLIC_KEY = config("RECAPTCHA_PUBLIC_KEY", default="")
+RECAPTCHA_PRIVATE_KEY = config("RECAPTCHA_PRIVATE_KEY", default="")
 
 
 AUTH_USER_MODEL = 'account_own.User'

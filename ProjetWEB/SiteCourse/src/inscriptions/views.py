@@ -2,7 +2,8 @@ from django.shortcuts import redirect, render ,get_object_or_404, redirect
 from .models import InscriptionCourse
 from django.contrib import messages
 from django import forms
-from captcha.fields import CaptchaField
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV2Checkbox
 #import pour paypal
 from django.urls import reverse
 from paypal.standard.forms import PayPalPaymentsForm
@@ -16,7 +17,7 @@ class InscriptionForm(forms.Form):
     prenom = forms.CharField(max_length=100)
     age = forms.IntegerField(min_value=1, max_value=110)
     course = forms.ChoiceField(choices=[('5km', '5 km'), ('10km', '10 km'), ('semi-marathon', 'Semi-marathon'), ('marathon', 'Marathon')])
-    captcha = CaptchaField()
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
 
 def inscriptions(request):
     # Vérification si l'utilisateur est authentifié pour

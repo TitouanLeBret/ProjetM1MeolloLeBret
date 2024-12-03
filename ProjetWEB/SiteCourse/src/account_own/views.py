@@ -6,24 +6,21 @@ Vues pour la gestion des utilisateurs dans l'application 'account' :
 - Inscription : Permet à un nouvel utilisateur de s'inscrire avec son email et un mot de passe.
 
 """
-from http.cookiejar import request_path
 
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from django import forms
 from django.contrib.auth import get_user_model
-
-#Pour le captcha
-from captcha.fields import CaptchaField
-
 #Pour la modification du mot de passe
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
 
 from inscriptions.models import InscriptionCourse
+
+
+#Import de tous nos formulaires
+from .forms import *
 
 
 """
@@ -44,25 +41,13 @@ User = get_user_model()
 
 
 """
-Formulaire personnaliser de connexion (on se ressert de celui fournis mais on lui ajoute un captcha)
-
--Champs 1 et 2, champs de base de AuthenticationForm
--Captcha
-"""
-class AuthenticationFormCaptcha(AuthenticationForm):
-    captcha = CaptchaField()
-
-
-
-
-"""
 Fonction pour la vue de login
 
 Si la requete est de type POST
     Verifie que l'utilisateur existe et le connecte si c'est le cas
     Sinon renvoie une erreur dans le formulaire
 S'il n'y a pas de requete 
-    Renvoie un formulaire de base AuthenticationForm() 
+    Renvoie un formulaire de base AuthenticationFormCaptcha() 
     PS : ce formulaire AuthenticationForm prend automatiquement en compte notre custom_user et a donc un champs email et password
 """
 def login_user(request):
@@ -71,7 +56,6 @@ def login_user(request):
     if request.method=="POST" :
         form = AuthenticationFormCaptcha(data=request.POST)
         if form.is_valid():
-            human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             username = request.POST['username']  # email
             password = request.POST['password']
 
@@ -125,26 +109,6 @@ def logout_user(request):
 
 
 """
-
-
-"""
-Formulaire personnaliser de création de compte utilisateur avec email
-Ce formulaire est une modification d'un formulaire django
-
--Champs 1 : Email 
--Champs 2 : Mot de passe
--Champs 3 : Verification mot de passe
-"""
-class EmailUserCreationForm(UserCreationForm):
-    captcha = CaptchaField()
-    class Meta:
-        model = User
-        fields = ('email', 'password1', 'password2')  # Utilisation de l'email et des mots de passe
-
-    #Renome le champs email en "Email", de base s'appelle "Adresse électronique"
-    email = forms.EmailField(label='Email', max_length=254)  # Champ pour l'email
-
-
 
 
 """
@@ -207,7 +171,6 @@ def register_user(request):
     if request.method == "POST":
         form = EmailUserCreationForm(request.POST)
         if form.is_valid():
-            human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             user = form.save(commit=False)
             user.is_active = False
             user.is_social_account = False
@@ -222,18 +185,12 @@ def register_user(request):
     return render (request, 'accounts/signup.html', {'form': form})
 
 
+
+
+
+""""
+Fonction pour le renvoie de lien de vérification
 """
-Partie pour le renvoie d'un mail de vérification 
-
-"""
-class SendEmailValidForm(forms.Form):
-    email = forms.EmailField(label='Email', max_length=254, required=True)
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        return email
-
-
-
 def validation_link_sender(request):
     if request.method == 'POST':
         form = SendEmailValidForm(request.POST)
@@ -272,25 +229,6 @@ def validation_link_sender(request):
 """
 
 
-#Création de notre formulaire de modification de compte
-#Il faut ajotuer :
-# -modification mots de passe
-# -gérer ajout certif med et modifs de celui-ci (on peut le consulter)
-# -modifs de l'email (doit donc modifier la connexion au compte)
-# -autres modifs ??????
-class AccountForm(forms.Form):
-    # Définition des champs du formulaire d'inscription
-    prenom = forms.CharField(max_length=100, required=False)
-    nom = forms.CharField(max_length=100, required=False)
-    #email = forms.EmailField()
-    age = forms.IntegerField(min_value=1, max_value=110, required=False)
-    captcha = CaptchaField()
-
-
-
-
-
-
 """
 Fonction pour la vue du compte
 
@@ -308,7 +246,6 @@ def account(request):
     if request.method == "POST":
         form = AccountForm(request.POST) # Création du formulaire avec les données soumises
         if form.is_valid(): # Vérification de la validité des données soumises
-            human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             user = request.user
             user.prenom = form.cleaned_data.get('prenom')
             user.nom = form.cleaned_data.get('nom')
@@ -351,37 +288,6 @@ def account(request):
 
 """
 
-"""
-Formulaire personnaliser de changement d'email
-Ce formulaire est une modification d'un formulaire django
-
--Champs 1 : Email
--Champs 2 : Mot de passe
-
-La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
-
-"""
-class UserDeleteAccountForm(forms.Form):
-    email = forms.EmailField(label='Email', max_length=254)
-    password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput)
-    captcha = CaptchaField()
-
-#Explication de pourquoi *args et **kwargs sur stackoverflow : https://stackoverflow.com/questions/871037/django-overriding-init-for-custom-forms
-    def __init__(self, user ,*args, **kwargs):
-        self.user = user #Donner l'utilisateur actif
-        super().__init__(*args, **kwargs)
-
-# Fonction clean_xxx appelé automatiquement par django lors de is_valid()
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if email != self.user.email:
-            raise forms.ValidationError("L'email ne correspond pas.")
-        return email
-
-
-
-
-
 
 """
 Fonction pour la suppression de compte
@@ -402,7 +308,6 @@ def delete_account(request):
     if request.method == "POST":
         form = UserDeleteAccountForm(request.user,request.POST)
         if form.is_valid():
-            human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
 
@@ -451,45 +356,6 @@ def delete_social_account(request):
 
 """
 
-
-
-"""
-Formulaire personnaliser de changement d'email
-Ce formulaire est une modification d'un formulaire django
-
--Champs 1 : Ancien Email 
--Champs 2 : Mot de passe
--Champs 3 : Nouvel email
-
-La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
-
-"""
-class UserChangeMailForm(forms.Form):
-    old_email = forms.EmailField(label='Ancien Email', max_length=254)
-    password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput)
-    new_email = forms.EmailField(label='Nouvel Email', max_length=254)
-    captcha = CaptchaField()
-
-#Explication de pourquoi *args et **kwargs sur stackoverflow : https://stackoverflow.com/questions/871037/django-overriding-init-for-custom-forms
-    def __init__(self, user ,*args, **kwargs):
-        self.user = user  #Donner l'utilisateur actif
-        super().__init__(*args, **kwargs)
-
-
-#Fonction clean_xxx appelé automatiquement par django lors de is_valid()
-    def clean_old_email(self):
-        old_email = self.cleaned_data.get('old_email')
-        if old_email != self.user.email:
-            raise forms.ValidationError("L'ancien email ne correspond pas à celui associé à votre compte.")
-        return old_email
-
-    def clean_new_email(self):
-        new_email = self.cleaned_data.get('new_email')
-        if User.objects.filter(email=new_email).exists():
-            raise forms.ValidationError("Cet email est déjà utilisé.")
-        return new_email
-
-
 """
 Fonction pour le changement d'email d'un compte
 
@@ -508,7 +374,6 @@ def change_email(request):
     if request.method == "POST":
         form = UserChangeMailForm(request.user,request.POST)
         if form.is_valid():
-            human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             old_email = form.cleaned_data.get("old_email")
             password = form.cleaned_data.get("password")
             new_email = form.cleaned_data.get("new_email")
@@ -536,44 +401,6 @@ def change_email(request):
 
 
 
-
-
-"""
-Formulaire personnaliser de changement de mot de passe
-Ce formulaire est une modification d'un formulaire django
-
--Champs 1 : Email
--Champs 2 : Mot de passe actuel
--Champs 3 : Nouveau Mot de passe
-
-La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
-
-"""
-class UserChangePasswordForm(forms.Form):
-    email = forms.EmailField(label='Ancien Email', max_length=254)
-    old_password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput)
-    new_password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput)
-    captcha = CaptchaField()
-
-#Explication de pourquoi *args et **kwargs sur stackoverflow : https://stackoverflow.com/questions/871037/django-overriding-init-for-custom-forms
-    def __init__(self, user ,*args, **kwargs):
-        self.user = user # Passez l'utilisateur lors de l'initialisation
-        super().__init__(*args, **kwargs)
-
-# Fonction clean_xxx appelé automatiquement par django lors de is_valid()
-
-    """Cette fonction permet de tester que l'utilisateur essaie bien de changer le mots de passe du bon compte
-        Comme on n'a l'unicité sur les email, il doit forcement donnée le mots de passe associé a son email 
-        (On ne peut pas comparer directement les password car ils sont stocké sous forme de HASH)
-    """
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if email != self.user.email:
-            raise forms.ValidationError("L'Email ou le mot de passe est/sont incorrect(s).") #On met ce message pour ne pas donner trop d'informations
-        return email
-
-
-
 """
 Fonction pour le changement de mot de passe d'un compte
 
@@ -595,7 +422,6 @@ def change_password(request):
     if request.method == "POST":
         form = UserChangePasswordForm(request.user,request.POST)
         if form.is_valid():
-            human = True  # form_is valid verifie le captcha et ici on dit bien qu'il a était validé
             email = form.cleaned_data.get('email')
             old_password = form.cleaned_data.get('old_password')
             new_password = form.cleaned_data.get('new_password')

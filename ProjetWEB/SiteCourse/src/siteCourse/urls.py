@@ -34,7 +34,6 @@ urlpatterns = [
     path('login/', login_page , name='login_page'),
     #path('inscriptions/', include('inscriptions.urls')), pour avoir inscriptions/...
 
-    path('captcha/', include('captcha.urls')),
 
 
 
