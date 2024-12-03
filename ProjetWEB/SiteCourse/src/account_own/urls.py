@@ -44,8 +44,12 @@ urlpatterns = [
     #Chemin pour la page qui sert a renvoyer un nouveau lien
     path('validation_link_sender/', views.validation_link_sender, name='validation_link_sender'),
 
-    #Lien utilisé pour erreurs de création compte avec google, si l'email est déja use par ocmpte utilisateur
+    #Lien utilisé pour erreurs de création compte avec google, si l'email est déja use par compte utilisateur
     path('3rdparty/signup/', views.error_google_creation, name="error_google_creation"),
+
+    #Lien pour le reset du mots de passe
+    path('password_reset/', views.password_reset_request, name='password_reset'),
+    path('reset/<uidb64>/<token>/', views.passwordResetConfirm, name='password_reset_confirm'),
 
     # TODO : Ajouter d'autres URL si nécessaire
     #path('mdpchange,.../......) etc

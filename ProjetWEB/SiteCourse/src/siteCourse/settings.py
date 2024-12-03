@@ -26,7 +26,7 @@ SECRET_KEY = config("SECRET_KEY", default="fallback-secret-key")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -103,7 +103,18 @@ SOCIALACCOUNT_QUERY_EMAIL = True  # Pour s'assurer que l'email est demandé lors
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # Ne pas envoyer de mail de vérification automatique
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'  # Pas de vérification de l'email lors de la connexion sociale
 
-
+#Pour la liste des providers et leurs settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'offline',
+        },
+    }
+}
 
 #Pour les captcah GOOGLE :
 #NE PAS LES LAISSER LA, NOUS DEVONS LES IMPORT

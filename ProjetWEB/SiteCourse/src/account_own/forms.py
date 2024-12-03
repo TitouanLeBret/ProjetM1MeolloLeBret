@@ -1,4 +1,4 @@
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordResetForm, SetPasswordForm
 from django import forms
 from django.contrib.auth import get_user_model
 #Pour le captcha
@@ -163,25 +163,30 @@ Ce formulaire est une modification d'un formulaire django
 La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
 
 """
-class UserChangePasswordForm(forms.Form):
-    email = forms.EmailField(label='Ancien Email', max_length=254)
-    old_password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput)
-    new_password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput)
+class UserChangePasswordForm(SetPasswordForm):
+    #on veut quand même vérifier l'ancien mot de passe
+    old_password = forms.CharField(label='Ancien mot de passe', widget=forms.PasswordInput)
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
+    class Meta:
+        model = get_user_model()
+        fields = ['new_password1', 'new_password2']
+
+""""
+Formulaire pour envoie la demande pour réinitialiser le mot de passe
+
+"""
+class PasswordResetForm(PasswordResetForm):
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
+    def __init__(self, *args, **kwargs):
+        super(PasswordResetForm,self).__init__(*args, **kwargs)
+
+""""
+Formulaire pour réinitialiser le mot de passe
+
+"""
+class SetPasswordFormCaptcha(SetPasswordForm):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
 
-#Explication de pourquoi *args et **kwargs sur stackoverflow : https://stackoverflow.com/questions/871037/django-overriding-init-for-custom-forms
-    def __init__(self, user ,*args, **kwargs):
-        self.user = user # Passez l'utilisateur lors de l'initialisation
-        super().__init__(*args, **kwargs)
-
-# Fonction clean_xxx appelé automatiquement par django lors de is_valid()
-
-    """Cette fonction permet de tester que l'utilisateur essaie bien de changer le mots de passe du bon compte
-        Comme on n'a l'unicité sur les email, il doit forcement donnée le mots de passe associé a son email 
-        (On ne peut pas comparer directement les password car ils sont stocké sous forme de HASH)
-    """
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if email != self.user.email:
-            raise forms.ValidationError("L'Email ou le mot de passe est/sont incorrect(s).") #On met ce message pour ne pas donner trop d'informations
-        return email
+    class Meta:
+        model = get_user_model()
+        fields = ['new_password1', 'new_password2']

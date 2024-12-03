@@ -14,6 +14,8 @@ from django.contrib.auth import get_user_model
 #Pour la modification du mot de passe
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+#Q permet de faire des requetes plus complexe
+from django.db.models import Q
 
 
 from inscriptions.models import InscriptionCourse
@@ -150,9 +152,14 @@ def activate_account(request, uidb64, token): #uidb64 = représentation en base 
 
 def activateEmail(request,user,email):
     mail_subject = "Activer votre compte."
+    #Potentiellemenet a supprimer (4 lignes en dessous)
+    if get_current_site(request).domain=="localhost" :
+        domain = "127.0.0.1"
+    else :
+        domain = get_current_site(request).domain
     message = render_to_string('email/activation_mail.html', {
         'user': user,
-        'domain': get_current_site(request).domain,
+        'domain': domain,
         'uid': urlsafe_base64_encode(force_bytes(user.id)),
         'token': account_activation_token.make_token(user),
         'protocol': 'https' if request.is_secure else 'http',
@@ -422,21 +429,21 @@ def change_password(request):
     if request.method == "POST":
         form = UserChangePasswordForm(request.user,request.POST)
         if form.is_valid():
-            email = form.cleaned_data.get('email')
+            email = request.user.email
             old_password = form.cleaned_data.get('old_password')
-            new_password = form.cleaned_data.get('new_password')
+            new_password = form.cleaned_data.get('new_password1')
 
             user = authenticate(request, email=email, password=old_password)
             if user:
                 try:
-# Valider le nouveau mot de passe avec les règles de Django
+                    # Valider le nouveau mot de passe avec les règles de Django
                     validate_password(new_password, user=user)
                     
                     # Si valide, enregistrer le nouveau mot de passe
                     user.set_password(new_password)
                     user.save()
                     messages.success(request, "Votre mot de passe a été changé.")
-                    
+
                     # Reconnexion automatique
                     login(request, user)
                     return redirect('accounts:home')
@@ -446,7 +453,7 @@ def change_password(request):
                     for error in e:
                         messages.error(request, error) #exemple d'erreur : mot de passe trop court, trop courant, entierement numérique
             else:
-                messages.error(request, "Les informations saisies sont incorrectes.")
+                messages.error(request, "L'ancien mot de passe est incorrect.")
     else:
         form = UserChangePasswordForm(request.user)
     return render(request, 'accounts/change_password.html', {'form': form})
@@ -457,3 +464,68 @@ def change_password(request):
 def error_google_creation(request):
     messages.error(request,"L'email de votre compte google est déja utilisé par un compte utilisateur")
     return redirect('accounts:login')
+
+
+"""
+Cette partie est pour la réinitialisation du mot de passe par mail
+"""
+def password_reset_request(request):
+    if request.method == "POST":
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            user_email = form.cleaned_data.get('email')
+            associated_user = User.objects.filter(Q(email = user_email)).first()
+            if associated_user:
+                mail_subject = "Réinitialiser votre mot de passe."
+                # Potentiellemenet a supprimer (4 lignes en dessous)
+                if get_current_site(request).domain == "localhost":
+                    domain = "127.0.0.1:8000"
+                else:
+                    domain = get_current_site(request).domain
+                print(domain)
+                message = render_to_string('email/reinitialise_mot_de_passe.html', {
+                    'user': associated_user,
+                    'domain': domain,
+                    'uid': urlsafe_base64_encode(force_bytes(associated_user.id)),
+                    'token': account_activation_token.make_token(associated_user),
+                    'protocol': 'https' if request.is_secure else 'http',
+                })
+                mail_message = EmailMessage(mail_subject, message, to=[user_email])
+                if mail_message.send():
+                    messages.success(request,
+                                     f'Un lien de réinitialisation viens de vous être envoyer par mail à l\'adresse {user_email}. \
+                    Attention, ce mail est valide durant 30 minutes')
+                else:
+                    messages.error(request,
+                                   f'Il y\'a eu un problème pendant l\'envois du mail de vérification à l\'email :{user_email}, vérifiez si celle-ci est correcte')
+                return redirect('accounts:home')
+            else:
+                messages.error(request, "L'email que vous avez rentré n'est pas valide")
+        else :
+            messages.error(request,"Vous n'avez pas complété le captcha")
+    form = PasswordResetForm()
+    return render(request, 'accounts/password_reset.html', {'form': form})
+
+
+def passwordResetConfirm(request,uidb64,token): # uidb64 = représentation en base 64
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(id=uid)
+    except:
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        if request.method == "POST":
+            form = SetPasswordFormCaptcha(user,request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Votre mot de passe a était changé avec succès ')
+                return redirect('accounts:login')
+            else :
+                messages.error(request, "Vous devez passer le ReCaptcha ou votre mot de passe n'est pas conforme")
+
+        form = SetPasswordFormCaptcha(user)
+        return render(request, 'accounts/password_reset.html', {'form': form})
+    else:
+        messages.error(request, 'Ce lien de réinitialisation est invalide ou à expiré')
+    messages.error(request, "Une erreur est survenue, vous allez etre redirigé vers la page de connexion")
+    return redirect('accounts:home')
