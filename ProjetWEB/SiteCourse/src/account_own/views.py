@@ -386,15 +386,55 @@ def change_email(request):
             new_email = form.cleaned_data.get("new_email")
             user = authenticate(request, email=old_email, password=password)
             if user:
-                user.email = new_email
-                user.save()
-                messages.success(request, "Votre email a été mis à jour.")
-                return redirect('accounts:home')  # Rediriger vers la page compte
+                mail_subject = "Changement d'email."
+                # Potentiellemenet a supprimer (4 lignes en dessous)
+                if get_current_site(request).domain == "localhost":
+                    domain = "127.0.0.1:8000"
+                else:
+                    domain = get_current_site(request).domain
+                message = render_to_string('email/email_change.html', {
+                    'user': user,
+                    'domain': domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user.id)),
+                    'new_email' : new_email, #pour que l'on ai acces a l'email une fois sur le lien de validation du changement
+                    'token': account_activation_token.make_token(user),
+                    'protocol': 'https' if request.is_secure else 'http',
+                })
+                mail_message = EmailMessage(mail_subject, message, to=[new_email])
+                if mail_message.send():
+                    messages.success(request,
+                                     f'Un lien de validation viens de vous être envoyer par mail à l\'adresse {new_email}. \
+                                    Attention, ce mail est valide durant 30 minutes')
+                else:
+                    messages.error(request,
+                                   f'Il y\'a eu un problème pendant l\'envois du mail de vérification à l\'email :{new_email}, vérifiez si celle-ci est correcte')
+                return redirect('accounts:home')
             else:
                 messages.error(request, "Les informations saisies sont incorrectes.")
     else :
         form = UserChangeMailForm(request.user)
     return render(request, 'accounts/change_email.html', {'form': form})
+
+
+#Fonction pour valider le changemnet d'adresse mail :
+def emailChangeConfirm(request,uidb64,token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(id=uid)
+    except:
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        new_email = request.GET.get('new_email')
+        if new_email:
+            user.email = new_email
+            user.save()
+            messages.success(request,"Votre mail a était mis à jour")
+        else :
+            messages.error(request,"Il y'a une erreur avec votre addresse mail") #N'arrive logiquement jamais car pour arriver sur cette page, il faut cliquer sur le lien sur la dite addresse mail, qui est donc obligatoirement valide
+        return redirect('accounts:home')
+    else:
+        messages.error(request, "Le lien de validation est invalide ou expiré.")
+        return redirect('accounts:home')
 
 
 """
@@ -542,3 +582,5 @@ def passwordResetConfirm(request,uidb64,token): # uidb64 = représentation en ba
         messages.error(request, 'Ce lien de réinitialisation est invalide ou à expiré')
     messages.error(request, "Une erreur est survenue, vous allez etre redirigé vers la page de connexion")
     return redirect('accounts:home')
+
+
