@@ -59,6 +59,8 @@ INSTALLED_APPS = [
 
     #paypal
     'paypal.standard.ipn',
+
+    'private_storage'
 ]
 
 # requis par django-allauth
@@ -230,3 +232,21 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 #set sandbox to true
 PAYPAL_TEST = True
 PAYPAL_RECEIVER_EMAIL = 'business@etu.unicaen.fr' #Business sandBox account
+
+
+#Stockage des pdf de certificats médicaux
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+# Spécifiez le dossier de base pour les fichiers privés
+PRIVATE_STORAGE_ROOT = os.path.join(BASE_DIR, 'private_storage')
+
+# URL d'accès aux fichiers privés (note : ce n'est pas l'URL par défaut)
+PRIVATE_STORAGE_URL = '/private-media/'
+
+PRIVATE_STORAGE_FILE_OVERWRITE = False  # Pour ne pas écraser les fichiers existants
+
+# Configurez le stockage privé pour qu'il soit utilisé par le modèle
+DEFAULT_FILE_STORAGE = 'private_storage.storage.PrivateFileSystemStorage'
+PRIVATE_STORAGE_AUTH_FUNCTION = 'siteCourse.permissions.custom_access_function'
+"""ATTENTION, CHANGER LA PERMISSION POUR QUE CE SOIT UNIQUEMENT LE PROPRIO DU PDF ET LES ADMINS"""

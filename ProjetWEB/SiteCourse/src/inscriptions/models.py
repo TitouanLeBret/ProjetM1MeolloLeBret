@@ -1,24 +1,39 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from private_storage.fields import PrivateFileField
+from django.conf import settings
 
 User = get_user_model()
+
+class CertificatMedical(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    certificat_med_name = models.CharField(max_length=2048,blank=True,null=True)
 
 # Modèle représentant une inscription à une course.
 class InscriptionCourse(models.Model):
     """
        Ce modèle stocke les informations relatives à l'inscription d'un participant à une course.
     """
+    CHOICES_COURSE = [
+        ('5km', '5 km'),
+        ('10km', '10 km'),
+        ('semi-marathon', 'Semi-marathon'),
+        ('marathon', 'Marathon'),
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     nom = models.CharField(max_length=255)
     prenom = models.CharField(max_length=255)
     age = models.IntegerField()
-    course = models.CharField(max_length=255)
+    course = models.CharField(max_length=255, choices=CHOICES_COURSE)
+    # Certificat médical :
+    certificat_med = PrivateFileField(upload_to='certificats_medicaux/',blank =True, null=True)
+    certificat_med_table_id = models.ForeignKey(CertificatMedical, on_delete=models.DO_NOTHING, null=True)
+
     # Statut de l'inscription (complète ou non)
-    inscription_complete = models.BooleanField()
-    # Lien vers un certificat médical (lien vers la BDD ? ou vers un hebergement pdf en ligne ?)
-    lien_vers_certificat = models.CharField(max_length=2048)
+    inscription_complete = models.BooleanField(default=False)
     # Date de l'inscription, ajoutée automatiquement à la création de l'objet
     inscription_date = models.DateField(auto_now_add=True)
+
     #paiement_complet = models.BooleanField()
     #compte = models.ForeignKey('InscriptionCompte', null=False, on_delete=models.CASCADE)
 

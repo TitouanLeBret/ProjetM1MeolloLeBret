@@ -1,23 +1,20 @@
+import os
+
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render ,get_object_or_404, redirect
-from .models import InscriptionCourse
+from .models import InscriptionCourse, CertificatMedical
 from django.contrib import messages
-from django import forms
-from django_recaptcha.fields import ReCaptchaField
-from django_recaptcha.widgets import ReCaptchaV2Checkbox
 #import pour paypal
 from django.urls import reverse
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
 import uuid #permet de creer un user id unique pour ne pas faire de paiement en double
 
-#Création de notre formulaire d'inscription a une course a partie d'un formulaire Django
-class InscriptionForm(forms.Form):
-    # Définition des champs du formulaire d'inscription
-    nom = forms.CharField(max_length=100)
-    prenom = forms.CharField(max_length=100)
-    age = forms.IntegerField(min_value=1, max_value=110)
-    course = forms.ChoiceField(choices=[('5km', '5 km'), ('10km', '10 km'), ('semi-marathon', 'Semi-marathon'), ('marathon', 'Marathon')])
-    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
+from .forms import InscriptionForm
+
+#import magic  # Pour vérifier le type MIME (donc le type de fichier, pdf,jpeg,png ...)
+from django.core.exceptions import ValidationError
+
 
 def inscriptions(request):
     # Vérification si l'utilisateur est authentifié pour
@@ -39,8 +36,9 @@ def inscriptions(request):
 
     # Traitement du formulaire lorsqu'une qu'il est soumis (requete POST)
     if request.method == "POST":
-        form = InscriptionForm(request.POST) # Création du formulaire avec les données soumises
+        form = InscriptionForm(request.POST, request.FILES) # Création du formulaire avec les données soumises
         if form.is_valid():
+            """Partie paiement"""
             course = form.cleaned_data['course']
             host = request.get_host()
             price = 5
@@ -62,45 +60,25 @@ def inscriptions(request):
                 # 'cancel_return': 'https://{}{}'.format(host, reverse("payment_failed")),
             }
             # formulaire paypal
-            paypal_form = PayPalPaymentsForm(initial=paypal_dict)
-        if form.is_valid(): # Vérification de la validité des données soumises
-            #Sauvegarde dans BDD sécurisé grâce à cleaned_data
-            # ! ! ! ! ! ! ! ! !
-            # ! ! ! ! ! ! ! ! !
-            # Voir exactement l'effet de cleaned_data (pour expliquer dans rapport):
-            # ! ! ! ! ! ! ! ! !
-            # ! ! ! ! ! ! ! ! !
+            paypal_form = PayPalPaymentsForm(initial=paypal_dict)#Pa
+            """Partie inscription"""
+            insc = form.save(commit=False)
             if request.user.is_authenticated:
-                insc = InscriptionCourse.objects.create(
-                    user = request.user,
-                    nom=form.cleaned_data['nom'],
-                    prenom=form.cleaned_data['prenom'],
-                    age=form.cleaned_data['age'],
-                    course=form.cleaned_data['course'],
-                    inscription_complete = True
+                insc.user = request.user
+                insc.certificat_med_table_id = CertificatMedical.objects.create(
+                    user=request.user,
+                    certificat_med_name = form.cleaned_data.get('certificat_med'),
                 )
-            else :
-                insc = InscriptionCourse.objects.create(
-                    nom=form.cleaned_data['nom'],
-                    prenom=form.cleaned_data['prenom'],
-                    age=form.cleaned_data['age'],
-                    course=form.cleaned_data['course'],
-                    inscription_complete=True
-                )
-            human = True #form_is valid verifie le captcha et ici on dit bien qu'il a était validé
-            # Redirection vers une page de succès avec les infos de l'inscriptions a afficher
-            messages.success(request,"Votre inscription a bien était prise en compte")
-            #return redirect('accueil')
+            insc.save()
+            print(form.cleaned_data.get('certificat_med'))
+            messages.success(request, "Votre inscription a bien été prise en compte.")
             return render(request, 'inscriptions/insc_complete.html',{'paypal_form': paypal_form, 'insc': insc, 'inscriptions': inscriptions})
         else:
-            # Si le formulaire est invalide, on renvoie la page d'accueil avec les erreurs du formulaire
-            # Ce cas n'arrive jamais je penses, car le POST n'est effectué que si les données sont valides
-            # Mais laisser pour sécurité maximum ?
-            return render(request, 'inscriptions/accueil.html', {'form': form , 'inscriptions' : inscriptions})
+            print(form.errors)
     else:
         # Si pas de soumission POST, on créer formulaire vierge et on affiche la page
         form = InscriptionForm()
-        return render(request, 'inscriptions/accueil.html', {'form': form , 'inscriptions' : inscriptions})
+    return render(request, 'inscriptions/accueil.html', {'form': form , 'inscriptions' : inscriptions})
 
 
 
@@ -123,15 +101,3 @@ def supprimer_inscription(request):
 
         # Si ce n'est pas une requête POST, rediriger vers la page des inscriptions
     return redirect('inscriptions:home')
-
-
-
-#Vue a implémenter pour le systeme de paiement (si celui ci n'est pas sur la page d'inscriptions directement
-def paiement(request):
-    return render (request, 'inscriptions/paiement.html', )
-
-def payment_success(request):
-    return render(request, "payment/payment_success.html",{})
-
-def payment_failed(request):
-    return render(request, "payment/payment_failed.html",{})

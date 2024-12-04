@@ -15,12 +15,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include , re_path
+from private_storage.views import PrivateStorageDetailView
+
 from .views import accueil, parcours, login_page
+from django.conf import settings
+from django.conf.urls.static import static
 from inscriptions.views import inscriptions
 from account_own.views import account
 
 from allauth.urls import build_provider_urlpatterns
+
+import private_storage.urls
 
 urlpatterns = [
 #IMPORTANT ; Penser a modifier /admin en autre chose pour que les gens ne puissnet pas attérir sur la page d'admin du site
@@ -40,6 +46,7 @@ urlpatterns = [
     path('accounts/', include('account_own.urls') ), #quand app on ne peut pas mettre name
     path('accounts/', include('allauth.urls')),
     path('accounts/home', account , name='home'),
+    #re_path utilise des regexp
 
-
-]
+    re_path(r'^private-media/', include('private_storage.urls'), name='private-media'),
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

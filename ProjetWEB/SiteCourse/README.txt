@@ -28,3 +28,5 @@ custom_user : générer entierement par "python manage.py create_custom_user_app
 
 inscriptions : app qui sert pour la gestion de la BDD ,gère les table InscriptionCompte et InscriptionCourse
         --> Voir le lien avec la table custom_user_user, pour lié compte et course
+
+DOC SUR SECU DJANGO : https://docs.djangoproject.com/fr/5.1/topics/security/
