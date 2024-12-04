@@ -521,7 +521,20 @@ def passwordResetConfirm(request,uidb64,token): # uidb64 = représentation en ba
                 messages.success(request, 'Votre mot de passe a était changé avec succès ')
                 return redirect('accounts:login')
             else :
-                messages.error(request, "Vous devez passer le ReCaptcha ou votre mot de passe n'est pas conforme")
+                #gestion de l'affichage des erreurs
+                if 'captcha' in form.errors:
+                    messages.error(request, "Veuillez remplir le ReCaptcha.")
+
+                password_errors = []
+                if 'new_password1' in form.errors:
+                    for error in form.errors['new_password1']:
+                        password_errors.append(f"Mot de passe : {error}")
+                if 'new_password2' in form.errors:
+                    for error in form.errors['new_password2']:
+                        password_errors.append(f"Mot de passe (confirmation) : {error}")
+
+                if password_errors:
+                    messages.error(request, " ".join(password_errors))
 
         form = SetPasswordFormCaptcha(user)
         return render(request, 'accounts/password_reset.html', {'form': form})
