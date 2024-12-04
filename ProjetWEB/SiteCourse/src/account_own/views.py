@@ -386,6 +386,8 @@ def change_email(request):
             new_email = form.cleaned_data.get("new_email")
             user = authenticate(request, email=old_email, password=password)
             if user:
+                user.temp_email = new_email #on stocke la nouvelle adresse potentielle
+                user.save()
                 mail_subject = "Changement d'email."
                 # Potentiellemenet a supprimer (4 lignes en dessous)
                 if get_current_site(request).domain == "localhost":
@@ -396,7 +398,6 @@ def change_email(request):
                     'user': user,
                     'domain': domain,
                     'uid': urlsafe_base64_encode(force_bytes(user.id)),
-                    'new_email' : new_email, #pour que l'on ai acces a l'email une fois sur le lien de validation du changement
                     'token': account_activation_token.make_token(user),
                     'protocol': 'https' if request.is_secure else 'http',
                 })
@@ -424,9 +425,10 @@ def emailChangeConfirm(request,uidb64,token):
     except:
         user = None
     if user is not None and account_activation_token.check_token(user, token):
-        new_email = request.GET.get('new_email')
+        new_email = user.temp_email
         if new_email:
             user.email = new_email
+            user.temp_email = None
             user.save()
             messages.success(request,"Votre mail a était mis à jour")
         else :

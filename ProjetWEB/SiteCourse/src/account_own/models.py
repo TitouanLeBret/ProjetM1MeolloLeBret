@@ -11,6 +11,7 @@ class User(BaseUser):
     age = models.PositiveIntegerField(blank=True, null=True)
     username = models.CharField(max_length=50, blank=True, null=True)
     is_social_account = models.BooleanField(default=True)
+    temp_email = models.EmailField(null=True, blank=True) # champs pour le changement d'email, qui stocke la potentielle nouvelle addresse
     objects = BaseUserManager()
 
     def __str__(self):
