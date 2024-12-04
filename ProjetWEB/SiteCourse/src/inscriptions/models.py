@@ -26,8 +26,7 @@ class InscriptionCourse(models.Model):
     age = models.IntegerField()
     course = models.CharField(max_length=255, choices=CHOICES_COURSE)
     # Certificat médical :
-    certificat_med = PrivateFileField(upload_to='certificats_medicaux/',blank =True, null=True)
-    certificat_med_table_id = models.ForeignKey(CertificatMedical, on_delete=models.DO_NOTHING, null=True)
+    certificat_med = PrivateFileField(upload_to='certificats_medicaux/',blank=False, default=False)
 
     # Statut de l'inscription (complète ou non)
     inscription_complete = models.BooleanField(default=False)

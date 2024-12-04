@@ -38,7 +38,7 @@
                         <p class="text-gray-600"><strong>Prénom :</strong> {{ inscription.prenom }}</p>
                         <p class="text-gray-600"><strong>Âge :</strong> {{ inscription.age }} ans</p>
                         <p class="text-gray-600"><strong>Course :</strong> {{ inscription.course }}</p>
-                        <p class="text-gray-600"><strong>Statut :</strong> {% if inscription.inscription_complete %} Complète {% else %} Incomplète {% endif %}</p>
+                        <p class="text-gray-600"><strong>Statut :</strong> {% if inscription.inscription_complete %} Validé {% else %} A valider par un administrateur {% endif %}</p>
                         <p class="text-gray-600"><strong>Date de l'inscription :</strong> {{ inscription.inscription_date }}</p>
                         <a href="/private-media/{{ inscription.certificat_med }}" class="text-blue-500 hover:underline">Voir le certificat</a>
 
