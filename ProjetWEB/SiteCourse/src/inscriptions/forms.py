@@ -24,6 +24,7 @@ class InscriptionForm(forms.ModelForm):
         if certificat:
         # Hache le nom du fichier
             original_name = certificat.name
+            print(original_name)
             #Avec les deux lignes en dessous, on s'assure que même si 2 fichier ont le même nom, ils auront un hash différents
             unique_id = os.urandom(16).hex()  # Génère un identifiant unique
             hash_input = f"{original_name}_{unique_id}".encode('utf-8')
@@ -32,16 +33,4 @@ class InscriptionForm(forms.ModelForm):
 
         # Remplace le nom du fichier par le nom haché
             certificat.name = new_name
-
-        # Associe le fichier à l'utilisateur connecté et enregistre l'objet CertificatMedical
-            user = self.instance.user
-            if user:
-                # Crée ou met à jour le modèle CertificatMedical
-                certificat_med_instance = CertificatMedical.objects.create(
-                    user=user,
-                    defaults={'certificat_med_name': new_name}
-                )
-
         return certificat
-
-
