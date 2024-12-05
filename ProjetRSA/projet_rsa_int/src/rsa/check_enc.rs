@@ -4,19 +4,15 @@ use rsa::BigUint as RsaBigUint;
 use rsa::traits:: {PrivateKeyParts,PublicKeyParts}; 
 
 
-/// Représente le statut d'un test de sécurité.
-/// Chaque test a un nom (`name`) et un statut de validation (`is_valid`).
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct TestStatus {
-    pub name: &'static str,
-    pub is_valid: bool,
-}
-
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
+
+use super::utils::TestStatus;
+use super::utils::update_test_status;
+
 //Ce vecteur a un Mutex, pour pouvoir etre une variable globale mutable,
 //On s'en sert dans check_enc_page.rs, mais on pourrais récréer une autre page qui s'en sert sans problème
-pub static ALL_TEST_STATUS : Lazy<Mutex<Vec<TestStatus>>> = Lazy::new(||
+pub static ALL_TEST_STATUS_VALID_RSA : Lazy<Mutex<Vec<TestStatus>>> = Lazy::new(||
     Mutex::new(vec![
     TestStatus {
         name: "Test de la taille de N (>= 2048 bits)",
@@ -45,21 +41,7 @@ pub static ALL_TEST_STATUS : Lazy<Mutex<Vec<TestStatus>>> = Lazy::new(||
     ])
 );
 
-//Mets le status a l'index "index" a la valeur new_status
-pub fn update_test_status(index: usize, new_status: bool) {
-    let mut tests = ALL_TEST_STATUS.lock().unwrap();
-    if let Some(test) = tests.get_mut(index) {
-        test.is_valid = new_status;
-    }
-}
 
-//Remets tous les .is_valid a false (réinitialise les status)
-pub fn all_status_to_false(){
-    let mut tests = ALL_TEST_STATUS.lock().unwrap();
-    for test in tests.iter_mut() {
-        test.is_valid = false;
-    }
-}
 
 
 //Fonction de génération de la clef RSA : // A mettre dans keygen.rs peut etre ? 
@@ -110,11 +92,11 @@ pub fn calc_all_security_tests_status(n_value : String , e_value: String, p_valu
     let validation_enc_dec =  is_valid_encryption_decryption( &pub_key, &priv_key) ;
     let validation_e_d = are_valide_e_d(&pub_key,&priv_key);
     let validation_complete = validation_bits_pub_key && validation_facto && validation_enc_dec && validation_e_d;
-    update_test_status(0,validation_bits_pub_key);
-    update_test_status(1,validation_facto);
-    update_test_status(2,validation_enc_dec);
-    update_test_status(3,validation_e_d);
-    update_test_status(4,validation_complete);
+    update_test_status(&mut ALL_TEST_STATUS_VALID_RSA.lock().unwrap(),0,validation_bits_pub_key);
+    update_test_status(&mut ALL_TEST_STATUS_VALID_RSA.lock().unwrap(),1,validation_facto);
+    update_test_status(&mut ALL_TEST_STATUS_VALID_RSA.lock().unwrap(),2,validation_enc_dec);
+    update_test_status(&mut ALL_TEST_STATUS_VALID_RSA.lock().unwrap(),3,validation_e_d);
+    update_test_status(&mut ALL_TEST_STATUS_VALID_RSA.lock().unwrap(),4,validation_complete);
 }
 
 
@@ -191,7 +173,7 @@ fn are_valide_e_d(pub_key : &RsaPublicKey, priv_key : &RsaPrivateKey) -> bool {
     // Récupérer les valeurs de la clé publique et privée
     let e = pub_key.e(); // Exposant public
     let d = priv_key.d(); // Exposant privé
-    let n = pub_key.n(); // Modulus (N)
+    let _n = pub_key.n(); // Modulus (N)
     let p = priv_key.primes()[0].clone(); // Premier facteur de N
     let q = priv_key.primes()[1].clone(); // Deuxième facteur de N
 
@@ -215,8 +197,8 @@ fn are_valide_e_d(pub_key : &RsaPublicKey, priv_key : &RsaPrivateKey) -> bool {
 // Module de test pour les tests unitaires
 #[cfg(test)] //N'est compîlé que si "cargo test" est exécuté
 mod tests {
-    use super::*; // Import les elts du code principale
 
+    use super::*; // Import les elts du code principale
     #[test]//Test pour bits_pub_key
     fn test_bits_pub_key(){
         let mod1 = RsaBigUint::from(1u32); // 256 octect = 2048 bits

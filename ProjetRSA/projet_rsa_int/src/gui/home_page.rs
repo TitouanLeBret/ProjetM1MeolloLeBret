@@ -1,11 +1,9 @@
 // Modules ... 
-use iced::theme::{Theme};
-use iced::widget::{button, container, text,Container, Button, Column, Text};
-use iced:: { Alignment, Sandbox, Settings, Element, Background, Shadow, Vector, Border, Padding,Length};
-use iced::alignment::{Horizontal, Vertical};
+use iced::widget::{text, Button, Column, Text};
+use iced::Element;
 
 use super::gui;
-use super::components;
+
 
 
 /// Structure représentant la page d'accueil.
@@ -31,13 +29,7 @@ impl HomePage {
                 .on_press(gui::Message::Router(gui::Page::ValiditeRSAChiffrement)))
             //Bouton pour naviguer vers la page de test de sécurité du chiffrement RSA
             .push(Button::new(Text::new("Sécurité RSA Chiffrement"))
-                .on_press(gui::Message::Router(gui::Page::ValiditeRSAChiffrement)))
-            // Bouton pour naviguer vers la page de test de validité de la signature RSA
-            .push(Button::new(Text::new("Validité RSA Signature"))
-                .on_press(gui::Message::Router(gui::Page::ValiditeRSASignature)))
-            // Bouton pour naviguer vers la page de test de sécurité de la signature RSA
-            .push(Button::new(Text::new("Sécurité RSA Signature"))
-                .on_press(gui::Message::Router(gui::Page::ValiditeRSAChiffrement)))
+                .on_press(gui::Message::Router(gui::Page::SecuriteRsaChiffrement)))
             // Ajouter les autres boutons ici
             .into()
     }

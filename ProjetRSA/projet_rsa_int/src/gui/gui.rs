@@ -1,18 +1,16 @@
 // Rust UI - Iced
 
 // Modules ... 
-use iced::theme::{Theme};
-use iced::widget::{button, container, text, Button, Column, TextInput,Text};
-use iced:: { Alignment, Sandbox, Settings, Element, Background, Shadow, Vector, Border, Padding,Length};
-use iced::alignment::{Horizontal, Vertical};
+use iced::theme::Theme;
+use iced::widget::button;
+use iced:: { Sandbox, Element, Background, Shadow, Vector, Border};
 
 //Nos propres modules 
 use super::check_enc_page;
-use super::components;
+use super::safe_enc_page;
 use super::home_page;
 
 use crate::rsa::check_enc;
-use crate::rsa::check_enc::all_status_to_false; //Pour remettre tous les status à false
 
 
 
@@ -23,7 +21,7 @@ pub struct App{
     current_page: Page, // Page 1,2 ,3 etc 
     home_page : home_page::HomePage,
     valid_rsa_chif_page: check_enc_page::ValidRsaChifPage,
-    valid_rsa_sign_page : home_page::HomePage,
+    secu_rsa_chif_page : safe_enc_page::SafeRsaChifPage,
     theme: Theme, // Noir ou blanc
 }
 
@@ -35,7 +33,7 @@ impl Sandbox for App{
             current_page: Page::Home, // Page 1,2 ,3 etc 
             home_page : home_page::HomePage::new(),
             valid_rsa_chif_page: check_enc_page::ValidRsaChifPage::new(),
-            valid_rsa_sign_page : home_page::HomePage::new(),
+            secu_rsa_chif_page : safe_enc_page::SafeRsaChifPage::new(),
             theme: Theme::Dark, // Drak theme
         }
     }
@@ -53,13 +51,21 @@ impl Sandbox for App{
                 self.valid_rsa_chif_page.update(n_val,p_val ,q_val ,e_val ,d_val );
             }
 
+            Message::FieldChangedRsaChiffSecu(n_val,e_val ,ct_val ) => {
+                self.secu_rsa_chif_page.update(n_val,e_val,ct_val);
+            }
+
             Message::CheckButtonPressedRsaChiff =>{
                 self.valid_rsa_chif_page.check_values();
             }
 
+            Message::CheckButtonPressedRsaChiffSecu =>{
+                self.secu_rsa_chif_page.check_values();
+            }
+
             Message::NewValuesRsaEnc => {
                 let key = check_enc::generate_rsa_private_key(2048);
-                all_status_to_false();
+                self.valid_rsa_chif_page.reset_status(); // Fonction qui va appeler all_status_to_false, mais faites pour ne pas avoir a passer ALL_TEST_STATUS_VALID_RSA ici 
                 self.valid_rsa_chif_page.remove_all_error_message(); // On mets de nouvelles valeurs donc on remet les status de tests a false
                 self.valid_rsa_chif_page.update(key[0].to_string(),key[2].to_string(),key[3].to_string(),key[1].to_string(),key[4].to_string());
             }
@@ -86,7 +92,7 @@ impl Sandbox for App{
         match self.current_page {
             Page::Home => self.home_page.view(),
             Page::ValiditeRSAChiffrement => self.valid_rsa_chif_page.view(),
-            Page::ValiditeRSASignature => self.home_page.view(),
+            Page::SecuriteRsaChiffrement => self.secu_rsa_chif_page.view(),
         }
     }
 
@@ -121,11 +127,7 @@ impl Sandbox for App{
 pub enum Page {
     Home,
     ValiditeRSAChiffrement,
-    ValiditeRSASignature,
-    /*
-    SecuriteRSAChiffrement,
-    SecuriteRSASignature
-    */
+    SecuriteRsaChiffrement,
 } // liste des pages
 
 
@@ -137,7 +139,9 @@ pub enum Message{
     //PageSpecific(PageMessage),
     //Méthode call back RSA Chiffrement
     FieldChangedRsaChiff(String, String, String, String, String),
+    FieldChangedRsaChiffSecu(String,String,String),
     CheckButtonPressedRsaChiff,
+    CheckButtonPressedRsaChiffSecu,
     NewValuesRsaEnc,
 
 
@@ -186,14 +190,6 @@ pub trait PageContent {
 
 
 
-//Style des champs d'entrées
-
-fn input_field( _placeholder:&str,_value : &str,) -> TextInput<'static, Message>{
-    TextInput::new(_placeholder,_value)
-        .width(Length::Fixed(500.0))
-        .padding(Padding::from(10))
-        .line_height(text::LineHeight::Relative(1.75))
-}
 
 //Style du boutton
 
@@ -239,37 +235,3 @@ impl button::StyleSheet for ButtonStyle {
     }
 }
 
-//Summit du boutton
-
-fn submit_btn(name: &str, event:Message) -> Button<Message> {
-    Button::new(
-        text(name)
-        .horizontal_alignment(Horizontal::Center)
-        .vertical_alignment(Vertical::Center)
-        .size(21)
-    )
-    .on_press(event)
-    .width(Length::Fixed(500.0))
-    .height(Length::Fixed(45.0))
-    .style(iced::theme::Button::Custom(Box::new(ButtonStyle::Standard)))
-}
-
-//définir le style du conteneur 
-struct ContainerStyle;
-
-impl container::StyleSheet for ContainerStyle {
-    type Style = Theme;
-
-    fn appearance(&self , _theme: &Self::Style) -> container::Appearance {
-        container::Appearance{
-            text_color : Default::default(),
-            border: Border::with_radius(5),
-            background: None,
-            shadow: Shadow {
-                color: iced::Color::BLACK,
-                offset: Vector::new(0.0,2.0),
-                blur_radius: 40.0,
-            },
-        }
-    }
-}

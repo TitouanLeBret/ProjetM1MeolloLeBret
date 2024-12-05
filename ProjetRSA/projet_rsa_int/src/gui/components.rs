@@ -1,8 +1,7 @@
 // Modules nécessaire pour les composant
-use iced::theme::{Theme};
-use iced::widget::{button, container, text, Button, Column, Container, Row, Text, TextInput};
-use iced:: { Alignment, Sandbox, Settings, Element, Background, Shadow, Vector, Border, Padding,Length};
-use iced::alignment::{Horizontal, Vertical};
+use iced::theme::Theme;
+use iced::widget::{button, container, text, Button, Container, Row, TextInput};
+use iced:: { Alignment, Background, Shadow, Vector, Border, Padding,Length};
 use iced::Color;
 use iced::widget::text_input::StyleSheet;
 use iced::widget::text_input::Appearance;
