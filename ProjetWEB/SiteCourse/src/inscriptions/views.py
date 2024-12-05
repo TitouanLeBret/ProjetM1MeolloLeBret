@@ -67,8 +67,9 @@ def inscriptions(request):
             form = InscriptionForm()
         return render(request, 'inscriptions/accueil.html', {'form': form , 'inscriptions' : inscriptions})
     else :
+
         messages.error(request,"Pour vous inscrire a une course, vous devez être connecté")
-        return redirect('/accueil')
+        return redirect('/accounts')
 
 #Fonction de suppression de l'inscription, qui supprime également le certificat médicale associé
 # (instance dans la db inscriptions_certifcatmedical et le fichier pdf dans private_storage/certificats_medicaux

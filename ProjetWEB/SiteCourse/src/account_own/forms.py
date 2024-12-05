@@ -6,33 +6,30 @@ from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 
 
-"""
-Utilisation du modèle d'utilisateur personnalisé (custom user), définis dans l'app custom_user dans models.py
-Ce custom user vient du module Django django_use_email_as_username
-"""
+
+#Utilisation du modèle d'utilisateur personnalisé (custom user), définis dans l'app custom_user dans models.py
+#Ce custom user vient du module Django django_use_email_as_username
 User = get_user_model()
 
 
 
-"""
-Formulaire personnaliser de connexion (on se ressert de celui fournis mais on lui ajoute un captcha)
 
--Champs 1 et 2, champs de base de AuthenticationForm
--Captcha
-"""
+# personnaliser de connexion (on se ressert de celui fournis mais on lui ajoute un captcha)
+
+#-Champs 1 et 2, champs de base de AuthenticationForm
+#-Captcha
 class AuthenticationFormCaptcha(AuthenticationForm):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
 
 
 
-"""
-Formulaire personnaliser de création de compte utilisateur avec email
-Ce formulaire est une modification d'un formulaire django
 
--Champs 1 : Email 
--Champs 2 : Mot de passe
--Champs 3 : Verification mot de passe
-"""
+#Formulaire personnaliser de création de compte utilisateur avec email
+#Ce formulaire est une modification d'un formulaire django
+
+#-Champs 1 : Email
+#-Champs 2 : Mot de passe
+#-Champs 3 : Verification mot de passe
 class EmailUserCreationForm(UserCreationForm):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
     class Meta:
@@ -44,11 +41,7 @@ class EmailUserCreationForm(UserCreationForm):
 
 
 
-
-"""
-Partie pour le renvoie d'un mail de vérification 
-
-"""
+#Partie pour le renvoie d'un mail de vérification
 class SendEmailValidForm(forms.Form):
     email = forms.EmailField(label='Email', max_length=254, required=True)
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
@@ -77,17 +70,13 @@ class AccountForm(forms.Form):
 
 
 
+#Formulaire personnaliser de changement d'email
+#Ce formulaire est une modification d'un formulaire django
 
-"""
-Formulaire personnaliser de changement d'email
-Ce formulaire est une modification d'un formulaire django
+#-Champs 1 : Email
+#-Champs 2 : Mot de passe
 
--Champs 1 : Email
--Champs 2 : Mot de passe
-
-La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
-
-"""
+#La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
 class UserDeleteAccountForm(forms.Form):
     email = forms.EmailField(label='Email', max_length=254)
     password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput)
@@ -110,17 +99,15 @@ class UserDeleteAccountForm(forms.Form):
 
 
 
-"""
-Formulaire personnaliser de changement d'email
-Ce formulaire est une modification d'un formulaire django
 
--Champs 1 : Ancien Email 
--Champs 2 : Mot de passe
--Champs 3 : Nouvel email
+#Formulaire personnaliser de changement d'email
+#Ce formulaire est une modification d'un formulaire django
 
-La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
+#-Champs 1 : Ancien Email
+#-Champs 2 : Mot de passe
+#-Champs 3 : Nouvel email
 
-"""
+#La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
 class UserChangeMailForm(forms.Form):
     old_email = forms.EmailField(label='Ancien Email', max_length=254)
     password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput)
@@ -151,18 +138,13 @@ class UserChangeMailForm(forms.Form):
 
 
 
+#Formulaire personnaliser de changement de mot de passe
+#Ce formulaire est une modification d'un formulaire django
 
-"""
-Formulaire personnaliser de changement de mot de passe
-Ce formulaire est une modification d'un formulaire django
-
--Champs 1 : Email
--Champs 2 : Mot de passe actuel
--Champs 3 : Nouveau Mot de passe
-
-La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
-
-"""
+#-Champs 1 : Email
+#-Champs 2 : Mot de passe actuel
+#-Champs 3 : Nouveau Mot de passe
+#La fonction __init__ intialise un formulaire mais en lui donnant un user, pour permettre les vérifications nécessaire plus tard
 class UserChangePasswordForm(SetPasswordForm):
     #on veut quand même vérifier l'ancien mot de passe
     old_password = forms.CharField(label='Ancien mot de passe', widget=forms.PasswordInput)
@@ -171,19 +153,14 @@ class UserChangePasswordForm(SetPasswordForm):
         model = get_user_model()
         fields = ['new_password1', 'new_password2']
 
-""""
-Formulaire pour envoie la demande pour réinitialiser le mot de passe
-
-"""
+#Formulaire pour envoie la demande pour réinitialiser le mot de passe
 class PasswordResetForm(PasswordResetForm):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
     def __init__(self, *args, **kwargs):
         super(PasswordResetForm,self).__init__(*args, **kwargs)
 
-""""
-Formulaire pour réinitialiser le mot de passe
 
-"""
+#Formulaire pour réinitialiser le mot de passe
 class SetPasswordFormCaptcha(SetPasswordForm):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
 

@@ -1,12 +1,3 @@
-"""
-Vues pour la gestion des utilisateurs dans l'application 'account' :
-
-- Connexion : Permet à l'utilisateur de se connecter avec son email et son mot de passe.
-- Déconnexion : Permet à l'utilisateur de se déconnecter.
-- Inscription : Permet à un nouvel utilisateur de s'inscrire avec son email et un mot de passe.
-
-"""
-
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -16,42 +7,42 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 #Q permet de faire des requetes plus complexe
 from django.db.models import Q
-
-
 from inscriptions.models import InscriptionCourse
-
-
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import EmailMessage
+from .tokens import account_activation_token
 #Import de tous nos formulaires
 from .forms import *
 
 
-"""
-Utilisation du modèle d'utilisateur personnalisé (custom user), définis dans l'app custom_user dans models.py
-Ce custom user vient du module Django django_use_email_as_username
-"""
+#Utilisation du modèle d'utilisateur personnalisé (custom user), définis dans l'app custom_user dans models.py
+#Ce custom user vient du module Django django_use_email_as_username
 User = get_user_model()
 
 
 
-"""
+"""***********************************************************
 
 
-******** PARTIE CONNEXION A UN COMTPE ********
+**************** PARTIE CONNEXION A UN COMTPE ****************
 
 
-"""
+***********************************************************"""
 
 
-"""
-Fonction pour la vue de login
 
-Si la requete est de type POST
-    Verifie que l'utilisateur existe et le connecte si c'est le cas
-    Sinon renvoie une erreur dans le formulaire
-S'il n'y a pas de requete 
-    Renvoie un formulaire de base AuthenticationFormCaptcha() 
-    PS : ce formulaire AuthenticationForm prend automatiquement en compte notre custom_user et a donc un champs email et password
-"""
+#Fonction pour la vue de login
+
+#Si la requete est de type POST
+    #Verifie que l'utilisateur existe et le connecte si c'est le cas
+    #Sinon renvoie une erreur dans le formulaire
+#S'il n'y a pas de requete
+    #Renvoie un formulaire de base AuthenticationFormCaptcha()
+    #PS : ce formulaire AuthenticationForm prend automatiquement en compte notre custom_user et a donc un champs email et password
+
 def login_user(request):
     if request.user.is_authenticated :
         return redirect("accounts:home")
@@ -74,27 +65,26 @@ def login_user(request):
 
 
 
-"""
+"""***********************************************************
 
 
-******** PARTIE DECONNEXION DU COMTPE ********
+**************** PARTIE DECONNEXION DU COMTPE ****************
 
 
-"""
-
-
-
+***********************************************************"""
 
 
 
-"""
-Fonction de déconnexion
-Déconnecte l'utilisateur et renvoie vers l'accueil
 
-A FAIRE PEUT ETRE :
-    Vérifier que l'utilisateur est connecté 
-    Tester ce qu'il se passe sinon
-"""
+
+
+
+#Fonction de déconnexion
+#Déconnecte l'utilisateur et renvoie vers l'accueil
+
+#A FAIRE PEUT ETRE :
+    #Vérifier que l'utilisateur est connecté
+    #Tester ce qu'il se passe sinon
 def logout_user(request):
     logout(request)
     return redirect('accueil')
@@ -104,36 +94,27 @@ def logout_user(request):
 
 
 
-"""
+"""***********************************************************
 
 
-******** PARTIE CREATION DU COMPTE ********
+**************** PARTIE CREATION DU COMPTE ****************
 
 
-"""
+***********************************************************"""
 
 
-"""
-Fonction pour la vue de register
 
-Si la requete est de type POST
-    Test si le formulaire est valide 
-    --> la fonction is_valid() viens de Django, et comme nous avons définis champs email et password
-    --> vérifie donc email valide (présence d'un '@' et d'un '.')
-    --> vérifie que les 2 mots de passe correspondent et qu'ils respectent les règles de sécurités (8 carac, pas mdp courant, pas entierement numérique, pas trop semblable a infos perso (email)) 
-S'il n'y a pas de requete 
-    Renvoie un formulaire EmailUserCreationForm() (structure que l'on a définis plus haut)
-"""
+#Fonction pour la vue de register
+
+#Si la requete est de type POST
+    #Test si le formulaire est valide
+    #--> la fonction is_valid() viens de Django, et comme nous avons définis champs email et password
+    #--> vérifie donc email valide (présence d'un '@' et d'un '.')
+    #--> vérifie que les 2 mots de passe correspondent et qu'ils respectent les règles de sécurités (8 carac, pas mdp courant, pas entierement numérique, pas trop semblable a infos perso (email))
+#S'il n'y a pas de requete
+    #Renvoie un formulaire EmailUserCreationForm() (structure que l'on a définis plus haut)
 
 #La partie vérification mail a était réaliser grace au tutoriel : https://www.youtube.com/watch?v=wB1qOExDsYY
-
-from django.template.loader import render_to_string
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.core.mail import EmailMessage
-
-from .tokens import account_activation_token
 
 def activate_account(request, uidb64, token): #uidb64 = représentation en base 64
     try :
@@ -191,13 +172,15 @@ def register_user(request):
         form = EmailUserCreationForm()
     return render (request, 'accounts/signup.html', {'form': form})
 
+#Erreur si on essaye de créer un compte avec google mais que l'email du compte google est déja utilisé
+def error_google_creation(request):
+    messages.error(request,"L'email de votre compte google est déja utilisé par un compte utilisateur")
+    return redirect('accounts:login')
 
 
 
+#Fonction pour le renvoie de lien de vérification
 
-""""
-Fonction pour le renvoie de lien de vérification
-"""
 def validation_link_sender(request):
     if request.method == 'POST':
         form = SendEmailValidForm(request.POST)
@@ -227,50 +210,48 @@ def validation_link_sender(request):
 
 
 
-"""
+"""**************************************************************************************
 
 
 ******** PARTIE AFFICHAGE DE LA VU DU COMPTE ET MODIFS INFO (NOM,PRENOM,AGE,...) ********
 
 
-"""
+**************************************************************************************"""
 
 
-"""
-Fonction pour la vue du compte
 
-Permet à l'utilisateur de visualiser et de modifier ses informations personnelles, telles que son prénom, nom et âge.
-- Si une requête POST est envoyée :
-    - Vérifie la validité des données soumises via un formulaire.
-    - Si valide, met à jour les informations de l'utilisateur dans la base de données.
-    - Si invalide, affiche les erreurs et réinitialise le formulaire.
-- Si aucune requête POST :
-    - Pré-remplit les champs avec les données actuelles de l'utilisateur s'il est connecté.
-    - Affiche la page sans formulaire si l'utilisateur n'est pas connecté
-"""
+#Fonction pour la vue du compte
+
+#Permet à l'utilisateur de visualiser et de modifier ses informations personnelles, telles que son prénom, nom et âge.
+#- Si une requête POST est envoyée :
+    #- Vérifie la validité des données soumises via un formulaire.
+    #- Si valide, met à jour les informations de l'utilisateur dans la base de données.
+    #- Si invalide, affiche les erreurs et réinitialise le formulaire.
+#- Si aucune requête POST :
+    #- Pré-remplit les champs avec les données actuelles de l'utilisateur s'il est connecté.
+    #- Affiche la page sans formulaire si l'utilisateur n'est pas connecté
+
 def account(request):
-    # Traitement du formulaire lorsqu'une qu'il est soumis (requete POST)
-    if request.method == "POST":
-        form = AccountForm(request.POST) # Création du formulaire avec les données soumises
-        if form.is_valid(): # Vérification de la validité des données soumises
-            user = request.user
-            user.prenom = form.cleaned_data.get('prenom')
-            user.nom = form.cleaned_data.get('nom')
-            user.age = form.cleaned_data.get('age')
-            # Enregistre les modifications dans la base de données
-            user.save()
-            messages.success(request,"Modifactions validées")
-            return render(request, 'accounts/accounts.html', {'form': form})
+    if request.user.is_authenticated:
+        # Traitement du formulaire lorsqu'une qu'il est soumis (requete POST)
+        if request.method == "POST":
+            form = AccountForm(request.POST) # Création du formulaire avec les données soumises
+            if form.is_valid(): # Vérification de la validité des données soumises
+                user = request.user
+                user.prenom = form.cleaned_data.get('prenom')
+                user.nom = form.cleaned_data.get('nom')
+                user.age = form.cleaned_data.get('age')
+                # Enregistre les modifications dans la base de données
+                user.save()
+                messages.success(request,"Modifactions validées")
+                return render(request, 'accounts/accounts.html', {'form': form})
+            else:
+                # Si le formulaire est invalide, on renvoie la page d'accueil avec les erreurs du formulaire
+                # Ce cas n'arrive jamais je penses, car le POST n'est effectué que si les données sont valides
+                # Mais laisser pour sécurité maximum ?
+                return render(request, 'accounts/accounts.html', {'form': form })
         else:
-            # Si le formulaire est invalide, on renvoie la page d'accueil avec les erreurs du formulaire
-            # Ce cas n'arrive jamais je penses, car le POST n'est effectué que si les données sont valides
-            # Mais laisser pour sécurité maximum ?
-            return render(request, 'accounts/accounts.html', {'form': form })
-    else:
-        # Si pas de soumission POST, on créer formulaire vierge et on affiche la page
-        if request.user.is_authenticated :
-        #Si connecté :
-        # ce formulaire sera pré rempli avec les valeurs de la base grâce a initial=initial_data
+            # Si pas de soumission POST, on créer formulaire vierge et on affiche la page
             initial_data = {
                 'prenom': request.user.prenom,
                 'nom': request.user.nom,
@@ -278,36 +259,32 @@ def account(request):
             }  # Rempli avec les données de l'utilisateur connecté
             form = AccountForm(initial=initial_data)
             return render(request, 'accounts/accounts.html', {'form': form})
-        #si pas connecté
-        # doiit allé s'inscrire
-        else :
-            return login_user(request)
+    else :
+        return login_user(request)
 
 
 
 
 
-"""
+"""*************************************************************
 
 
-******** PARTIE SUPPRESION DU COMPTE ********
+**************** PARTIE SUPPRESION DU COMPTE ****************
 
 
-"""
+*************************************************************"""
 
 
-"""
-Fonction pour la suppression de compte
 
-Permet à l'utilisateur de supprimer définitivement son compte après vérification de son email et de son mot de passe.
-- Si une requête POST est envoyée :
-    - Vérifie les identifiants soumis (email et mot de passe) via un formulaire.
-    - Si valide, supprime l'utilisateur de la base de données et affiche un message de confirmation.
-    - Si invalide, affiche un message d'erreur.
-- Si aucune requête POST :
-    - Affiche un formulaire de suppression de compte.
+#Fonction pour la suppression de compte
 
-"""
+#Permet à l'utilisateur de supprimer définitivement son compte après vérification de son email et de son mot de passe.
+#- Si une requête POST est envoyée :
+    #- Vérifie les identifiants soumis (email et mot de passe) via un formulaire.
+    #- Si valide, supprime l'utilisateur de la base de données et affiche un message de confirmation.
+    #- Si invalide, affiche un message d'erreur.
+#- Si aucune requête POST :
+    #- Affiche un formulaire de suppression de compte.
 
 def delete_account(request):
     if not request.user.is_authenticated :
@@ -334,11 +311,8 @@ def delete_account(request):
 
 
 
-"""
-Même principe qu'au dessus, mais pas de vérifications ici, car si on demande a l'user de se reconnecter a son comtpe social,
-il est la plupart du temps enregistré, donc pas d'intérêt
-"""
-
+#Même principe qu'au dessus, mais pas de vérifications ici, car si on demande a l'user de se reconnecter a son comtpe social,
+#il est la plupart du temps enregistré, donc pas d'intérêt
 def delete_social_account(request):
     if not request.user.is_authenticated :
         return redirect("accounts:home")
@@ -355,26 +329,25 @@ def delete_social_account(request):
     else :
         return redirect('account_login') # Rediriger vers la page de connexion
 
-"""
+"""***********************************************************
 
 
-******** PARTIE CHANGEMENT DE L'EMAIL ********
+**************** PARTIE CHANGEMENT DE L'EMAIL ****************
 
 
-"""
+***********************************************************"""
 
-"""
-Fonction pour le changement d'email d'un compte
 
-Permet à l'utilisateur de modifier son adresse email après vérification de l'ancien email et du mot de passe.
-- Si une requête POST est envoyée :
-    - Vérifie les données via un formulaire.
-    - Si valide, met à jour l'email de l'utilisateur dans la base de données et affiche un message de confirmation.
-    - Si invalide, affiche un message d'erreur.
-- Si aucune requête POST :
-    - Affiche un formulaire pour le changement d'email.
+#Fonction pour le changement d'email d'un compte
 
-"""
+#Permet à l'utilisateur de modifier son adresse email après vérification de l'ancien email et du mot de passe.
+#- Si une requête POST est envoyée :
+    #- Vérifie les données via un formulaire.
+    #- Si valide, met à jour l'email de l'utilisateur dans la base de données et affiche un message de confirmation.
+    #- Si invalide, affiche un message d'erreur.
+#- Si aucune requête POST :
+    #- Affiche un formulaire pour le changement d'email.
+
 def change_email(request):
     if not request.user.is_authenticated :
         return redirect("accounts:home")
@@ -439,31 +412,30 @@ def emailChangeConfirm(request,uidb64,token):
         return redirect('accounts:home')
 
 
-"""
+"""***********************************************************
 
 
-******** PARTIE CHANGEMENT DU MOT DE PASSE ********
+************* PARTIE CHANGEMENT DU MOT DE PASSE **************
 
 
-"""
+***********************************************************"""
 
 
 
 
-"""
-Fonction pour le changement de mot de passe d'un compte
 
-Permet à l'utilisateur de modifier son mot de passe après vérification de l'ancien mot de passe.
-- Si une requête POST est envoyée :
-    - Vérifie les données via un formulaire.
-    - Si valide :
-        verifie que le mot de passe respecte les regles de sécurité django : validate_password()
-            si oui : met à jour le mot de passe de l'utilisateur dans la base de données, reconnecte l'utilisateur et affiche un message de confirmation.
-            si non : renvoie sur la page de base avec la les messages d'erreur renvoyé par la fonction validate_password (1 ou plusieurs messages)
-    - Si invalide, affiche un message d'erreur.
-- Si aucune requête POST :
-    - Affiche un formulaire pour le changement de mot de passe.
-"""
+#Fonction pour le changement de mot de passe d'un compte
+
+#Permet à l'utilisateur de modifier son mot de passe après vérification de l'ancien mot de passe.
+#- Si une requête POST est envoyée :
+    #- Vérifie les données via un formulaire.
+    #- Si valide :
+        #verifie que le mot de passe respecte les regles de sécurité django : validate_password()
+            #si oui : met à jour le mot de passe de l'utilisateur dans la base de données, reconnecte l'utilisateur et affiche un message de confirmation.
+            #si non : renvoie sur la page de base avec la les messages d'erreur renvoyé par la fonction validate_password (1 ou plusieurs messages)
+    #- Si invalide, affiche un message d'erreur.
+#- Si aucune requête POST :
+    #- Affiche un formulaire pour le changement de mot de passe.
 
 def change_password(request):
     if not request.user.is_authenticated :
@@ -502,15 +474,8 @@ def change_password(request):
 
 
 
+#Cette partie est pour la réinitialisation du mot de passe par mail
 
-def error_google_creation(request):
-    messages.error(request,"L'email de votre compte google est déja utilisé par un compte utilisateur")
-    return redirect('accounts:login')
-
-
-"""
-Cette partie est pour la réinitialisation du mot de passe par mail
-"""
 def password_reset_request(request):
     if request.method == "POST":
         form = PasswordResetForm(request.POST)
