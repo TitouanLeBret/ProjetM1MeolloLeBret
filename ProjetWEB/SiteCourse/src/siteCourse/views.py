@@ -1,6 +1,4 @@
-from django import forms
 from django.shortcuts import render, redirect
-from inscriptions.models import InscriptionCourse
 
 
 
@@ -16,4 +14,3 @@ def parcours(request):
 
 def login_page(request):
     return render(request, 'login_page.html')
-

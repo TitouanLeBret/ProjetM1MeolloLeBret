@@ -213,12 +213,13 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "siteCourse/static")
 ]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')#dossier de des pour collectstatic
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 
 #Pour gestion des sessions de connexion

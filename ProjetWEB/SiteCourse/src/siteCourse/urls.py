@@ -37,10 +37,6 @@ urlpatterns = [
     path('accueil/', accueil , name='accueil'),
     path('inscriptions/' , include('inscriptions.urls')),
     path('parcours/' , parcours ,  name='parcours'),
-    path('login/', login_page , name='login_page'),
-    #path('inscriptions/', include('inscriptions.urls')), pour avoir inscriptions/...
-
-
 
 
     path('accounts/', include('account_own.urls') ), #quand app on ne peut pas mettre name

@@ -2,13 +2,15 @@
 {% extends 'squelette.html' %}
 {% load static %}
 
-{% block title %}403 Forbidden{% endblock %}
+{% block title %}404 Not Found{% endblock %}
 {% block content %}
+
+<!-- Cette page 404 ne sera accessible qu'une fois en développement, et si le mode DEBUG=False -->
 
 <div class="min-h-screen grid items-center justify-center bg-gray-100 py-8 ">
     <div>
-        <h1>403 Forbidden</h1>
-        <p>Vous n'êtes pas autorisé à accéder à cette page.</p>
+        <h1>404 Not found</h1>
+        <p>Cette page n'a pas pu être trouvée.</p>
         <p><a href="/">Retour à la page d'accueil</a></p>
     </div>
 </div>

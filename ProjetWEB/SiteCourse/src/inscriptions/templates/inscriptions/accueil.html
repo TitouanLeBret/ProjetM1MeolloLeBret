@@ -18,13 +18,8 @@
     </form>
 
     <!-- Affichage des inscriptions -->
-
-    <!-- ATTENTION : PEUT ETRE PLUTOT GERER AVEC LES USER_ID QU'AVEC LES EMAILS -->
-
-
     <!-- Si l'user est connecté, on affiche ces inscriptions
                     Si aucune inscirptions on affiche "aucune inscription"
-         Si pas connecté on affiche : connecté vous pour voir vos inscriptions
         -->
     {% if user.is_authenticated %}
         <h2 class="text-2xl font-bold text-center text-gray-700 mb-6">Vos Inscriptions</h2>
@@ -57,12 +52,7 @@
             {% endfor %}
 
         </div>
-
-    <!-- Si l'utilisateur est déconnecté -->
-    {% else %}
-        <p class="text-gray-600 text-center">Veuillez vous connecter pour voir vos inscriptions.</p>
     {% endif %}
-
 </div>
 
 
