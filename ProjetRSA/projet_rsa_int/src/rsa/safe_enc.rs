@@ -20,7 +20,19 @@ pub static ALL_TEST_STATUS_SECU_RSA : Lazy<Mutex<Vec<TestStatus>>> = Lazy::new(|
     TestStatus {
         name : "Est ce que N est factorisable car trop petit ? ",
         is_valid: false,
-    }
+    },
+    TestStatus {
+        name : "Est ce que N = p*q avec p et q non premiers ? ",
+        is_valid: false,
+    },
+    TestStatus {
+        name : "Est ce que e est trop petit ? ",
+        is_valid: false,
+    },
+    TestStatus {
+        name : "Autre test ",
+        is_valid: false,
+    },
     ])
 );
 
@@ -40,11 +52,19 @@ fn test_is_factorisable_too_small(n : &RsaBigUint) -> bool {
         Implémenter ici l'algorithme qui test rapidement la factorisation, car N peut etre petit mais pas factorisable facilement pour autant
         On test ici si N est petit et qu'on arrive raisonnablement rapidement a le factoriser
          */
-
-
-
         return true;
     }
+    false
+}
+
+fn test_is_factorisable_not_prime_factors(n : &RsaBigUint) -> bool {
+    println!("{}",n);
+    false
+}
+
+fn e_is_to_small(n : &RsaBigUint,e : &RsaBigUint) -> bool {
+    println!("{}",n);
+    println!("{}",e);
     false
 }
 
@@ -74,4 +94,6 @@ pub fn calc_all_safety_status(safe_enc_page: &mut SafeRsaChifPage, n_value : Str
     update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(),0,test_qui_fait_rien());
     update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 1, test_n_facteur_carre(&n));
     update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 2, test_is_factorisable_too_small(&n));
+    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 3, test_is_factorisable_not_prime_factors(&n));
+    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 4, e_is_to_small(&n, &e));
 } 
