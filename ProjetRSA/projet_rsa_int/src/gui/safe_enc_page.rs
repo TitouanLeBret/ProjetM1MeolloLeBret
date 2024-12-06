@@ -61,7 +61,7 @@ impl SafeRsaChifPage {
         // Bouton pour générer une nouvelle clé RSA valide
         let new_values_button = button(text("Générer une clé RSA valide"))
             .padding(10)
-            .on_press(gui::Message::NewValuesRsaEnc);
+            .on_press(gui::Message::NewValuesRsaEncSecu);
 
         // Section pour la clé publique et le texte chiffré
         let key_section = Column::new()
@@ -166,6 +166,12 @@ impl SafeRsaChifPage {
             }
         }
     }
+
+
+    pub fn reset_status(&mut self){//Permet a gui d'appeler all_status_to_false, sans connaitre ALL_TEST_STATUS_SECU_RSA
+        all_status_to_false(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap());
+    }
+
 }
 
 use std::str::FromStr;

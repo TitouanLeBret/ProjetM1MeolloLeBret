@@ -44,21 +44,6 @@ pub static ALL_TEST_STATUS_VALID_RSA : Lazy<Mutex<Vec<TestStatus>>> = Lazy::new(
 
 
 
-//Fonction de génération de la clef RSA : // A mettre dans keygen.rs peut etre ? 
-pub fn generate_rsa_private_key(bits: usize) -> Vec<RsaBigUint> {
-    //On créer une clef RSA 
-    let mut rng = rand::thread_rng();
-    let priv_key = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
-    let pub_key = RsaPublicKey::from(&priv_key);
-    let e = pub_key.e().clone();
-    let p = priv_key.primes()[0].clone();
-    let q = priv_key.primes()[1].clone();
-    let d = priv_key.d().clone();
-    let n = p.clone()*q.clone();
-    vec![n,e,p,q,d]
-}
-
-
 
 use std::str::FromStr;
 //Fonction de vérification de RSA (vérsion de base, a ne pas garder :!!!!!!): 
@@ -197,7 +182,6 @@ fn are_valide_e_d(pub_key : &RsaPublicKey, priv_key : &RsaPrivateKey) -> bool {
 // Module de test pour les tests unitaires
 #[cfg(test)] //N'est compîlé que si "cargo test" est exécuté
 mod tests {
-
     use super::*; // Import les elts du code principale
     #[test]//Test pour bits_pub_key
     fn test_bits_pub_key(){
@@ -213,10 +197,10 @@ mod tests {
         assert!(bits_pub_key(&b)==false);
     }
 
-
+    use super::super::keygen;
     #[test]//Test pour is_valid_factorisation
     fn test_is_valid_factorisation(){
-        let priv_key1 = generate_rsa_private_key(2048);
+        let priv_key1 = keygen::generate_rsa_private_key(2048);
         let n1 = priv_key1[0].clone();//C'est le plus petit nombre de 2048 bits (C'est 1 suivi de 2047 0)
         let p1 = priv_key1[1].clone();
         let q1 = priv_key1[2].clone();

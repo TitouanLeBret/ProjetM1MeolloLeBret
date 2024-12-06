@@ -280,7 +280,7 @@ impl ValidRsaChifPage {
             }
         }
     }
-    pub fn reset_status(&mut self){
+    pub fn reset_status(&mut self){//Permet a gui d'appeler all_status_to_false, sans connaitre ALL_TEST_STATUS_VCALID_RSA
         all_status_to_false(&mut ALL_TEST_STATUS_VALID_RSA.lock().unwrap());
     }
 
