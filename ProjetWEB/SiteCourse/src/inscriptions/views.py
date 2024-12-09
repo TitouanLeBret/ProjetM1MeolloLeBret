@@ -82,8 +82,6 @@ def supprimer_inscription(request):
                 user=inscription.user,
                 certificat_med_name=os.path.basename(inscription.certificat_med.path) #pour n'avoir que le nom du fichier, et pas celui du dossier dans lequel il est
             ).delete()
-            inscription.certificat_med.delete(save=False)  #supprime le fichier
-            #si l'inscription existe, supprimer
             inscription.delete()
             messages.success(request, "L'inscription a été supprimée avec succès.")
         else:

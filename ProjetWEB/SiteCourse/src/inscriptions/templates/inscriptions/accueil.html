@@ -37,12 +37,14 @@
                         <p class="text-gray-600"><strong>Date de l'inscription :</strong> {{ inscription.inscription_date }}</p>
                         <a href="/private-media/{{ inscription.certificat_med }}" class="text-blue-500 hover:underline">Voir le certificat</a>
 
-                        <!-- Bouton de suppression de l'inscription -->
-                        <button class="mt-2 flex items-center text-red-500 hover:text-red-700 focus:outline-none"
-                                onclick="confirmer_suppression('{{ inscription.id }}')">
-                            <img src="{% static 'images/logo_croix_grise.png' %}" alt="Supprimer" class="w-6 h-6 mr-2">
-                            <span>Supprimer</span>
-                        </button>
+                        {% if inscription.inscription_complete == False %}
+                            <!-- Bouton de suppression de l'inscription si elle n'est pas encore validé par un admin -->
+                            <button class="mt-2 flex items-center text-red-500 hover:text-red-700 focus:outline-none"
+                                    onclick="confirmer_suppression('{{ inscription.id }}')">
+                                <img src="{% static 'images/logo_croix_grise.png' %}" alt="Supprimer" class="w-6 h-6 mr-2">
+                                <span>Supprimer</span>
+                            </button>
+                        {% endif %}
                     </div>
                 {% endif %}
 
