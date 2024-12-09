@@ -10,21 +10,23 @@ from django.conf import settings
 #signal pour créer l'instance de CertificatMedical associée et renommé le fichier avec un hash
 @receiver(pre_save, sender=InscriptionCourse)
 def create_certificatmedical(sender, instance, **kwargs):
-    certificat_name = instance.certificat_med
-    # Hache le nom du fichier
-    print(certificat_name)
-    #Avec les deux lignes en dessous, on s'assure que même si 2 fichier ont le même nom, ils auront un hash différents
-    unique_id = os.urandom(16).hex()  # Génère un identifiant unique
-    hash_input = f"{certificat_name}_{unique_id}".encode('utf-8')
-    hashed_name = hashlib.sha256(hash_input).hexdigest()
-    new_name = f"{hashed_name}.pdf"
+    if instance.id is None:#pour que ça se fasse que lors de la creéation, et pas lors des modifications
+        # (on considère qu'on ne peut pas modifier une inscriptions mais dans admin quand on valid l'inscription,
+        # cela compte comme une modification)
+        certificat_name = instance.certificat_med
+        # Hache le nom du fichier
+        #Avec les deux lignes en dessous, on s'assure que même si 2 fichier ont le même nom, ils auront un hash différents
+        unique_id = os.urandom(16).hex()  # Génère un identifiant unique
+        hash_input = f"{certificat_name}_{unique_id}".encode('utf-8')
+        hashed_name = hashlib.sha256(hash_input).hexdigest()
+        new_name = f"{hashed_name}.pdf"
 
-    # Remplace le nom du fichier par le nom haché
-    instance.certificat_med.name = new_name
-    instance.certificat_med_table_id = CertificatMedical.objects.create(
-        user=instance.user,
-        certificat_med_name=instance.certificat_med.name,
-    )
+        # Remplace le nom du fichier par le nom haché
+        instance.certificat_med.name = new_name
+        instance.certificat_med_table_id = CertificatMedical.objects.create(
+            user=instance.user,
+            certificat_med_name=instance.certificat_med.name,
+        )
 
 
 
