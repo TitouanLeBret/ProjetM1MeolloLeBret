@@ -12,10 +12,12 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from decouple import config
+from django.conf.global_settings import CSRF_TRUSTED_ORIGINS
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -25,8 +27,9 @@ SECRET_KEY = config("SECRET_KEY", default="fallback-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = ['127.0.0.1']
+#urls pour Ngrok permet de mettre le site en https pour les tests avec paypal
+ALLOWED_HOSTS = ['127.0.0.1','61df-46-193-2-97.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS = ['https://61df-46-193-2-97.ngrok-free.app']
 
 
 # Application definition
@@ -57,7 +60,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
 
-    #paypal
+    #paypal library
     'paypal.standard.ipn',
 
     'private_storage'

@@ -14,4 +14,6 @@ urlpatterns = [
     path('supprimer/', views.supprimer_inscription, name='supprimer_inscription'),
 
     path('paypal', include("paypal.standard.ipn.urls")),
+    path('payement_success', views.payement_success, name='payement_success'),
+    path('payement_failed', views.payement_failed, name='payement_failed'),
 ]

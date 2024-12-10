@@ -38,6 +38,12 @@ class InscriptionCourse(models.Model):
     #paiement_complet = models.BooleanField()
     #compte = models.ForeignKey('InscriptionCompte', null=False, on_delete=models.CASCADE)
 
+    #variable sur le paiement
+    #facture
+    invoice = models.CharField(max_length=255, null=True, blank=True)
+    #payé vrai ou faux
+    paid = models.BooleanField(default=False)
+
     """
         Fonction pour l'affichage d'une Inscription (Utile pour le débug)
     """

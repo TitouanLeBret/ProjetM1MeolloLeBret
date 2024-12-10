@@ -1,11 +1,15 @@
 import os
 import hashlib
-
+import time
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from .models import InscriptionCourse, CertificatMedical
 from django.conf import settings
+
+from paypal.standard.models import ST_PP_COMPLETED
+from paypal.standard.ipn.signals import valid_ipn_received
+#si le payement est complété
 
 #signal pour créer l'instance de CertificatMedical associée et renommé le fichier avec un hash
 @receiver(pre_save, sender=InscriptionCourse)
@@ -63,3 +67,21 @@ def delete_certificat_file(sender, instance, **kwargs):
         file_path = os.path.join(settings.PRIVATE_STORAGE_ROOT+'\certificats_medicaux', instance.certificat_med_name)
         if os.path.isfile(file_path):
             os.remove(file_path)
+
+#signal pour gérer le signal ipn
+@receiver(valid_ipn_received)
+def paypal_payement_received(sender, **kwargs):
+    #permet de laisser le temps à paypal de renvoyer les informations IPN
+    time.sleep(2)
+    #recupérer les informations que paypal envoie
+    paypal_obj = sender
+    #recuperer le numero de  facturation
+    my_Invoice = str(paypal_obj.invoice)
+    #faire correspondre la facturation paypal à la facturation de l'inscription
+    my_insc = InscriptionCourse.objects.get(invoice=my_Invoice)
+    #lorsque le signal ipn est renvoyer un modifier la variable paid sur True pour valider le payement
+    my_insc.paid = True
+    my_insc.save()
+
+    #print(paypal_obj)
+    #print(f'amount Paid: {paypal_obj.mc_gross}')

@@ -29,6 +29,8 @@ def inscriptions(request):
             if form.is_valid():
                 """Partie paiement"""
                 course = form.cleaned_data['course']
+                #creation d'un numero de facturation
+                my_Invoice = str(uuid.uuid4())
                 host = request.get_host()
                 price = 5
                 if course == "5km": price = 10
@@ -36,17 +38,19 @@ def inscriptions(request):
                 if course == "semi-marathon": price = 40
                 if course == "marathon": price = 80
 
+                #creation d'une inscription
+
                 # dictionnaire de formulaire paypal
                 paypal_dict = {
                     'business': settings.PAYPAL_RECEIVER_EMAIL,
                     'amount': price,  # prix de la course
                     'item_name': 'paiement de course',
                     'no_shipping': '2',  # permet de choisir son adresse
-                    'invoice': str(uuid.uuid4()),
+                    'invoice': my_Invoice,
                     'currency_code': 'EUR',
-                    # 'notify_url': 'https://{}{}'.format(host, reverse("paypal-ipn")),
-                    # 'return_url': 'https://{}{}'.format(host, reverse("payment_success")),
-                    # 'cancel_return': 'https://{}{}'.format(host, reverse("payment_failed")),
+                    'notify_url': 'https://{}{}'.format(host, "/inscriptions/paypal-ipn"),
+                    'return_url': 'http://{}{}'.format(host, "/inscriptions/payement_success"),
+                    'cancel_return': 'http://{}{}'.format(host, "/inscriptions/payement_failed"),
                 }
                 # formulaire paypal
                 paypal_form = PayPalPaymentsForm(initial=paypal_dict)
@@ -81,3 +85,10 @@ def supprimer_inscription(request):
 
         return redirect('inscriptions:home')
     return redirect('inscriptions:home')
+
+
+def payement_failed(request):
+    return render(request, "inscriptions/payement_failed.html",{})
+
+def payement_success(request):
+    return render(request, "inscriptions/payement_success.html",{})
