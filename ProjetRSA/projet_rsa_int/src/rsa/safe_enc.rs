@@ -22,11 +22,11 @@ pub static ALL_TEST_STATUS_SECU_RSA : Lazy<Mutex<Vec<TestStatus>>> = Lazy::new(|
         is_valid: false,
     },
     TestStatus {
-        name : "Est ce que N est premiers ? ",
+        name : "Est ce que N = p*q avec p et q non premiers ? ",
         is_valid: false,
     },
     TestStatus {
-        name : "Est ce que N = p*q avec p et q non premiers ? ",
+        name : "Est ce que N est premiers (et on peut donc déchiffrer le ct)? ",
         is_valid: false,
     },
     TestStatus {
@@ -70,14 +70,15 @@ fn e_is_to_small(n : &RsaBigUint,e : &RsaBigUint) -> bool {
 }
 
 use num_primes::Verification;
-fn n_is_prime(n: &RsaBigUint,e:&RsaBigUint,ct : &RsaBigUint) -> bool {
+fn n_is_prime(n: &RsaBigUint,e:&RsaBigUint,ct : &RsaBigUint,safe_enc_page: &mut SafeRsaChifPage) -> bool {
     let bytes_n = n.to_bytes_be();
     let n_prime = num_primes::BigUint::from_bytes_be(&bytes_n);
     if Verification::is_prime(&n_prime){
         let phi_n = n - RsaBigUint::from(1u8);
         let d = super::utils::inverse(e,&phi_n);
         let message = ct.modpow(&d,&n);
-        println!("{}",message);
+        println!("Message : {:?}",String::from_utf8_lossy(&message.to_bytes_be()));
+        safe_enc_page.display_message(&String::from_utf8_lossy(&message.to_bytes_be()));
         let ct_test = message.modpow(&e,&n);
         return &ct_test==ct
     }
@@ -112,6 +113,6 @@ pub fn calc_all_safety_status(safe_enc_page: &mut SafeRsaChifPage, n_value : Str
     update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 1, test_n_facteur_carre(&n));
     update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 2, test_is_factorisable_too_small(&n));
     update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 3, test_is_factorisable_not_prime_factors(&n));
-    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 4, n_is_prime(&n,&e, &ct));
+    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 4, n_is_prime(&n,&e, &ct,safe_enc_page));
     update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 5, e_is_to_small(&n, &e));
 } 

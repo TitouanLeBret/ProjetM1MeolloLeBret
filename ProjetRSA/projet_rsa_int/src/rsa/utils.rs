@@ -1,7 +1,7 @@
 //Fichier comportants toutes les fonctions vouées a ressevir dans plusieurs fichiers
 use rsa::BigUint as RsaBigUint;
 use num_traits::Zero;
-use num_bigint::{BigInt, ToBigInt};
+use num_bigint::{BigInt,BigUint};
 
 /// Représente le statut d'un test de sécurité.
 /// Chaque test a un nom (`name`) et un statut de validation (`is_valid`).
@@ -74,6 +74,14 @@ pub fn inverse(x:&RsaBigUint,n:&RsaBigUint) -> RsaBigUint {
     if pgcd != RsaBigUint::from(1u8) {
         return RsaBigUint::from(0u8);
     }
-    let (_, u, _) = bezout(x.ToBigInt(), n.ToBigInt());
-    u % n.toBigInt()
+    let x_bigint = BigInt::from(BigUint::from_bytes_be(&x.to_bytes_be()));
+    let n_bigint =BigInt::from(BigUint::from_bytes_be(&n.to_bytes_be()));
+    let (_, u, _) = bezout(&x_bigint, &n_bigint);
+    let res = ((u.clone() % n_bigint.clone()) + n_bigint.clone()) % n_bigint.clone(); // ça fait u % n_bigint, mais ça s'assure que le résultats soit positif
+    println!("{:?}", res);
+    let (sign, bytes) = res.to_bytes_be();
+    if sign == num_bigint::Sign::Minus {
+        panic!("Cannot convert negative BigInt to RsaBigUint");
+    }
+    RsaBigUint::from_bytes_be(&bytes)
 }

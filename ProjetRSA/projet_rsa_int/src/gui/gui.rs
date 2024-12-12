@@ -75,6 +75,7 @@ impl Sandbox for App{
                 let key = generate_rsa_public_key(2048); // Génere une clé publique valide et un ct valide
                 self.secu_rsa_chif_page.reset_status(); // Fonction qui va appeler all_status_to_false, mais faites pour ne pas avoir a passer ALL_TEST_STATUS_VALID_RSA ici 
                 self.secu_rsa_chif_page.remove_all_error_message(); // On mets de nouvelles valeurs donc on remet les status de tests a false
+                self.secu_rsa_chif_page.remove_display_message();
                 self.secu_rsa_chif_page.update(key[0].to_string(),key[1].to_string(),key[2].to_string());
             }
 

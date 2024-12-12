@@ -25,6 +25,9 @@ pub struct SafeRsaChifPage {
 
     // Liste des messages d'erreur
     error_messages: Vec<String>,
+
+    //Message déchiffré
+    decrypted_message : String,
 }
 
 /// Crée une nouvelle instance de `ValidRsaChifPage` avec des valeurs initiales vides.
@@ -36,6 +39,7 @@ impl SafeRsaChifPage {
             ct_value: String::new(),
             check_button: button::State::new(),
             error_messages: Vec::new(),
+            decrypted_message : String::new(),
         }
     }
 
@@ -110,6 +114,13 @@ impl SafeRsaChifPage {
             },
         );
 
+        //Section avec le message déchiffré
+        let decrypted_message_section: Column<'_, gui::Message> = Column::new().spacing(5)
+            .push(Text::new("Message déchiffré : "))
+            .push(
+                Text::new(self.decrypted_message.clone())
+            );
+
         let wrapper = Column::new()
             .align_items(Alignment::Center)
             .spacing(20)
@@ -119,6 +130,7 @@ impl SafeRsaChifPage {
             .push(new_values_button)
             .push(key_section)
             .push(check_button)
+            .push(decrypted_message_section)
             .push(test_results)
             .push(error_message_section);
 
@@ -144,6 +156,14 @@ impl SafeRsaChifPage {
     /// Supprime tous les messages d'erreur.
     pub fn remove_all_error_message(&mut self) {
         self.error_messages.clear();
+    }
+
+    pub fn display_message(&mut self, msg: &str){
+        self.decrypted_message = msg.to_string();
+    }
+
+    pub fn remove_display_message(&mut self) {
+        self.decrypted_message = String::new();
     }
 
     /// Vérifie la validité de la clé RSA en exécutant tous les tests de sécurité.
