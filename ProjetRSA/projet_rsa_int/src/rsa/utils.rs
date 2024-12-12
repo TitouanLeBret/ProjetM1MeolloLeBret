@@ -1,6 +1,7 @@
 //Fichier comportants toutes les fonctions vouées a ressevir dans plusieurs fichiers
-use rsa::BigUint as RsabgBigUint;
+use rsa::BigUint as RsaBigUint;
 use num_traits::Zero;
+use num_bigint::{BigInt, ToBigInt};
 
 /// Représente le statut d'un test de sécurité.
 /// Chaque test a un nom (`name`) et un statut de validation (`is_valid`).
@@ -28,7 +29,7 @@ pub fn update_test_status(list_test_status: &mut Vec<TestStatus>,index: usize, n
 
 
 
-pub fn pgcd(a:&RsabgBigUint,b:&RsabgBigUint) -> RsabgBigUint {
+pub fn pgcd(a:&RsaBigUint,b:&RsaBigUint) -> RsaBigUint {
     if b.is_zero(){
         //cas de base :
         return a.clone();
@@ -40,4 +41,39 @@ pub fn pgcd(a:&RsabgBigUint,b:&RsabgBigUint) -> RsabgBigUint {
     let pgcd = pgcd(b,&r);
 
     return pgcd;
+}
+
+pub fn bezout(x: &BigInt, y: &BigInt) -> (BigInt, BigInt, BigInt) {
+    let mut x = x.clone();
+    let mut y = y.clone();
+    let mut u0 = BigInt::from(1u8);
+    let mut u1 = BigInt::from(0u8);
+    let mut v0 = BigInt::from(0u8);
+    let mut v1 = BigInt::from(1u8);
+
+    while !y.is_zero() {
+        let q = &x / &y;
+        let r = &x % &y;
+        x = y;
+        y = r;
+
+        let temp_u1 = u1.clone();
+        u1 = &u0 - &q * &u1;
+        u0 = temp_u1;
+
+        let temp_v1 = v1.clone();
+        v1 = &v0 - &q * &v1;
+        v0 = temp_v1;
+    }
+
+    (x, u0, v0)
+}
+
+pub fn inverse(x:&RsaBigUint,n:&RsaBigUint) -> RsaBigUint {
+    let pgcd = pgcd(x,n);
+    if pgcd != RsaBigUint::from(1u8) {
+        return RsaBigUint::from(0u8);
+    }
+    let (_, u, _) = bezout(x.ToBigInt(), n.ToBigInt());
+    u % n.toBigInt()
 }
