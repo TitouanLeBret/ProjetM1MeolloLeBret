@@ -1,7 +1,7 @@
 //Fichier comportants toutes les fonctions vouées a ressevir dans plusieurs fichiers
 use rsa::BigUint as RsaBigUint;
-use num_traits::Zero;
 use num_bigint::{BigInt,BigUint};
+use num_traits::Zero;
 
 /// Représente le statut d'un test de sécurité.
 /// Chaque test a un nom (`name`) et un statut de validation (`is_valid`).
@@ -85,3 +85,4 @@ pub fn inverse(x:&RsaBigUint,n:&RsaBigUint) -> RsaBigUint {
     }
     RsaBigUint::from_bytes_be(&bytes)
 }
+

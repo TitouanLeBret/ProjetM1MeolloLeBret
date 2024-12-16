@@ -46,22 +46,6 @@ pub static ALL_TEST_STATUS_VALID_RSA : Lazy<Mutex<Vec<TestStatus>>> = Lazy::new(
 
 
 use std::str::FromStr;
-//Fonction de vérification de RSA (vérsion de base, a ne pas garder :!!!!!!): 
-// ******************** PAS UTILISE ****************************
-pub fn all_security_tests(n_value : String , e_value: String, p_value: String, q_value: String , d_value: String) -> bool/*-> enum<bool>*/ {
-    //Return une énum avec les différents tests associés a leur validité ou non
-    let mut validation = true;
-    let n = RsaBigUint::from_str(&n_value).expect("Conversion échouée");
-    let e = RsaBigUint::from_str(&e_value).expect("Conversion échouée");
-    let p = RsaBigUint::from_str(&p_value).expect("Conversion échouée");
-    let q = RsaBigUint::from_str(&q_value).expect("Conversion échouée");
-    let d = RsaBigUint::from_str(&d_value).expect("Conversion échouée");
-    let priv_key : RsaPrivateKey = RsaPrivateKey::from_components(n.clone(), e.clone(), d.clone(),vec![p.clone(), q.clone()]).expect("Conversion échouée");
-    let pub_key : RsaPublicKey = RsaPublicKey::from(&priv_key);
-    validation = validation && bits_pub_key(&n) && is_valid_factorisation(&n, &p, &q) && is_valid_encryption_decryption(&pub_key, &priv_key) && are_valide_e_d(&pub_key,&priv_key);
-    validation
-}
-
 
 pub fn calc_all_security_tests_status(n_value : String , e_value: String, p_value: String, q_value: String , d_value: String) {
     //Return une énum avec les différents tests associés a leur validité ou non
@@ -116,39 +100,15 @@ fn is_valid_factorisation(n : &RsaBigUint, p : &RsaBigUint, q : &RsaBigUint) -> 
 
 //Voir : https://docs.rs/rsa/latest/rsa/index.html
 use rsa::Pkcs1v15Encrypt; // C'est le padding Pkcs1
-//Cette fonction peut en soit remplacer la fonction qui effectue tous les tests, car si elle est vraie, alors tous les tests sont vrais.
 fn is_valid_encryption_decryption(pub_key : &RsaPublicKey, priv_key : &RsaPrivateKey) -> bool {
     let data = b"Hello world! C'est  le test de chiffrement/dechiffrement";
     let mut rng = rand::thread_rng();
-    /*
-    let enc_data = pub_key.encrypt(&mut rng,Pkcs1v15Encrypt, &data[..]);
-    //&data[..] permet de renvoyer une référence vers une slice du tableau, qui fait la taill entière du tableau.
-    if enc_data.is_err(){
-        return false;
-    } 
-
-    //On redéfini enc_data, pour lui enlever la possiblité d'etre une erreur, car on sait qu'il n'y'en a pas et donc qu'il soit &[u8]
-    let enc_data = &enc_data.unwrap();
-    
-    let dec_data = priv_key.decrypt(Pkcs1v15Encrypt, enc_data);
-    
-    if dec_data.is_err(){
-        return false;
-    } 
-
-    //On redéfini dec_data, pour lui enlever la possiblité d'etre une erreur, car on sait qu'il n'y'en a pas et donc qu'il soit &[u8]
-    let dec_data = dec_data.unwrap();
-    */
-    //Plus simple qu'au dessus : 
     let enc_data = pub_key.encrypt(&mut rng,Pkcs1v15Encrypt, &data[..]).unwrap_or_else(|_| vec![]); // si on ne peut pas unwrap on renvoie un vecteur vide
 
     let dec_data = priv_key.decrypt(Pkcs1v15Encrypt, &enc_data).unwrap_or_else(|_| vec![]);// si on ne peut pas unwrap on renvoie un vecteur vide
     data == &dec_data[..] // On retourne vrai si c'est égale, faux sinon
 
 }
-
-
-
 
 
 //use num_integer::Integer; // Pour le trait gcd() --> Mais on a préférer refaire euclide étendue nous même

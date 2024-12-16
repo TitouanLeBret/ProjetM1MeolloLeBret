@@ -61,6 +61,7 @@ impl Sandbox for App{
             }
 
             Message::CheckButtonPressedRsaChiffSecu =>{
+                self.secu_rsa_chif_page.remove_display_message();
                 self.secu_rsa_chif_page.check_values();
             }
 

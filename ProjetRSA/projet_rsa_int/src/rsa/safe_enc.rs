@@ -10,10 +10,6 @@ use std::sync::Mutex;
 pub static ALL_TEST_STATUS_SECU_RSA : Lazy<Mutex<Vec<TestStatus>>> = Lazy::new(||
     Mutex::new(vec![
     TestStatus {
-        name: "Test de sécurité sur RSA",
-        is_valid: false,
-    },
-    TestStatus {
         name: "Est ce que N = p² ? ",
         is_valid: false,
     },
@@ -22,52 +18,56 @@ pub static ALL_TEST_STATUS_SECU_RSA : Lazy<Mutex<Vec<TestStatus>>> = Lazy::new(|
         is_valid: false,
     },
     TestStatus {
-        name : "Est ce que N = p*q avec p et q non premiers ? ",
-        is_valid: false,
-    },
-    TestStatus {
         name : "Est ce que N est premiers (et on peut donc déchiffrer le ct)? ",
         is_valid: false,
     },
     TestStatus {
-        name : "Est ce que e est trop petit ? ",
-        is_valid: false,
-    },
-    TestStatus {
-        name : "Autre test ",
+        name : "Autre test à implémenter dans le futur...",
         is_valid: false,
     },
     ])
 );
 
-fn test_qui_fait_rien() -> bool{
-    return true
+//Fonction utilisé pour trouvé le message et renvoyer le ct re chiffré a partir de phi_n,n,e,ct.
+//La fonction affiche également le résultat sur la page safe_enc_page
+fn find_message(phi_n : &RsaBigUint, n: &RsaBigUint, e : &RsaBigUint, ct:&RsaBigUint,safe_enc_page: &mut SafeRsaChifPage) -> RsaBigUint {
+    let d = super::utils::inverse(e, phi_n);
+    let message = ct.modpow(&d,n);
+    safe_enc_page.display_message(&String::from_utf8_lossy(&message.to_bytes_be()));
+    let ct_test = message.modpow(e,n);
+    return ct_test
 }
 
-fn test_n_facteur_carre(n : &RsaBigUint) -> bool{
+fn test_n_facteur_carre(n: &RsaBigUint,e:&RsaBigUint,ct : &RsaBigUint,safe_enc_page: &mut SafeRsaChifPage) -> bool{
     //Vérifie si n est un carré
-    let sqrt_n = n.sqrt();
-    &sqrt_n * &sqrt_n == *n
+    let p: RsaBigUint = n.sqrt();
+    if &p * &p == *n {
+        let phi_n = &p*(&p-RsaBigUint::from(1u8));
+        if super::utils::pgcd(e,&phi_n) == RsaBigUint::from(1u8) { // Pour etre sur que l'inverse existe
+            let d = super::utils::inverse(e, &phi_n);
+            let message = ct.modpow(&d,n);
+            safe_enc_page.display_message(&String::from_utf8_lossy(&message.to_bytes_be()));
+            let ct_test = message.modpow(e,n);
+            return &ct_test==ct
+        }else {
+            return false;
+        }
+    }
+    false
 }
 
-fn test_is_factorisable_too_small(n : &RsaBigUint) -> bool {
+fn test_is_factorisable_too_small(n : &RsaBigUint,safe_enc_page: &mut SafeRsaChifPage) -> bool {
     if n.bits() < 2048{
-        /* 
-        Implémenter ici l'algorithme qui test rapidement la factorisation, car N peut etre petit mais pas factorisable facilement pour autant
-        On test ici si N est petit et qu'on arrive raisonnablement rapidement a le factoriser
-         */
+        //Implémenter un algorithme de factorisation, ou se servir de "reqwest", pour envoyer une requete a factordb
+        //Pour cela il faut apprendre a bien utiliser async, et voir si c'est possible.
+        //Dans cette version de l'application (rendu final), on regarde juste si N est trop petit, auquel cas l'utilisateur
+        //Peut aller voir sur factordb
+        safe_enc_page.display_message(&String::from("N est factorisable car il est trop petit, par manque de temps nous n'avons pas implémenté cette fonctionnalité, mais n'hésitez pas a vous rendre sur factordb.com"));
         return true;
     }
     false
 }
 
-fn test_is_factorisable_not_prime_factors(n : &RsaBigUint) -> bool {
-    false
-}
-
-fn e_is_to_small(n : &RsaBigUint,e : &RsaBigUint) -> bool {
-    false
-}
 
 use num_primes::Verification;
 fn n_is_prime(n: &RsaBigUint,e:&RsaBigUint,ct : &RsaBigUint,safe_enc_page: &mut SafeRsaChifPage) -> bool {
@@ -75,11 +75,7 @@ fn n_is_prime(n: &RsaBigUint,e:&RsaBigUint,ct : &RsaBigUint,safe_enc_page: &mut 
     let n_prime = num_primes::BigUint::from_bytes_be(&bytes_n);
     if Verification::is_prime(&n_prime){
         let phi_n = n - RsaBigUint::from(1u8);
-        let d = super::utils::inverse(e,&phi_n);
-        let message = ct.modpow(&d,&n);
-        println!("Message : {:?}",String::from_utf8_lossy(&message.to_bytes_be()));
-        safe_enc_page.display_message(&String::from_utf8_lossy(&message.to_bytes_be()));
-        let ct_test = message.modpow(&e,&n);
+        let ct_test = find_message(&phi_n,&n,&e,&ct,safe_enc_page);
         return &ct_test==ct
     }
     false
@@ -109,10 +105,7 @@ pub fn calc_all_safety_status(safe_enc_page: &mut SafeRsaChifPage, n_value : Str
             return;
           }  //si erreur : on met un message d'erreur et on sort complétement de la fonction calc_all_safety_status
     };
-    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(),0,test_qui_fait_rien());
-    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 1, test_n_facteur_carre(&n));
-    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 2, test_is_factorisable_too_small(&n));
-    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 3, test_is_factorisable_not_prime_factors(&n));
-    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 4, n_is_prime(&n,&e, &ct,safe_enc_page));
-    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 5, e_is_to_small(&n, &e));
+    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 0, test_n_facteur_carre(&n,&e, &ct,safe_enc_page));
+    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 1, test_is_factorisable_too_small(&n,safe_enc_page));
+    update_test_status(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap(), 2, n_is_prime(&n,&e, &ct,safe_enc_page));
 } 

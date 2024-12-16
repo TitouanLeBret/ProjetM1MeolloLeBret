@@ -159,7 +159,7 @@ impl SafeRsaChifPage {
     }
 
     pub fn display_message(&mut self, msg: &str){
-        self.decrypted_message = msg.to_string();
+        self.decrypted_message += &(msg.to_string()+&String::from("\n"));
     }
 
     pub fn remove_display_message(&mut self) {
