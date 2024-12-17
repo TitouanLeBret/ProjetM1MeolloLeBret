@@ -260,6 +260,7 @@ M1 Cybersécurité
         \begin{enumerate}
             \item \textbf{Difficultés techniques :}\\\\
                 Gestion des fichiers : stockage local temporaire remplacé par des solutions cloud envisagées.
+           		
 
             \item \textbf{Communication HTTPS et local :}\\\\
                 Une fois le paiement effectué, le serveur paypal envoie un “signal ipn” qui permet de récupérer les informations de paiement. Le problème est que la communication est effectuée en https alors que notre serveur est en local lors de la phase de développement. Donc pour récupérer ce signal nous avons utilisé un outil qui est “ngrok” qui permet de mettre notre application en https. Cet outil est provisoire pour la phase de test mais ce n’est pas celui-ci qui va nous permettre à terme de mettre notre site en https.\\
