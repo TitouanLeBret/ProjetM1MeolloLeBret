@@ -358,10 +358,47 @@ Nous avons donc trouver la solution de convertir notre instance de RsaBigUint en
 	\end{figure}
 	
 	\subsection{Résultat du rendu final}
+	Nous avons donc réussi à réaliser les deux pages souhaitées, l’une permettant de tester la clé RSA complète (partie privée et publique) tandis que l’autre permet de tester la partie publique de la clef uniquement, mais accompagné d’un chiffré. Ce résultat n’est cependant pas final, il reste en effet de nombreuses fonctions possibles à implémenter, cette application est en effet vouée à être en constante évolution, en corrélation avec les évolutions des normes et les différentes failles qui peuvent être découvertes.
+	
+	Ce résultat final est selon tout très encourageant, en effet ce langage que nous ne connaissions pas, nous a permis de réaliser une application dynamique et réactive avec une navigation entre les différentes pages, le tout dans un code extrêmement modulable. Les caractéristique de ce langage font de lui un langage robuste et performant, capable de gérer des tâches complexes tout en assurant une gestion efficace des ressources. Cela se reflète directement dans notre application, où nous avons pu implémenter différentes fonctionnalités tout en maintenant des performances optimales.
+
+
+\begin{figure}[!h]
+    \centering
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/validite_chiffrement_rsa.png}
+        \caption{Page Validité chiffrement RSA}
+        \label{fig:validite_chiffrement_rsa}
+    \end{minipage}\hfill
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/securite_chiffrement_rsa.png}
+        \caption{Page Sécurité chiffrement RSA}
+        \label{fig:securite_chiffrement_rsa}
+    \end{minipage}
+\end{figure}
+
+
+
 	
 	\subsection{Axes d'améliorations}
 
-
+		Ce projet ayant pour but d'évoluer au cours du temps, nous avons noté certaines améliorations qu'il nous serait possible d'implémenter. 
+		
+		\begin{itemize}
+			\item Ajout de différentes fonctions de tests :
+			\begin{itemize}
+				\item Algorithme de factorisation de Fermat
+				\item Fonction de tests d'appartenance de N a la liste de Mersenne
+				\item Exécution d'une requête à factor.db pour tester la factorisation
+			\end{itemize}			
+			\item Modification de la partie "Sécurité RSA", pour la rendre conforme au MVC
+			\item Ajout de pages pour tester des signatures RSA
+			\item Améliorations de la mise en page	
+		\end{itemize}
+	
+		Ces quelques améliorations représente une liste non exhaustives des améliorations qu'il nous serait possible d'implémenter, et nous demanderait de travailler d'avantages sur d'autre thématiques de ce langage, comme la gestion des fonctions asynchrones pour l'envoie de requête à factor.db, grâce au module "reqwest".
 
 
 
