@@ -204,7 +204,7 @@ M1 Cybersécurité
             \includegraphics[scale=0.6]{images/Capture_structure-inscription.PNG}
 
         \subsubsection{Envoi d’e-mails :}
-            Configuration de SendGrid pour des notifications fiables.\\
+            Django offre un module pour gérer l'envoie de mail. Celui-ci permet de gérer l'envoie de mail depuis un serveur SMTP, nous avons choisi d'utiliser celui de google, ce qui a faciliter ce déploiement.Il nous a suffit de configuré l'HOST et le PORT du serveur ainsi qu'un compte google mail valide, pour ensuite pouvoir utiliser la fonction send\_mail.
             L’envoi d’e-mails est utilisé dans plusieurs cas comme pour la création du compte ou pour la validation de l’inscription à une course. Voici un exemple de mail reçu lors de la validation d'une course par un administrateur.
     
             \begin{figure}[hbtp]
@@ -212,8 +212,10 @@ M1 Cybersécurité
             \includegraphics[scale=0.8]{images/validationMAIL.PNG}
             \end{figure}
 
-        \subsubsection{Protection des formulaires :}
-            Chaque formulaires ont un Google reCAPTCHA qui permet de les sécuriser.
+        \subsubsection{Protection des validations par Captcha}
+            Pour chaque action de validation réaliser par l'utilisateur sur notre site, nous a avons fait le choix de mettre en place un captcha, pour empêcher par exemple le spam par des ordinateurs ou le brut de force des mots de passe.
+            
+            Notre choix c'est dans un premier temps tourné vers les captcha django, qui se sont révéler un peu trop efficaces, car parfois dur à déchiffrer. Dans un soucis de simplicité, nous avons donc migrer vers google reCaptcha, qui propose une implémentation simple en django a travers le package "django-recaptcha". Celui-ci est simple a configurer et passe par l'API google cloud console.
             \begin{figure}[hbtp]
             \centering
             \includegraphics[scale=0.8]{images/Capture_captcha.PNG}
@@ -229,6 +231,8 @@ M1 Cybersécurité
             \newpage
         \subsubsection{Base de données :}
             Chaque inscription est stockée dans une base de données avec toutes ses informations. Ces inscriptions ont toutes un identifiant unique qui permet de les différencier. Grâce à cette BDD nous pouvons récupérer les informations voulu.
+            
+        \subsubsection{Gestion des pdf :} 
 
 
 		
@@ -255,7 +259,6 @@ M1 Cybersécurité
 	\subsection{Problèmes rencontrés et solutions}
         \begin{enumerate}
             \item \textbf{Difficultés techniques :}\\\\
-                Configuration de SendGrid : documentation approfondie et tests successifs.\\
                 Gestion des fichiers : stockage local temporaire remplacé par des solutions cloud envisagées.
 
             \item \textbf{Communication HTTPS et local :}\\\\
