@@ -195,16 +195,18 @@ M1 Cybersécurité
 
 	\subsection{Approche technique}
 		\subsubsection{Architecture Django :} 
-            Django propose une architecture basée sur le model,view et templete.  Le dossier site course est le dossier principal, il contient le fichier setting.py qui permet de configurer les paramètres par défaut de notre application. Les autres dossiers sont des applications comme le dossiers inscriptions par exemple. Ce dossier contient des fichiers comme: \\
-            - models.py:  Ce modèle stocke les informations relatives à l'inscription d'un participant à une course. \\ \\
-            - view.py: Cette vue permet de faire le lien entre les tests des différentes fonctions comme l’inscription ou la suppression de l’inscription, et de faire l'appel des templetes via le fichier urls.py. Par exemple, plusieurs tests sont réalisés avant de valider l'inscription. \\ \\
-            - signals.py: Ce fichier permet de gérer les signaux, par exemple lorsqu'un admin valide l’inscription d’un utilisateur, ce fichier reçoit un signal et envoie un mail de validation d'inscription à l’utilisateur grâce à une fonction.
+            Django propose une architecture basée sur le model,view et template.  Le dossier site course est le dossier principal, il contient le fichier setting.py qui permet de configurer les paramètres par défaut de notre application. Les autres dossiers sont des applications comme le dossier inscriptions par exemple. Ce dossier contient des fichiers comme: \\
+            \begin{itemize}
+            \item models.py:  Ce modèle stocke les informations relatives à l'inscription d'un participant à une course.
+            \item view.py: Cette vue permet de faire le lien entre les tests des différentes fonctions comme l’inscription ou la suppression de l’inscription, et de faire l'appel des templetes via le fichier urls.py. Par exemple, plusieurs tests sont réalisés avant de valider l'inscription.
+            \item signals.py: Ce fichier permet de gérer les signaux, par exemple lorsqu'un admin valide l’inscription d’un utilisateur, ce fichier reçoit un signal et envoie un mail de validation d'inscription à l’utilisateur grâce à une fonction.
+            \end{itemize}
 
             \includegraphics[scale=0.6]{images/Capture_structure.PNG}
             \includegraphics[scale=0.6]{images/Capture_structure-inscription.PNG}
 
         \subsubsection{Envoi d’e-mails :}
-            Django offre un module pour gérer l'envoie de mail. Celui-ci permet de gérer l'envoie de mail depuis un serveur SMTP, nous avons choisi d'utiliser celui de google, ce qui a faciliter ce déploiement.Il nous a suffit de configuré l'HOST et le PORT du serveur ainsi qu'un compte google mail valide, pour ensuite pouvoir utiliser la fonction send\_mail.
+            Django offre un module pour gérer l'envoi de mail. Celui-ci permet de gérer l'envoi de mail depuis un serveur SMTP, nous avons choisi d'utiliser celui de google, ce qui a facilité ce déploiement.Il nous a suffit de configuré l'HOST et le PORT du serveur ainsi qu'un compte google mail valide, pour ensuite pouvoir utiliser la fonction send\_mail.
             L’envoi d’e-mails est utilisé dans plusieurs cas comme pour la création du compte ou pour la validation de l’inscription à une course. Voici un exemple de mail reçu lors de la validation d'une course par un administrateur.
     
             \begin{figure}[hbtp]
@@ -232,25 +234,44 @@ M1 Cybersécurité
         \subsubsection{Base de données :}
             Chaque inscription est stockée dans une base de données avec toutes ses informations. Ces inscriptions ont toutes un identifiant unique qui permet de les différencier. Grâce à cette BDD nous pouvons récupérer les informations voulu.
             
+            Cette base de données était dans un premiers temps gérer dans une base sqlite, c'est la base de données de base dans Django. A la fin de ce projet, lors du déploiement sur le Web, nous avons pris la décision de migrer vers une base de donnée PostgreSQL, nous permettant de mieux gérer les accès simultanés (lecture et écriture).
+            
+            Ce déploiement vers PostgreSQL a était fait sur Render, qui propose un service gratuit d'hébergement de serveur PostgreSQL.
         \subsubsection{Gestion des pdf :} 
+			Nous avions besoin sur ce site, de gérer des certificats médicaux. Les utilisateurs doivent en effet pouvoir déposer lors de leur inscription une copie de leur certificat médical, attestant de leur capacité a pratiquer la course à pied lors d'une compétition.
+			Ces certificats doivent, dans un soucis de respect du "secret médical", n'être rendu accessible qu'à l'utilisateur l'ayant déposé, ainsi qu'aux administrateurs pour valider cette inscription. Dans cette optique, nous avons choisis d'utiliser le package "django-private-storage". Celui-ci permet de gérer facilement le stockage de fichiers dans un dossiers 'sécurisé'. En réalité le dossiers n'est pas sécurisé, mais l'accès à un fichiers dans ce dossiers est limité par une fonction d'accès.Dans notre cas, nous l'avons limitée aux administrateurs et a l'utilisateur possesseurs du fichiers. 
+			
+Pour ce faire, lors du dépôt d'un pdf, une instance de CertificatMedical est créer dans une table de notre base de donnée, cette instance stocke le nom donné au fichier (un hash crée a partir du nom initial du fichier) ainsi que l'id de l'utilisateur. Nous n'avons alors plus, dans notre fonction d'accès, qu'à vérifier si l'instance ayant le nom du fichier de la requête en cours, a bien l'id de l'utilisateur qui à envoyé cette même requête.
 
 
+\begin{figure}[!h]
+		\begin{center}
+			\includegraphics[scale=0.5]{images/gestionUpload}
+			\caption{Gestion de l'upload des pdf}
+		\end{center}
+	\end{figure}
 		
 		
 	\subsection{Sécurisation du site}
         \begin{enumerate}
-            \item \textbf{Validation des données :}\\ \\
-                Contrôles sur les entrées utilisateur (taille, format, validation).
+            \item \textbf{Validation des données :}
+            \begin{itemize}
+                \item Contrôles sur les entrées utilisateur (taille, format, validation).
+                \item Contrôles de l'email lors de l'inscription
+                \item Le mot de passe doit être conforme à certaines norment (longueur...).
+            \end{itemize}
             \item \textbf{Protection des fichiers :}\\ \\
-                Restrictions des téléchargements non authentifiés.
+                Gestion sécurisé de l'upload des pdf grâce a django-private-storage
             \item \textbf{Sécurisation des paiements :}\\ \\
                 Le paiement est effectué grâce à l'implémentation de paypal. Lorsque l'utilisateur complète son inscription, un lien vers l’api paypal lui permet de procéder au paiement. Si l'utilisateur annule le paiement, il pourra par la suite procéder au paiement sur la page d’inscription. Sur cette page toutes les inscriptions de l'utilisateur sont affichées et il peut procéder au paiement de chaque course si celle-ci n'est pas encore payée. Pour effectuer les tests de paiement nous avons créé deux comptes paypal en mode “sand box” (bac à sable). Ces comptes sont donc fictifs et permettent d'effectuer des tests de paiement. Nous avons donc:\\
-                Un compte personnel qui permet d'effectuer les paiements.\\
+                \begin{itemize}
+                \item Un compte personnel qui permet d'effectuer les paiements.\\
                 personal@etu.unicaen.fr\\
                 mdp: motdepasseperso\\
-                Un compte business qui récupère l’argent de chaque inscription.\\
+                \item Un compte business qui récupère l’argent de chaque inscription.\\
                 business@etu.unicaen.fr\\
                 mdp: motdepassebusiness\\
+                \end{itemize}
                 Nous pouvons consulter ces compte avec ce lien:\\  https://www.sandbox.paypal.com/fr/home\\
 
         \end{enumerate}
@@ -258,10 +279,33 @@ M1 Cybersécurité
 
 	\subsection{Problèmes rencontrés et solutions}
         \begin{enumerate}
-            \item \textbf{Difficultés techniques :}\\\\
-                Gestion des fichiers : stockage local temporaire remplacé par des solutions cloud envisagées.
-           		
+            \item \textbf{Gestion du stockage des pdf :}\\\\
+                Gestion des fichiers : le stockage des fichiers en local est actuellement gérer directement sur la machine sur laquelle est héberger le serveur. Dans la version gratuite de l'offre permettant l'hébergement, nous n'avons pas la possibilité de gérer les disques. Le problème qui s'est posé est qu'à chaque commit sur le dépôt git lié sur le serveur, l'intégralité du dépôt est téléchargé de nouveau. Le dossiers contenant les pdf est donc supprimé. 
+                
+                Nous avons cependant réussi a trouver une solution sans pouvoir la mettre en œuvre. Le service Render propose une offre payante, dans laquelle la gestion des disques de la machine est disponible. En souscrivant à cette offre, nous pourrions ainsi créer un espace de stockage persistant.
+                
+			\item \textbf{Envoie d'email de vérification :}
+			
+				Nous avons précédemment évoqué la mise en place du système d'envoi d'email. Celui-ci était plutôt simple, mais la complexité résidait en réalité dans la création du lien de vérification. Nous avons tout d'abord chercher des solutions durant quelque temps sans trouver de solutions convenables, qui soient sécuriser. 
+				
+				Après quelques temps, nous avons finalement trouver un tutoriel qui répondait parfaitement a nos besoin. Celui-ci expliquait en effet comment générer ce lien de vérification. Django implémente nativement un système de génération de token pour réinitialiser un mot de passe. La solution modifie juste cette classe pour avoir un token cohérent qui est composé de :
+		\begin{itemize}
+			\item identifiant de l'utilisateur
+			\item le moment ou le token est généré 
+			\item le booléen qui renseigne sur l'état du compte (actif ou non)
+		\end{itemize}
+		
+Ces trois caractéristiques nous permettent de créer un lien qui sera liée a l'utilisateur, tout en ayant une date d'expiration (dans notre cas nous avons décidé de fixer la limite à 30 minutes) et qui sera invalide une fois utilisé.
 
+Une fois ce lien créer, Django fourni une fonction check\_token, qui va vérifier la validité du token, et renverra simplement True ou False. Nous n'avons alors plus qu'a assigné cette valeur a l'attribut is\_valid de notre utilisateur s'il n'est pas déjà actif.
+
+	Nous avons alors la situation suivante : 
+	\begin{itemize}
+		\item Token valide -> le compte hérite d'un attribut is\_valid = True, et peut donc être utilisé
+		\item Token invalide -> le compte hérite d'un attribut is\_valid = False, ce qui ne change rien.
+	\end{itemize}
+		
+		
             \item \textbf{Communication HTTPS et local :}\\\\
                 Une fois le paiement effectué, le serveur paypal envoie un “signal ipn” qui permet de récupérer les informations de paiement. Le problème est que la communication est effectuée en https alors que notre serveur est en local lors de la phase de développement. Donc pour récupérer ce signal nous avons utilisé un outil qui est “ngrok” qui permet de mettre notre application en https. Cet outil est provisoire pour la phase de test mais ce n’est pas celui-ci qui va nous permettre à terme de mettre notre site en https.\\
                 Ngrok nous permet donc d’avoir un nouveau lien en https ce qui nous permet de récupérer le signal de paiement.\\ Voici la fenêtre de gestion Ngrok.
@@ -274,8 +318,14 @@ M1 Cybersécurité
 
 
 	\subsection{Axes d'améliorations}
-		-Stockage des images en ligne (dans un DIsks sur render ou dans le CLoud google) -> demande abonnements payants \\\\
-        \textbf{Paiements Stripe:}\\
+	\textbf{Stockage des images en ligne:}\\
+	\begin{itemize}
+		\item Configuration d'une partition de disque persistante pour le stockage de données sur Render.
+		
+		\item Nous pourrions également décider d'utiliser un service comme AWS ou Google Cloud pour stocker nos images. Cependant il faudrait être très attentif a la législation sur le stockage des données médicales. En effet nous devons choisir un hébergeur certifié HDS (Hébergeur de données de santé), tel que AWS HealthLake.
+	\end{itemize}
+	
+    \textbf{Paiements Stripe:}\\
             Un autre mode de paiement possible est le paiement par stripe. Il est tout aussi efficace que paypal, il intègre aussi une API. On peut dire qu’il est plus polyvalent que paypal, il intègre aussi plus de devise.
             Nous avons commencé à intégrer Stripe à notre projet web, mais vu le temps qu’il nous restait nous avons préféré nous concentrer sur la finalisation du projet.
 
