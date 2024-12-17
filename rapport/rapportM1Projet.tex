@@ -480,30 +480,145 @@ Nous avons donc trouver la solution de convertir notre instance de RsaBigUint en
 \newpage
 
 \section{Conclusion et perspectives}
-	\subsection{Différences fondamentales}
-		Objectifs distincts : site orienté utilisateur, application centrée sur la cryptographie.
-Langages et environnements de développement (Python/Django vs Rust).
+
+\subsection{Différences fondamentales}
+
+\begin{itemize}
+    \item \textbf{Objectifs distincts :}  
+    Les deux projets avaient des finalités différentes :
+    \begin{itemize}
+        \item Le site web était orienté utilisateur, avec pour objectif de fournir une plateforme fonctionnelle et sécurisée pour l'inscription à des courses.
+        \item L'application Rust servait avant tout à l'apprentissage du langage Rust, tout en explorant des concepts liés à la cryptographie RSA.
+    \end{itemize}
+    
+    \item \textbf{Langages et environnements de développement :}  
+    \begin{itemize}
+        \item Le site web a été développé avec Python et le framework Django, offrant une structure robuste pour les fonctionnalités web.
+        \item L'application a été développée en Rust, un langage performant et sécurisé, mais surtout l'occasion pour nous de découvrir et d'apprendre ce langage .
+    \end{itemize}
+\end{itemize}
+
+\subsection{Apport de chaque projet dans notre apprentissage}
+
+\begin{itemize}
+    \item \textbf{Impact du site web :}  
+    Le projet a permis de mettre en pratique les \textbf{bonnes pratiques de sécurité web} :
+    \begin{itemize}
+        \item Gestion sécurisée des certificats médicaux dans un environnement conforme.
+        \item Sécurisation des comptes utilisateurs avec un système de vérification par e-mail.
+        \item Utilisation d'outils comme django-recaptcha pour prévenir les attaques automatisées.
+        \item Stockage privé des données sensibles avec le module private\_storage.
+    \end{itemize}
+    En parallèle, il nous a permis de développer des compétences concrètes avec Django et la gestion d'API, tout en continuant a apprendre python.
+
+    \item \textbf{Impact de l'application Rust :}  
+    Le projet avait un objectif clair : nous familiariser avec le langage Rust. À travers cette application, nous avons :
+    \begin{itemize}
+        \item Découvert les concepts fondamentaux de Rust, comme l'utilisation des références, le système de prêt/emprunts (ownership) ou encore la gestion de la mémoire sans garbage collector.
+        \item Manipulé des bibliothèques comme num\_bigint et exploré les possibilités du langage dans le contexte de la cryptographie RSA grâce au module rsa.
+        \item Implémenté une application basique mais modulaire, avec des fonctionnalités comme la vérification de clés RSA.
+        \item Utiliser le module iced pour créer une interface graphique.
+    \end{itemize}
+    Ainsi, ce projet a principalement été un support d'apprentissage, nous permettant de monter en compétences sur un langage que nous ne connaissions pas.
+\end{itemize}
+
+\subsection{Bilan global}
+
+\paragraph{Synthèse des apprentissages :}  
+Ces deux projets nous ont permis de développer des compétences complémentaires :  
+\begin{itemize}
+    \item Le site web a renforcé nos connaissances en sécurité des applications web, en architecture Django, et en utilisation d'API sécurisées.
+    \item L'application Rust a été un excellent point de départ pour apprendre Rust, tout en nous sensibilisant aux défis liés à la cryptographie RSA et aux différentes normes a respecter.
+\end{itemize}
+
+\paragraph{Des améliorations possibles :}  
+Les deux projets présentent plusieurs axes d'amélioration pour le futur :  
+\begin{itemize}
+    \item \textbf{Pour le site web :}
+    \begin{itemize}
+        \item Amélioration de l'interface utilisateur avec un design plus moderne.
+        \item Renforcement de la sécurité via un hébergement certifié HDS pour les certificats médicaux.
+        \item Optimisation du système de paiement et ajout de nouvelles fonctionnalités pour les administrateurs.
+    \end{itemize}
+
+    \item \textbf{Pour l'application Rust :}
+    \begin{itemize}
+        \item Ajout de fonctionnalités avancées liées à la cryptographie, comme des tests supplémentaires de sécurité des clés.
+        \item Amélioration de l'interface graphique pour une meilleure ergonomie.
+        \item Ajouter une partie pour gérer la sécurité et la validité des signatures RSA
+    \end{itemize}
+\end{itemize}
+
+En conclusion, ces deux projets nous ont permis de combiner l'apprentissage d'un framework pour le développement web avec les différentes bonnes pratiques a mettre en place et la découvert d'un nouveau langage de programmation ainsi que plusieurs de ces bibliothèques.
 
 
-	\subsection{Apport de chaque projet dans le cadre de la cybersécurité}
-		Impact du site : mise en œuvre des bonnes pratiques de sécurité web + apprentissage django et d’API.
-Impact de l’application : exploration de la cryptographie RSA et apprentissage de RUST
-	
-	
-	
-	\subsection{Bilan global}
-		Synthèse des apprentissages.
-Des améliorations possibles (projets évolutifs)
+
+
+
+
+
+
+
+
 
 
 \newpage
 \section*{Annexes}
-	\subsection{Codes sources importants}
-		Extraits des parties clés de Django et Rust.
-	\subsection{Ressources externes}
-		Bibliographies, articles, et outils utilisés
+\paragraph{Sources Django :} 
+\begin{itemize}
+\item Youtube :
+	\begin{itemize}
+	\item \href{https://www.youtube.com/watch?v=Bn0k9DDYBZM&t=7170s}{Formation de base Django}
+	\item \href{https://www.youtube.com/watch?v=KRRbxIsQ8mo}{Apprendre Django en 20 minutes}
+	\item \href{https://www.youtube.com/watch?v=ZpiokBHjPtA&list=PLrSOXFDHBtfED_VFTa6labxAOPh29RYiO&index=13}{Django Authentification}
+	\item \href{https://www.youtube.com/watch?v=Gk9tsLHMMsM&t=823s}{Tutoriel Google OAuth}
+	\item \href{https://www.youtube.com/watch?v=06gywnBUZ8g}{Django google Recaptcha}
+	\item \href{https://www.youtube.com/watch?v=JQ5MR-09msw}{Django uploading images}
+	\item \href{https://www.youtube.com/watch?v=77KQvhNtVv4&t=396s}{Django messaging and notifications}
+	\item \href{https://www.youtube.com/watch?v=m718d9tgnZU&t=1331s}{Django change,recover password}
+	\item \href{https://www.youtube.com/watch?v=wB1qOExDsYY&t=607s}{Django User Registration with Email confirmation}
+	\item \href{https://www.youtube.com/watch?v=8qEB-19t8Lw&t=278s}{Django Migrate from SQLite to PostgreSQL}
+	\item \href{https://www.youtube.com/watch?v=AgTr5mw4zdI&t=1s}{Deploy a Django web app to Render}
+	\item \href{https://www.youtube.com/watch?v=pthIHQ0IuNM}{Déployez Django et PostgreSQL sur Render}	
+	\end{itemize}
+\item Documentations :
+	\begin{itemize}
+	\item \href{https://pypi.org/project/django-private-storage/}{Django private-storage documentation}
+	\item \href{https://docs.djangoproject.com/en/5.1/}{Documentation Django officielle}
 
 
+\end{itemize} 
+	
+\end{itemize}
+\paragraph{Sources Rust :}  
+
+\begin{itemize}
+\item Youtube :
+	\begin{itemize}
+	\item \href{https://www.youtube.com/watch?v=I2iYNZm_pqg&list=PLrT8DrHsxZTiiAj96QukmAdedfRMsIPN5&index=4}{Pourquoi envisager RUST}
+	\item \href{https://www.youtube.com/watch?v=lf5SEzdH_1k&list=PLrT8DrHsxZTiiAj96QukmAdedfRMsIPN5&index=5}{Rust installation des outils}
+	\item \href{https://www.youtube.com/watch?v=I2iYNZm_pqg}{Pourquoi envisager RUST}
+	\item \href{https://www.youtube.com/watch?v=mZasv3__A9k&list=PLrT8DrHsxZTiiAj96QukmAdedfRMsIPN5}{Apprendre le RUST partie 1}
+	\item \href{https://www.youtube.com/watch?v=wgjw5lGv-EI&list=PLrT8DrHsxZTiiAj96QukmAdedfRMsIPN5&index=2}{Apprendre le RUST partie 2}
+	\item \href{https://www.youtube.com/watch?v=3kBk3sjREOM&list=PLrT8DrHsxZTiiAj96QukmAdedfRMsIPN5&index=3}{Apprendre le RUST partie 3}
+	\item \href{https://www.youtube.com/watch?v=68Yw_n6SySk&list=PLrT8DrHsxZTiiAj96QukmAdedfRMsIPN5&index=15}{CaenCamp : Rust ou le plaisir de coder}
+	\item \href{https://www.youtube.com/watch?v=LiMZkSF2wXo}{Ce qu'il faut savoir sur RUST}
+	\item \href{https://www.youtube.com/watch?v=72PyU1EIGY8}{Modern Graphical User Interface in Rust}
+	\item \href{https://www.youtube.com/watch?v=gcBJ7cPSALo&t}{Building a simple text editor with iced}
+	\item \href{https://www.youtube.com/watch?v=X9Hebeionj8} {iced GUI}
+	\end{itemize}
+\item Documentations :
+	\begin{itemize}
+	\item \href{https://docs.rs/}{Documentation RUST complète}
+	\item \href{https://docs.rs/rsa/latest/rsa/}{Documentation crate RSA}
+	\item \href{https://docs.rs/num-bigint/latest/num_bigint/}{Documentation crate num\_bigint}
+	\item \href{https://docs.rs/iced/latest/iced/}{Documentation iced}
+	\item \href{https://iced.rs/}{Site de la bibliothèque iced}
+
+
+\end{itemize} 
+	
+\end{itemize}
 
 
 
