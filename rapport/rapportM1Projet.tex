@@ -73,54 +73,119 @@ M1 Cybersécurité
 
 
 \section{Introduction}
-	\subsection{Présentation générale du projet}
-		Contexte : réalisation d’un projet collaboratif dans le cadre du Master 1 Cybersécurité.
-Explication des deux volets :
-\begin{enumerate}
-    \item Un site web avec Django axé sur la gestion sécurisée des inscriptions à une course, incluant des paiements en ligne et des protections des données utilisateurs.
-    \item Une application Rust RSA pour approfondir les aspects de la cybersécurité, notamment la création et la validation de clés RSA.
 
-\end{enumerate}
+		Ce rapport a pour objectif de détailler la réalisation d'un projet collaboratif réalisé dans le cadre du Master 1 Cybersécurité. Nous avons fait le choix, au cours de ce projet, de réaliser deux applications différentes. Un site web développé avec Django pour la gestion d'inscriptions à une course, et une application en Rust explorant la sécurité et la validité des clés RSA. Ce rapport sera donc constitué de deux grandes parties, développant chacune un projet.
+	La décision de diviser notre travail en deux projets distincts nous a semblé être une solution pertinente, nous offrant l'opportunité d'explorer à la fois une partie développement web, afin de nous former aux bonnes pratiques, tout en apprenant le langage Rust. Ce dernier est un langage très en vogue, reconnu pour sa performance, sa sécurité et sa gestion de la mémoire sans “garbage collector”.
+
 	
 			
 		
+	\subsection{Explications des projets}
+		Le site web est conçu pour permettre à de potentiels participants de s'inscrire à une course de manière sécurisée. Il intègre des fonctionnalités de paiement en ligne, de gestion des profils utilisateurs et de visualisation du parcours de la course. Le back-end repose sur Django, quant à la partie frontend, nous avons fait au plus simple, et avons donc opté pour du HTML/CSS et quelques fonctions en javascript. Des technologies telles que OAuth ou reCAPTCHA ont été intégrées pour renforcer la sécurité et l’expérience utilisateur.
+
+	L’application RUST est quant à elle une interface simple, permettant aux utilisateurs de tester des clefs RSA. Une page est dédiée à la validation de la clef RSA, c'est-à-dire sa conformité à différentes normes de sécurité de base. La deuxième page est réservée à l'exécution de fonctions qui testent différentes failles connues sur la partie publique des clefs RSA.
+
+	\subsection{Objectifs de ces projets}
+
+	Nous avons décidé de diviser notre travail en deux projets distincts, une approche qui nous a semblé pertinente pour atteindre plusieurs objectifs. D'une part, cela nous permet de nous familiariser avec le développement web, en mettant l'accent sur l'application des bonnes pratiques. D'autre part, cela nous donne l'opportunité d'apprendre le langage Rust, un langage moderne et très prisé.
+	Rust se distingue par ses performances exceptionnelles, sa sécurité renforcée et sa gestion de la mémoire sans “garbage collector”. Ces qualités en font un choix privilégié pour le développement d’applications qui exigent robustesse, fiabilité et rapidité. Ces apprentissages du développement web et de Rust enrichissent nos compétences dans ces deux domaines.
+
 	\subsection{Organisation du projet}
-		Rôles de chaque participant dans le développement des deux projets.
-		Diagramme de gant (voir diapo)
+
+	Le projet initial a bien été séparé en deux gros projets, qui vont donc occuper l’ensemble des six semaines que nous avons à disposition. Nous avons choisi de prioriser le projet Django, qui était selon nous le plus intéressant à voir aboutir, la partie RUST étant quant à elle réalisée dans le but d’apprendre le langage. 
+	Notre semaine était donc organisée la plupart du temps sur le format suivant : quatre jours réservés à la réalisation du projet Django, et le vendredi pouvait être consacré à l'avancée du projet RUST. Cela nous a permis de rester motivés tout au long de la durée de ce module “Hacking éthique”, en nous permettant ainsi de changer de domaine d’apprentissage au cours de la semaine.
+	Pour optimiser l’organisation de ce projet, il nous a été conseillé de réaliser un diagramme de Gantt, afin de maintenir en permanence une vision globale de son avancement. Ce diagramme nous a permis de suivre les différentes étapes du projet de manière structurée et de nous assurer que chaque tâche était accomplie dans les délais impartis.
+
+
+	\begin{figure}[!h]
+	\begin{center}
+	\includegraphics[scale=1]{images/diagrammeGantt}
+	\caption{Diagramme de Gantt de notre projet}
+	\end{center}	
+	\end{figure}
+	
+	Il nous a ainsi été possible, au fil des semaines, de suivre et de mesurer notre avancement sur les différentes fonctionnalités que nous souhaitions implémenter. Le tableau ci-dessus présente une version simplifiée d'un tableau d'implémentation plus détaillé, dans lequel nous avons décrit les tâches spécifiques à accomplir pour mener chaque implémentation à terme. Vous trouverez ci-dessous ce tableau détaillé avec notre avancement lors de la dernière semaine du projet.
 	
 
+	\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[scale=0.75]{images/implementation1}
+		\caption{Liste des implémenatations du projet 1/2}
+	\end{center}
+	\end{figure}
+	\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[scale=0.25]{images/implementation2}
+		\caption{Liste des implémenatations du projet 2/2}
+	\end{center}
+	\end{figure}
 
-
+	
+	
+	
 \section{Conception générale}
 	\subsection{Vision globale des deux projets}
-		Les projets sont indépendants techniquement tout en ayant une base conceptuelle commune dans la cybersécurité.
-        \begin{itemize}
-            \item Site Django : Gestion sécurisée des inscriptions et des paiements.
-            \item Application Rust RSA : Exploration et validation d'algorithmes cryptographiques.
-        \end{itemize}
+		La première préoccupation que nous avons eue a été le fait d’établir une vision globale de ce à quoi nous voulions aboutir. Nous souhaitions avoir un site qui puisse accueillir de potentiels coureurs désireux de s’inscrire pour une course. Dans notre approche initiale nous voulions un système de création de compte, la possibilité de s’inscrire à une ou plusieurs courses ainsi que la possibilité de voir les différents parcours.
+	Concernant le projet RUST, il fallait, selon nous que celui-ci soit très modulable, de sorte que nous puissions modifier notre vision au cours des semaines en fonction de l’avancée du projet web. 
+
 
 	
 	\subsection{Cahier des charges}
-		\textbf{Site Django :}
-        \begin{itemize}
-            \item Gestion des inscriptions utilisateur (création de compte, connexion via OAuth2).
-            \item Paiements sécurisés en ligne.
-            \item Sécurisation des fichiers téléchargés par les participants (PDF).
-            \item Protection contre les attaques (exemple : reCAPTCHA).
-        \end{itemize}
-        \textbf{Application Rust RSA :} 
-        \begin{itemize}
-            \item Génération et validation de clés RSA.
-            \item Tests de vulnérabilité des clés (taille insuffisante, non-primalité).
-        \end{itemize}
+		\subsubsection{Le site doit donc offrir les fonctionnalités suivantes}
+\textbf{\underline{Création et gestion de compte :}}
+		\begin{itemize}
+			\item Création de compte avec une adresse mail
+			\item Suite à la création de ce compte, l’adresse email de l’utilisateur doit être vérifiée de sorte à ce que les organisateurs de la course puissent le contacter pour différentes informations. Pour ce faire, nous devons mettre en place un système d’envoi par mail d’un lien de vérification.
+			\item Ajout et modification par l’utilisateur de ses informations personnelles (nom, prénom, email…).
+		\end{itemize}
+	
+\textbf{\underline{Affichage des parcours : }}
+		\begin{itemize}
+			\item Affichage des différents parcours, pour permettre aux utilisateurs de les consulter avant la course.
+		\end{itemize}
+		
+\textbf{\underline{Inscription a des courses :}}
+	\begin{itemize}
+		\item Inscription à une course. Les utilisateurs doivent fournir différentes informations telles que leur nom, prénom, âge, ainsi qu’une copie d’un certificat médical comme l’exige la loi.  
+		\item Ce certificat doit être stocké et accessible uniquement par l’utilisateur et les administrateurs, mais surtout pas par d’autres utilisateurs du site. 
+		\item Mise en place d’un système de paiement, pour que l’utilisateur puisse payer son inscription. 
+		\item Possibilité pour l’utilisateur de consulter la liste de ses inscriptions et de supprimer celles-ci ou de les payer si cela n’a pas été fait précédemment.
 
-	\subsection{Contraintes et exigences}
-		\begin{enumerate}
-		    \item \textbf{Sécurité} : Éviter les vulnérabilités (XSS, injections SQL pour Django, attaques par timing pour RSA).
-            \item \textbf{Performance} : Réponse rapide du site web et efficacité des calculs cryptographiques.
-            \item \textbf{Adaptabilité} : Modularité pour permettre des évolutions futures.
+	\end{itemize}
 
-		\end{enumerate}
+\textbf{\underline{Partie administrateur du site:}}
+
+	Pour finir, nous devons gérer la partie administrateur, qui sera réservée aux organisateurs de la course,
+	\begin{itemize}
+		\item Possibilité de gérer les utilisateurs et leurs inscriptions. 
+		\item Permettre aux administrateurs de consulter l’état du paiement de l’inscription et le certificat médical de sorte à pouvoir valider ou non celle-ci
+		\item En cas de validation, une notification doit être envoyée à l'utilisateur par mail.
+	\end{itemize}
+	
+	\subsubsection{L’application Rust Rsa}
+	Comme évoqué précédemment, pour le projet d’application RSA nous n’avons pas réellement de cahier des charges fixe. Celui-ci est voué à évoluer tout au long du projet mais notre postulat de base est d’avoir : 
+	\begin{itemize}
+		\item Une interface graphique fonctionnelle à laquelle nous pouvons aisément rajouter des fonctions.
+		\item Une page d’accueil permettant la navigation entre les pages
+		\item Nous partons avec l’idée de base de créer quatre pages :
+		\begin{itemize}
+			\item Validité d’un clé de chiffrement RSA
+			\item Sécurité d’une clé de chiffrement RSA
+			\item Validité d’une signature RSA
+			\item Sécurité d’une signature RSA
+		\end{itemize}
+	\end{itemize}
+	
+	
+	Cependant, très vite au cours du projet nous avons révisé notre approche pour ne faire que deux pages, et nous sommes donc concentrés sur le chiffrement RSA. Ces deux pages doivent avoir les caractéristiques suivantes : 
+
+	\begin{itemize}
+		\item Entrée d’information (clé) par l’utilisateur
+		\item Génération d’une clé valide, pour permettre à l'utilisateur de tester l’application facilement
+		\item Vérification et conversion de ses clés
+		\item Lancement des fonctions de tests par l’utilisateur
+		\item Modularité pour permettre d'ajouter facilement des fonctions
+	\end{itemize}
 
 
 \section{Développement du site Django}
@@ -162,7 +227,7 @@ Explication des deux volets :
             \includegraphics[scale=0.6]{images/admin_gestion.PNG}
             \end{figure}
             \newpage
-        \subsubsection{ basse de données :}
+        \subsubsection{Base de données :}
             Chaque inscription est stockée dans une base de données avec toutes ses informations. Ces inscriptions ont toutes un identifiant unique qui permet de les différencier. Grâce à cette BDD nous pouvons récupérer les informations voulu.
 
 
@@ -213,25 +278,115 @@ Explication des deux volets :
 		
 
 	
-
+\newpage
 \section{Développement de l'application Rust RSA}
 	\subsection{Objectifs et fonctionnalités principales}
-		Tester la sécurité des clés RSA (validité, erreurs courantes).
-Générer et valider des clés publiques.
+		Comme précédemment évoqué, la fonction principale de cette application doit être de tester la validité et la sécurité de clés de chiffrement RSA. Cette application a été conçue pour créer un logiciel éducatif, permettant à des étudiants de tester des clés RSA pour voir si des problèmes de conformités aux normes de bases ou des failles connus sont détectées sur lesdites clés.
+	C’est dans cette optique que cette application doit être simple d’usage, permettant de tester aisément plusieurs jeux de clés, et d’avoir un accès clair aux potentiels problèmes. Elle doit aussi permettre de voir son effet sans nécessairement demander à son utilisateur de chercher une clé à entrer, ainsi nous avons fait le choix d’ajouter des boutons pour générer automatiquement une clé RSA valide, pour permettre le test rapide de cette application.
+
 
 	\subsection{Organisation technique}
-		Structure des modules Rust (mod.rs, gestion des entrées).
-Utilisation de rsa::BigUint pour les calculs.
-Gestion des événements d’entrée/sortie et affichage des résultats.
+		\subsubsection{Modélisation du projet}
+		
+	Pour que notre application soit simple, fonctionnelle et modulable, nous avons dû créer une architecture permissive. Ainsi, nous avons fait le choix de créer deux grands “packages” : l’un destiné au développement de l'interface graphique et l'autre à l'implémentation des différentes fonctions de tests. Nous avons choisi, pour des raisons de rapidité, de ne pas implémenter notre application sur la base d'un modèle Model-View-Controller (MVC). Pour simplifier cette implémentation, nous séparons clairement la partie Model et View dans ces deux packages, mais la partie modèle pour la sécurité des clés RSA \texttt{(safe\_enc.rs)} fait appel directement à l'interface graphique pour lui ajouter un message si le chiffré a été déchiffré.
+	
+Cette approche était la plus rapide pour nous permettre d’aboutir à un résultat final convaincant. En effet, cette application a été construite sur la base de tutoriels ne suivant pas le modèle MVC. Nous avons toutefois réussi à nous en rapprocher pour la partie “Validité d’une clé RSA”, mais n’avons pas eu le temps de le faire correctement pour la page “Sécurité d’une clé RSA”. Ce point de modélisation n’était pas, selon nous, une priorité. Nous avons préféré privilégier l’apprentissage du langage et le développement de l’application. En effet, les design patterns ayant déjà été abordés au cours de notre cursus de licence, nous avons estimé que cela pourrait constituer une amélioration future.
 
-	\subsection{Problèmes rencontrés et solutions}
-		Gestion des entrées sans utiliser de String.
+		\subsubsection{Développement de l’interface graphique}
+		Nous avons choisi de développer l'interface graphique en utilisant le module “Iced”. Ce module est bien documenté et permet un développement rapide et intuitif. Une interface réactive et fluide est indispensable pour garantir une bonne expérience utilisateur, tout en assurant la robustesse et la sécurité de l'application.
+		
+Iced facilite la création d'interfaces multiplateformes (Windows, macOS, Linux) grâce à son architecture modulaire. Afin d’optimiser notre temps de développement et de garantir une mise en place rapide, nous avons pris la décision de garder la structure initiale du projet qui est l’implémentation de l’application en SandBox (qui était le choix fait dans l’un des tutoriels que nous avons suivi). Le choix de SandBox permet de déployer des applications simples avec une logique de base. La migration vers le trait Application aurait été nécessaire pour une gestion efficace en cas d’implémentation d’une logique asynchrone, de la nécessité de gérer plusieurs fenêtres ou encore d’interaction avec un backend.
 
-	\subsection{Axes d’amélioratrions }
-		-Ajout de fonctions toujours possibiles sur les 2 pages
-		-Ajout de 2 pages pour tester la signatures RSA 
+Cette approche nous a permis de nous concentrer pleinement sur le développement de l’interface, tout en assurant une gestion fluide des interactions et des éléments visuels. Elle a été choisie pour sa rapidité d'exécution et son efficacité dans le cadre de notre projet. Nous avons pu ainsi maximiser notre productivité tout en s’assurant que l’ensemble des éléments graphiques fonctionnaient comme prévu pour être intégrés dans l'application complète.
+
+Le fonctionnement de notre application repose donc sur cette structure qui implémente le trait SandBox. Celui-ci nous permet de développer une fonction “update”, qui repose elle-même sur l’énumération “Message”. Cette énumération représente l’ensemble des fonctions de callback que peuvent appeler nos différentes pages à la suite d’interactions utilisateurs. Voir le schéma ci-dessous, qui explique brièvement ce fonctionnement.
 
 
+	\begin{figure}[!h]
+		\begin{center}
+			\includegraphics[scale=0.5]{images/schemaMessage}
+			\caption{Fonctionnement des interactions utilisateurs}
+		\end{center}
+	\end{figure}
+
+		\subsubsection{Création des fonctions de tests des clés}
+		
+	Le développement des différentes fonctionnalités nécessaires aux vérification des clés était un bon moyen de se familiariser avec le langage et son typage très strict. Nous avons fait des traductions des fonctions que nous avions développées au cours du premier semestre dans l’unité d’enseignement “Cryptographie”, et avons donc dû passer de Python à Rust. Cet exercice a été très instructif dans notre apprentissage, et s’est avéré plus complexe que prévu. Nous avons dû gérer certaines conversions de types ou encore certains types qui sont  gérés différemment du Python. 
+		
+	En parallèle, nous avons dû nous familiariser avec le module “rsa” de Rust, qui fournit des outils pour la gestion des clés RSA ainsi que pour l'implémentation de divers algorithmes cryptographiques associés. Ce module dispose d'une documentation riche et détaillée, ce qui nous a permis de rapidement comprendre son fonctionnement et de l'intégrer dans notre projet. Ce processus de découverte du module a été particulièrement formateur, car il nous a permis d'appréhender certaines spécificités de Rust, notamment sur la gestion des types et des erreurs.
+	
+L'un des défis majeurs que nous avons rencontrés a été de garantir la robustesse de toutes les fonctions face aux erreurs potentielles, telles que les erreurs de type ou de gestion des entrées. Cela nous a donné l'occasion de nous initier à la gestion des erreurs en Rust, et d’en comprendre le principe.
+
+
+	\subsection{Problèmes rencontrés et solutions }
+		\subsubsection{Gestion des entrée}
+		La gestion des entrées utilisateurs a été l’un des problèmes principaux. En effet, nous devions vérifier correctement les données entrées par l’utilisateur, de sorte à ce que l’application ne soit pas interrompue si par exemple l’utilisateur venait à entrer des lettres dans les champs de texte. Ces champs de texte sont destinés à recevoir des entiers positifs, car ils vont être transformés en “BigUint”. La gestion des exceptions est donc faite sur les deux pages au moment de l'appui sur le bouton de vérification, on appelle un fonction \texttt{"validate\_inputs"}, qui va se charger de vérifier que les conversions sont possibles en les testant une à une. Si il n’y aucune erreur cette fonction renvoie “Ok”, sinon elle renvoie la liste d’erreur \texttt{(qui est un Vec<String>)}, pour que la page puisse les afficher.
+		
+		Cette manière de gérer les erreurs en Rust est rendu possible grâce à l'enum “Result”, décrite par le code suivant :
+	
+	\begin{figure}[!h]
+		\begin{center}
+			\includegraphics[scale=0.5]{images/enumResult}
+			\caption{Définition de l'enum Result en Rust}
+		\end{center}
+	\end{figure}
+
+		Celle-ci vient remplacer les exceptions présentes dans d’autres langages comme Java ou Python. Dans notre cas nous nous en servons de la manière suivante :
+		
+		\begin{itemize}
+			\item S’il n’y a aucune erreur, on renvoie Ok(()) : un Ok ne contenant rien.
+			\item S’il y a une ou plusieurs erreurs, on renvoie Err(errors) : une Erreur, contenant la liste des erreurs que nous avons remplies : “errors”.
+		\end{itemize}
+		
+		
+		\subsubsection{Gestion des conversions}
+
+		Rust est un langage fortement typé, la déclaration des types est donc obligatoire. Dans certains cas, elle n’est pas faite explicitement, et c’est le compilateur qui s’en charge. Cependant, dans notre cas, nous avons rencontré quelques désagréments. Certains d’entre eux ont étaient régler sans trop de problème grâce à la documentation et des tutoriels. Mais l’un a était plus complexe. Le problème posé était la conversion de “BigUint” du module “num\_bigint”, en “BigUint” du module “rsa”. Ces deux “BigUint” sont en réalité les mêmes (“rsa” se sert de “num\_bigint”), mais d’autres modules sont fait pour fonctionner avec num\_bigint::BigUint, et donc pas avec le rsa. 
+		
+Nous avons donc trouver la solution de convertir notre instance de RsaBigUint en bytes (un Vecteur de “u8” (unsigned int de 8 bits)) pour ensuite construire une instance de BigUine à partir de ce vecteur.
+	
+	
+	\begin{figure}[!h]
+		\begin{center}
+			\includegraphics[scale=0.5]{images/conversionBigUint}
+			\caption{Conversion de rsa::BigUint vers num\_bigint::BigUint}
+		\end{center}
+	\end{figure}
+	
+	\subsection{Résultat du rendu final}
+	
+	\subsection{Axes d'améliorations}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
 
 \section{Conclusion et perspectives}
 	\subsection{Différences fondamentales}
@@ -250,7 +405,7 @@ Impact de l’application : exploration de la cryptographie RSA et apprentissage
 Des améliorations possibles (projets évolutifs)
 
 
-
+\newpage
 \section*{Annexes}
 	\subsection{Codes sources importants}
 		Extraits des parties clés de Django et Rust.
