@@ -3,6 +3,7 @@ use rsa::BigUint as RsaBigUint;
 use num_bigint::{BigInt,BigUint};
 use num_traits::Zero;
 
+
 /// Représente le statut d'un test de sécurité.
 /// Chaque test a un nom (`name`) et un statut de validation (`is_valid`).
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -28,7 +29,7 @@ pub fn update_test_status(list_test_status: &mut Vec<TestStatus>,index: usize, n
 }
 
 
-
+//Fonction de calcul du pgcd (algorithme d'euclide)
 pub fn pgcd(a:&RsaBigUint,b:&RsaBigUint) -> RsaBigUint {
     if b.is_zero(){
         //cas de base :
@@ -43,6 +44,10 @@ pub fn pgcd(a:&RsaBigUint,b:&RsaBigUint) -> RsaBigUint {
     return pgcd;
 }
 
+
+// Fonction qui implémente l'algorithme de Bézout pour calculer les coefficients de Bézout
+// pour les deux entiers x et y, ainsi que leur PGCD.
+// Retourne un tuple contenant (PGCD, coefficient pour x, coefficient pour y).
 pub fn bezout(x: &BigInt, y: &BigInt) -> (BigInt, BigInt, BigInt) {
     let mut x = x.clone();
     let mut y = y.clone();
@@ -69,6 +74,9 @@ pub fn bezout(x: &BigInt, y: &BigInt) -> (BigInt, BigInt, BigInt) {
     (x, u0, v0)
 }
 
+
+// Fonction de calcule de l'inverse modulaire de x modulo n,
+// Retourne l'inverse de x modulo n ou 0 si l'inverse n'existe pas (si pgcd(x, n) != 1).
 pub fn inverse(x:&RsaBigUint,n:&RsaBigUint) -> RsaBigUint {
     let pgcd = pgcd(x,n);
     if pgcd != RsaBigUint::from(1u8) {
@@ -78,10 +86,9 @@ pub fn inverse(x:&RsaBigUint,n:&RsaBigUint) -> RsaBigUint {
     let n_bigint =BigInt::from(BigUint::from_bytes_be(&n.to_bytes_be()));
     let (_, u, _) = bezout(&x_bigint, &n_bigint);
     let res = ((u.clone() % n_bigint.clone()) + n_bigint.clone()) % n_bigint.clone(); // ça fait u % n_bigint, mais ça s'assure que le résultats soit positif
-    println!("{:?}", res);
     let (sign, bytes) = res.to_bytes_be();
     if sign == num_bigint::Sign::Minus {
-        panic!("Cannot convert negative BigInt to RsaBigUint");
+        panic!("Impossible de convertir un BigInt négative vers un BigUint");
     }
     RsaBigUint::from_bytes_be(&bytes)
 }

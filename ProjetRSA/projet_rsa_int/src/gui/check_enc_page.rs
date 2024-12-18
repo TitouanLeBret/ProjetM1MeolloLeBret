@@ -7,14 +7,13 @@ use iced::Color;
 use super::gui;
 use crate::rsa::check_enc;
 use super::components::MyTextInput;
-use crate::rsa::utils::TestStatus; //Pour utiliser directemet TestStatus et pas check_enc::TestStatus
 
 use crate::rsa::utils::all_status_to_false; //Pour remettre tous les status à false
 use crate::rsa::check_enc::ALL_TEST_STATUS_VALID_RSA; //Pour utiliser la lsite de check_enc.rs
 
 /// Gère l'état de la page "Validité Chiffrement RSA".
 /// Cette structure contient les valeurs de clé publique et privée, 
-/// ainsi qu'un bouton pour lancer les vérifications et une liste de tests.
+/// ainsi que les éléments d'interface nécessaires (boutons, messages d'erreur, etc.).
 #[derive(Default,Debug,Clone,PartialEq,Eq)]
 pub struct ValidRsaChifPage {
     /// Valeur de N (clé publique).
@@ -27,17 +26,16 @@ pub struct ValidRsaChifPage {
     e_value: String,
     /// Valeur de d (exposant privé).
     d_value: String,
-    /// État du bouton pour vérifier la validité des clés.
+    /// État du bouton pour déclencher la vérification de validité des clés.
     check_button: button::State,
-    //La page de validation se sert de la liste de tests directement présente dans check_enc.rs, étant donnée que celle-ci est publique, nous n'avons pas besoin de garder une référence
 
-    //Liste des messages d'erreur
+    /// Liste des messages d'erreur affichés à l'utilisateur.
     error_messages: Vec<String>,
 }
 
 
-/// Crée une nouvelle instance de `ValidRsaChifPage` avec des valeurs initiales vides
-/// et un test de sécurité par défaut.
+/// Initialise une nouvelle page "Validité Chiffrement RSA".
+/// Les champs de clés sont vides par défaut.
 impl ValidRsaChifPage {
     pub fn new() -> Self {
         Self {
@@ -72,13 +70,15 @@ impl ValidRsaChifPage {
 
 
     /// Génère la vue de la page en affichant les champs de saisie, les boutons, et les résultats des tests.
-    /// Organisation : 6 gros élements : 
+    /// Organisation : 8 gros élements : 
+    /// -Boutton de retour a la page d'accueil
     /// -Titre
     /// -Boutton génération de valeurs
     /// -Section avec champs pour clé publique
     /// -Section avec champs pour clé privée
     /// -Boutton de validation
     /// -Section pour les résultats des tests
+    /// -Section d'affichage des messages d'erreur
     pub fn view(&self) -> Element<gui::Message> {
         let title = Text::new("Validité Chiffrement RSA")
             .size(48)
@@ -214,7 +214,7 @@ impl ValidRsaChifPage {
             },
         );
 
-
+        //Wrapper qui va contenir tous les élements de la page
         let wrapper = Column::new()
             .align_items(Alignment::Center)
             .spacing(20)
@@ -228,6 +228,7 @@ impl ValidRsaChifPage {
             .push(test_results)
             .push(error_message_section);
 
+        //On ajoute notre wrapper a notre page
         container(wrapper)
             .width(Length::Fill)
             .height(Length::Fill)
@@ -237,29 +238,23 @@ impl ValidRsaChifPage {
             .into()
     }
 
+
     //Getter et setter :
-
-    /// Retourne l'état actuel des tests de sécurité. 
-    pub fn get_tests_status(&self) -> Vec<TestStatus> {
-        ALL_TEST_STATUS_VALID_RSA.lock().unwrap().clone()
-    }
-
-
-    /// Méthode de test : Affiche dans la console les valeurs saisies, ainsi que le produit p*q.
-    pub fn display_values(&self) {
-        let p : num_bigint::BigUint = self.p_value.parse().expect("Echec conversion");
-        let q : num_bigint::BigUint = self.q_value.parse().expect("Echec conversion");
-        println!("Values are: N:{}\n, E:{}\n, P:{}\n, Q:{}\n, D:{}\n, p*q = {}\n",self.n_value.clone(), self.e_value.clone(),self.p_value.clone(),self.q_value.clone(),self.d_value.clone(),p*q);
-    }
-
-
+    //Ajouter un message d'erreur a error_messages, qui est un vecteur auquel est lié : error_message_section
     fn add_error_message(&mut self, msg: &str) {
         self.error_messages.push(msg.to_string());
     }
 
+    //fonction qui vide le vecteur error_messages (et donc aussi error_message_section )
     pub fn remove_all_error_message(&mut self){
         self.error_messages.clear();
     }
+
+    //Remet tous les status de la liste a faux 
+        pub fn reset_status(&mut self){//Permet a gui d'appeler all_status_to_false, sans connaitre ALL_TEST_STATUS_VCALID_RSA
+        all_status_to_false(&mut ALL_TEST_STATUS_VALID_RSA.lock().unwrap());
+    }
+    
 
     /// Vérifie la validité de la clé RSA en exécutant tous les tests de sécurité.
     /// Met à jour les résultats des tests dans l'état de la page.
@@ -280,16 +275,14 @@ impl ValidRsaChifPage {
             }
         }
     }
-    pub fn reset_status(&mut self){//Permet a gui d'appeler all_status_to_false, sans connaitre ALL_TEST_STATUS_VCALID_RSA
-        all_status_to_false(&mut ALL_TEST_STATUS_VALID_RSA.lock().unwrap());
-    }
+
 
 
 }
 
 
 use std::str::FromStr;
-/// Fonction de validation des entré (vérif que ce sont bien des entiers valide)
+/// Fonction de validation des entré (vérif que ce sont bien des entiers valide sinon ajout un message d'erreur pour chacun des invalides)
 fn validate_inputs(n_value: &str, e_value: &str, p_value: &str, q_value: &str, d_value: &str) -> Result<(), Vec<String>> {
     let mut errors = Vec::new();
 

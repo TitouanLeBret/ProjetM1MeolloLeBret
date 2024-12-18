@@ -2,12 +2,10 @@ use iced::widget::{button, container, text, Button, Checkbox, Column, Row, Text}
 use iced::{Alignment, Element, Length};
 use iced::alignment::Horizontal;
 use iced::Color;
-
 use super::gui;
 use crate::rsa::safe_enc;
 use super::components::MyTextInput;
 use crate::rsa::utils::TestStatus; // Pour utiliser directement TestStatus et pas check_enc::TestStatus
-
 use crate::rsa::utils::all_status_to_false; // Pour remettre tous les status à false
 use crate::rsa::safe_enc::ALL_TEST_STATUS_SECU_RSA; // Pour utiliser la liste de check_enc.rs
 
@@ -30,7 +28,7 @@ pub struct SafeRsaChifPage {
     decrypted_message : String,
 }
 
-/// Crée une nouvelle instance de `ValidRsaChifPage` avec des valeurs initiales vides.
+/// Méthodes pour manipuler et afficher la page `SafeRsaChifPage`.
 impl SafeRsaChifPage {
     pub fn new() -> Self {
         Self {
@@ -57,6 +55,7 @@ impl SafeRsaChifPage {
 
     /// Génère la vue de la page en affichant les champs de saisie, les boutons, et les résultats des tests.
     pub fn view(&self) -> Element<gui::Message> {
+        // Titre principal
         let title = Text::new("Sécurité Chiffrement RSA")
             .size(48)
             .horizontal_alignment(Horizontal::Center)
@@ -121,6 +120,7 @@ impl SafeRsaChifPage {
                 Text::new(self.decrypted_message.clone())
             );
 
+        //Wrapper qui va contenir tous les élements de la page
         let wrapper = Column::new()
             .align_items(Alignment::Center)
             .spacing(20)
@@ -134,6 +134,7 @@ impl SafeRsaChifPage {
             .push(test_results)
             .push(error_message_section);
 
+        //On ajoute notre wrapper a la page
         container(wrapper)
             .width(Length::Fill)
             .height(Length::Fill)
@@ -158,10 +159,12 @@ impl SafeRsaChifPage {
         self.error_messages.clear();
     }
 
+    //Affiche le message souhaité
     pub fn display_message(&mut self, msg: &str){
         self.decrypted_message += &(msg.to_string()+&String::from("\n"));
     }
 
+    //Retire le(s) message(s) affiché(s)
     pub fn remove_display_message(&mut self) {
         self.decrypted_message = String::new();
     }
@@ -187,7 +190,7 @@ impl SafeRsaChifPage {
         }
     }
 
-
+    //Remets tous les status a false
     pub fn reset_status(&mut self){//Permet a gui d'appeler all_status_to_false, sans connaitre ALL_TEST_STATUS_SECU_RSA
         all_status_to_false(&mut ALL_TEST_STATUS_SECU_RSA.lock().unwrap());
     }

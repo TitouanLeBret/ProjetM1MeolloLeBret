@@ -1,26 +1,29 @@
-// Modules ... 
+// Modules
 use iced::widget::{text, Button, Column, Text};
 use iced::Element;
-
 use super::gui;
 
 
 
 /// Structure représentant la page d'accueil.
-///
-/// Elle peut être étendue pour inclure des éléments interactifs supplémentaires.
 pub struct HomePage {
     // Ajouter d’autres boutons si nécessaire
 }
 
-/// Structure représentant la page d'accueil.
-///
-/// Elle peut être étendue pour inclure des éléments interactifs supplémentaires.
+
 
 impl HomePage {
+    /// Crée une nouvelle instance de la page d'accueil.
+    /// À utiliser lors de l'initialisation de l'application.
     pub fn new() -> Self {Self {}}
 
     ///Affiche le contenu de la page d'accueil
+    ///
+    /// Cette méthode génère une colonne contenant :
+    /// - Un texte de bienvenue
+    /// - Deux boutons pour naviguer vers les pages de test (validité et sécurité du chiffrement RSA)
+    ///
+
     pub fn view(&self) -> Element<gui::Message> {
         Column::new()
             .push(text("Bienvenue sur notre application de test sur RSA!"))
@@ -32,18 +35,6 @@ impl HomePage {
                 .on_press(gui::Message::Router(gui::Page::SecuriteRsaChiffrement)))
             // Ajouter les autres boutons ici
             .into()
-    }
-
-
-    /// Met à jour l'état de la page en fonction des messages reçus.
-    ///
-    /// # Arguments
-    ///
-    /// * `_message` - Le message spécifique à cette page.
-    ///
-    /// Remarque : Aucun comportement spécifique ici pour la page d'accueil.
-    pub fn update(&mut self, _message: gui::PageMessage) {
-        // Pas de logique spécifique ici pour la page d'accueil
     }
 }
 

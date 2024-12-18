@@ -1,103 +1,99 @@
-// Rust UI - Iced
-
-// Modules ... 
+// Modules iced
 use iced::theme::Theme;
 use iced::widget::button;
 use iced:: { Sandbox, Element, Background, Shadow, Vector, Border};
-
-//Nos propres modules 
+//Nos modules 
 use super::check_enc_page;
 use super::safe_enc_page;
 use super::home_page;
-
 use crate::rsa::keygen::generate_rsa_private_key;
 use crate::rsa::keygen::generate_rsa_public_key;
 
 
-
-
-
-
+// Structure principale de l'application
 pub struct App{
     current_page: Page, // Page 1,2 ,3 etc 
     home_page : home_page::HomePage,
     valid_rsa_chif_page: check_enc_page::ValidRsaChifPage,
     secu_rsa_chif_page : safe_enc_page::SafeRsaChifPage,
-    theme: Theme, // Noir ou blanc
+    theme: Theme,
 }
 
 impl Sandbox for App{
     type Message = Message;
 
+    // Initialisation de l'application
     fn new() -> Self {
         Self {
             current_page: Page::Home, // Page 1,2 ,3 etc 
             home_page : home_page::HomePage::new(),
             valid_rsa_chif_page: check_enc_page::ValidRsaChifPage::new(),
             secu_rsa_chif_page : safe_enc_page::SafeRsaChifPage::new(),
-            theme: Theme::Dark, // Drak theme
+            theme: Theme::Dark, 
         }
     }
 
-    //Définir la méthode update
+    // Méthode update pour gérer les événements
     fn update(&mut self, message: Message) {
         match message {
 
+            // Changement de page
             Message::Router(page)=> {
                 self.current_page = page;
             }
-//Méthode pour page RSA Chiffrement :
 
+            // Mise à jour des champs pour la page "Validité RSA Chiffrement"
             Message::FieldChangedRsaChiff(n_val,p_val ,q_val ,e_val ,d_val ) => {
                 self.valid_rsa_chif_page.update(n_val,p_val ,q_val ,e_val ,d_val );
             }
 
+            // Mise à jour des champs pour la page "Sécurité RSA Chiffrement"
             Message::FieldChangedRsaChiffSecu(n_val,e_val ,ct_val ) => {
                 self.secu_rsa_chif_page.update(n_val,e_val,ct_val);
             }
 
+            // Vérification des valeurs pour la page "Validité RSA Chiffrement"
             Message::CheckButtonPressedRsaChiff =>{
                 self.valid_rsa_chif_page.check_values();
             }
 
+            // Vérification des valeurs pour la page "Sécurité RSA Chiffrement"
             Message::CheckButtonPressedRsaChiffSecu =>{
                 self.secu_rsa_chif_page.remove_display_message();
                 self.secu_rsa_chif_page.check_values();
             }
 
+            // Génération de nouvelles valeurs pour la page "Validité RSA Chiffrement" 
             Message::NewValuesRsaEnc => {
                 let key = generate_rsa_private_key(2048);
                 self.valid_rsa_chif_page.reset_status(); // Fonction qui va appeler all_status_to_false, mais faites pour ne pas avoir a passer ALL_TEST_STATUS_VALID_RSA ici 
                 self.valid_rsa_chif_page.remove_all_error_message(); // On mets de nouvelles valeurs donc on remet les status de tests a false
-                self.valid_rsa_chif_page.update(key[0].to_string(),key[2].to_string(),key[3].to_string(),key[1].to_string(),key[4].to_string());
+                self.valid_rsa_chif_page.update(
+                    key[0].to_string(),
+                    key[2].to_string(),
+                    key[3].to_string(),
+                    key[1].to_string(),
+                    key[4].to_string(),
+                );
             }
 
+            // Génération de nouvelles valeurs pour la page "Sécurité RSA Chiffrement"
             Message::NewValuesRsaEncSecu => {
                 let key = generate_rsa_public_key(2048); // Génere une clé publique valide et un ct valide
                 self.secu_rsa_chif_page.reset_status(); // Fonction qui va appeler all_status_to_false, mais faites pour ne pas avoir a passer ALL_TEST_STATUS_VALID_RSA ici 
                 self.secu_rsa_chif_page.remove_all_error_message(); // On mets de nouvelles valeurs donc on remet les status de tests a false
                 self.secu_rsa_chif_page.remove_display_message();
-                self.secu_rsa_chif_page.update(key[0].to_string(),key[1].to_string(),key[2].to_string());
+                self.secu_rsa_chif_page.update(
+                    key[0].to_string(),
+                    key[1].to_string(),
+                    key[2].to_string(),
+                );
             }
-
-
-
-
-//Méthode pour changer le Thème :
-
-            Message::ToggleTheme => {
-                self.theme = if self.theme == Theme::Light {
-                    Theme::Dark
-                }else {
-                    Theme::Light
-                }
-            }
-            
         }
     }
 
 
-    //Méthode view -> c'est ou l'UI va chercher la page
+    //Méthode view -> permet d'afficher la page actuelle
     fn view(&self) -> Element<Message> {
         match self.current_page {
             Page::Home => self.home_page.view(),
@@ -106,74 +102,41 @@ impl Sandbox for App{
         }
     }
 
-
-
-    //definir le titre de l'app
+    // Titre de l'application
     fn title(&self) -> String {
         String::from("Projet Rust RSA")
     }
 
     fn theme(&self) ->Theme {
-        self.theme.clone() //retourne une copie du theme
+        self.theme.clone()
     }
-
 }
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-//enum pour les pages, chaque variable dans Page va créer une nouvelle view/page
+// Enum pour les pages (router)
 #[derive(Debug,Clone,PartialEq,Eq)]
 pub enum Page {
     Home,
     ValiditeRSAChiffrement,
     SecuriteRsaChiffrement,
-} // liste des pages
+    //Rajouter des pages si on en créer de nouvelles
+} 
 
 
-
-//callback events
+// Enum pour les événements/callback (ces callback sont définis au dessus)
 #[derive(Debug,Clone)]
 pub enum Message{
     Router(Page), // Change la page en fonction de la route indique
-    //PageSpecific(PageMessage),
-    //Méthode call back RSA Chiffrement
     FieldChangedRsaChiff(String, String, String, String, String),
     FieldChangedRsaChiffSecu(String,String,String),
     CheckButtonPressedRsaChiff,
     CheckButtonPressedRsaChiffSecu,
     NewValuesRsaEnc,
     NewValuesRsaEncSecu,
-
-    //'a est le lifetime de la ref emprunte sur ValidRsaChifPage, valable aussi longtemp que Message<'a>
-    ToggleTheme, //light/dark
-
-
 }
 
-
-#[derive(Debug, Clone)]
-pub enum PageMessage {
-    // Messages spécifiques à chaque page
-    FieldChanged(String),
-    ButtonPressed,
-}
-
-
-pub trait PageContent {
-    fn view(&self) -> Element<Message>;
-    fn update(&mut self, message: PageMessage);
-}
 
 
 

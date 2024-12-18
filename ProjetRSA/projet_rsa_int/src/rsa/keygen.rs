@@ -3,7 +3,7 @@ use rsa::BigUint as RsaBigUint;
 use rsa::traits:: {PrivateKeyParts,PublicKeyParts}; 
 
 
-//Fonction de génération de la clef RSA : // A mettre dans keygen.rs peut etre ? 
+//Fonction de génération de la clef RSA (publique et privée) :
 pub fn generate_rsa_private_key(bits: usize) -> Vec<RsaBigUint> {
     //On créer une clef RSA 
     let mut rng = rand::thread_rng();
@@ -17,7 +17,7 @@ pub fn generate_rsa_private_key(bits: usize) -> Vec<RsaBigUint> {
     vec![n,e,p,q,d]
 }
 
-//Fonction de génération de la public clef RSA et d'un chiffré pour "Hello, world!": 
+//Fonction de génération de la clef (publique) RSA et d'un chiffré pour "Hello, world!": 
 pub fn generate_rsa_public_key(bits: usize) -> Vec<RsaBigUint> {
     //On créer une clef RSA 
     let mut rng = rand::thread_rng();
@@ -40,10 +40,10 @@ pub fn generate_rsa_public_key(bits: usize) -> Vec<RsaBigUint> {
     vec![n,e,ct]
 }
 
-pub fn try_to_decrypt(ct : &RsaBigUint, priv_key : &RsaPrivateKey) {
+//Fonction qui essaye de déchiffré le ct a partir de la sk
+fn try_to_decrypt(ct : &RsaBigUint, priv_key : &RsaPrivateKey) {
     let encrypted_bytes = ct.to_bytes_be(); // Convertir BigUint en Vec<u8>
-    let decrypted_data = priv_key
+    let _decrypted_data = priv_key
         .decrypt(Pkcs1v15Encrypt, &encrypted_bytes)
         .expect("Échec du déchiffrement");
-    println!("{:?}", String::from_utf8(decrypted_data).expect("échec du déchiffrement"));
 }
